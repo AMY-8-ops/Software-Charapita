@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto de Venta - Charapita SAC</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <div class="pos-layout">
+            <section class="pos-left-panel">
+                <h2 class="pos-section-title">1. Buscar Productos</h2>
+
+                <div class="pos-search-row">
+                    <div class="pos-input-group">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Buscar por nombre o codigo..">
+                    </div>
+                    <button class="pos-btn-scan">
+                        <i class="fa-solid fa-barcode"></i> Escanear codigo
+                    </button>
+                </div>
+
+                <div class="pos-categories">
+                    <button class="pos-cat-btn active">Todos</button>
+                    <button class="pos-cat-btn">Carnes</button>
+                    <button class="pos-cat-btn">Ahumados</button>
+                    <button class="pos-cat-btn">Embutidos</button>
+                    <button class="pos-cat-btn">Pollo</button>
+                    <button class="pos-cat-btn">Cerdo</button>
+                    <button class="pos-cat-btn">Otros</button>
+                </div>
+
+                <div class="pos-products-grid">
+                    <div class="pos-product-card">
+                        <div class="pos-card-body">
+                            <img src="../img/placeholder-prod.png" alt="[producto]">
+                            <div class="pos-prod-info">
+                                <h4>[producto]</h4>
+                                <small>Codigo: [codigo]</small>
+                                <strong>S/[precio]/kg</strong>
+                            </div>
+                        </div>
+                        <div class="pos-stock-badge pos-stock-ok">Stock: [stock]kg</div>
+                    </div>
+
+                    <div class="pos-product-card">
+                        <div class="pos-card-body">
+                            <img src="../img/placeholder-prod.png" alt="[producto]">
+                            <div class="pos-prod-info">
+                                <h4>[producto]</h4>
+                                <small>Codigo: [codigo]</small>
+                                <strong>S/[precio]/kg</strong>
+                            </div>
+                        </div>
+                        <div class="pos-stock-badge pos-stock-ok">Stock: [stock]kg</div>
+                    </div>
+
+                    <div class="pos-product-card">
+                        <div class="pos-card-body">
+                            <img src="../img/placeholder-prod.png" alt="[producto]">
+                            <div class="pos-prod-info">
+                                <h4>[producto]</h4>
+                                <small>Codigo: [codigo]</small>
+                                <strong>S/[precio]/kg</strong>
+                            </div>
+                        </div>
+                        <div class="pos-stock-badge pos-stock-bajo">Stock: [stock]kg</div>
+                    </div>
+
+                    <div class="pos-product-card">
+                        <div class="pos-card-body">
+                            <img src="../img/placeholder-prod.png" alt="[producto]">
+                            <div class="pos-prod-info">
+                                <h4>[producto]</h4>
+                                <small>Codigo: [codigo]</small>
+                                <strong>S/[precio]/kg</strong>
+                            </div>
+                        </div>
+                        <div class="pos-stock-badge pos-stock-critico">Stock: [stock]kg</div>
+                    </div>
+                </div>
+
+                <div class="pos-legend">
+                    <span><i class="fa-solid fa-circle" style="color: #2ecc71;"></i> Stock OK</span>
+                    <span><i class="fa-solid fa-circle" style="color: #f39c12;"></i> Stock Bajo (< 10 kg)</span>
+                            <span><i class="fa-solid fa-circle" style="color: #e74c3c;"></i> Stock Critico (< 3
+                                    kg)</span>
+                </div>
+            </section>
+
+            <section class="pos-right-panel">
+                <h2 class="pos-section-title">2. Carrito de Compras</h2>
+
+                <div class="pos-cart-container">
+                    <table class="pos-cart-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Accion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <span class="pos-cart-prod-name">[producto]</span><br>
+                                    <small>([codigo])</small>
+                                </td>
+                                <td>
+                                    <div class="pos-qty-control">
+                                        <button class="pos-qty-btn">-</button>
+                                        <input type="text" value="[cantidad]">
+                                        <span class="pos-qty-unit">kg</span>
+                                        <button class="pos-qty-btn">+</button>
+                                    </div>
+                                </td>
+                                <td>S/[precio_unit]</td>
+                                <td>S/[subtotal]</td>
+                                <td>
+                                    <button class="pos-btn-delete"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <span class="pos-cart-prod-name">[producto]</span><br>
+                                    <small>([codigo])</small>
+                                </td>
+                                <td>
+                                    <div class="pos-qty-control">
+                                        <button class="pos-qty-btn">-</button>
+                                        <input type="text" value="[cantidad]">
+                                        <span class="pos-qty-unit">kg</span>
+                                        <button class="pos-qty-btn">+</button>
+                                    </div>
+                                </td>
+                                <td>S/[precio_unit]</td>
+                                <td>S/[subtotal]</td>
+                                <td>
+                                    <button class="pos-btn-delete"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pos-summary-box">
+                    <div class="pos-summary-row">
+                        <span>Subtotal</span>
+                        <span>S/[valor]</span>
+                    </div>
+                    <div class="pos-summary-row">
+                        <span>IGV(18%)</span>
+                        <span>S/[valor]</span>
+                    </div>
+                    <div class="pos-summary-row">
+                        <span>Descuento (S/)</span>
+                        <span>S/[valor]</span>
+                    </div>
+                    <div class="pos-summary-row pos-total-row">
+                        <span>TOTAL</span>
+                        <span>S/[total_final]</span>
+                    </div>
+                </div>
+
+                <div class="pos-payment-section">
+                    <div class="pos-payment-header">
+                        <h3>Selecciona el medio de pago</h3>
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                    <div class="pos-payment-grid">
+                        <div class="pos-pay-method active">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span>Efectivo</span>
+                        </div>
+                        <div class="pos-pay-method">
+                            <img src="../img/yape-logo.png" alt="Yape" class="pos-pay-logo">
+                            <span>Yape</span>
+                        </div>
+                        <div class="pos-pay-method">
+                            <img src="../img/plin-logo.png" alt="Plin" class="pos-pay-logo">
+                            <span>Plin</span>
+                        </div>
+                        <div class="pos-pay-method">
+                            <i class="fa-solid fa-building-columns"></i>
+                            <span>Transferencia Bancaria</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="pos-btn-confirm" th:href="@{/nuevaventa/confirmar}" href="confirmar.html">
+                    <i class="fa-solid fa-file-invoice"></i> PAGAR / CONFIRMAR VENTA
+                </a>
+            </section>
+        </div>
+
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+
+</html>

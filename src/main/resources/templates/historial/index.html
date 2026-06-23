@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Ventas - Charapita SAC</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+        
+        <div class="hist-header-text">
+            <p>Consulta, imprime o anula ventas realizadas</p>
+        </div>
+
+        <div class="hist-layout">
+            
+            <section class="hist-main-section">
+                
+                <div class="hist-filters-bar">
+                    <div class="hist-filter-group">
+                        <label>Rango de fechas</label>
+                        <div class="hist-date-inputs">
+                            <div class="hist-input-with-icon">
+                                <span>Desde</span>
+                                <input type="date" value="[fecha_inicio]">
+                            </div>
+                            <div class="hist-input-with-icon">
+                                <span>Hasta</span>
+                                <input type="date" value="[fecha_fin]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hist-filter-group">
+                        <label>Tipo de comprobante</label>
+                        <select class="hist-select">
+                            <option>Todos</option>
+                            <option>Boleta</option>
+                            <option>Factura</option>
+                        </select>
+                    </div>
+
+                    <div class="hist-filter-group">
+                        <label>Estado</label>
+                        <select class="hist-select">
+                            <option>Todas</option>
+                            <option>Completada</option>
+                            <option>Anulada</option>
+                        </select>
+                    </div>
+
+                    <div class="hist-filter-group hist-search-group">
+                        <label>&nbsp;</label>
+                        <div class="hist-search-input">
+                            <input type="text" placeholder="Buscar por Nº comprobante, cliente o DNI">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hist-actions-bar">
+                    <button class="hist-btn-buscar"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    <button class="hist-btn-limpiar"><i class="fa-solid fa-rotate-left"></i> Limpiar filtros</button>
+                </div>
+
+                <div class="hist-table-header">
+                    <i class="fa-solid fa-file-lines"></i> Total de ventas: [total_ventas]
+                </div>
+
+                <div class="hist-table-container">
+                    <table class="hist-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Comprobante <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Cliente <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Pago <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Total (S/) <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Vendedor <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Estado <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                                <th>Acciones <i class="fa-solid fa-arrow-down-a-z"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>[fecha]<br><small>[hora]</small></td>
+                                <td>[tipo_comprobante]<br><strong>[num_comprobante]</strong></td>
+                                <td>[nombre_cliente]<br><small>DNI:[dni_cliente]</small></td>
+                                <td><span class="hist-badge hist-bg-efectivo">Efectivo</span></td>
+                                <td>S/[total]</td>
+                                <td>[vendedor]</td>
+                                <td><span class="hist-badge hist-bg-completada">Completada</span></td>
+                                <td>
+                                    <div class="hist-action-btns">
+                                        <button class="hist-btn-icon hist-btn-view" title="Ver detalle"><i class="fa-regular fa-eye"></i></button>
+                                        <button class="hist-btn-icon" title="Imprimir"><i class="fa-solid fa-print"></i></button>
+                                        <button class="hist-btn-icon" title="Opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr>
+                                <td>[fecha]<br><small>[hora]</small></td>
+                                <td>[tipo_comprobante]<br><strong>[num_comprobante]</strong></td>
+                                <td>[nombre_cliente]<br><small>DNI:[dni_cliente]</small></td>
+                                <td><span class="hist-badge hist-bg-yape">Yape</span></td>
+                                <td>S/[total]</td>
+                                <td>[vendedor]</td>
+                                <td><span class="hist-badge hist-bg-completada">Completada</span></td>
+                                <td>
+                                    <div class="hist-action-btns">
+                                        <button class="hist-btn-icon hist-btn-view" title="Ver detalle"><i class="fa-regular fa-eye"></i></button>
+                                        <button class="hist-btn-icon" title="Imprimir"><i class="fa-solid fa-print"></i></button>
+                                        <button class="hist-btn-icon" title="Opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="hist-row-anulada">
+                                <td>[fecha]<br><small>[hora]</small></td>
+                                <td>[tipo_comprobante]<br><strong>[num_comprobante]</strong></td>
+                                <td>[nombre_cliente]<br><small>DNI:[dni_cliente]</small></td>
+                                <td><span class="hist-badge hist-bg-efectivo">Efectivo</span></td>
+                                <td>S/[total]</td>
+                                <td>[vendedor]</td>
+                                <td><span class="hist-badge hist-bg-anulada">Anulada</span></td>
+                                <td>
+                                    <div class="hist-action-btns">
+                                        <button class="hist-btn-icon hist-btn-view" title="Ver detalle"><i class="fa-regular fa-eye"></i></button>
+                                        <button class="hist-btn-icon" title="Imprimir"><i class="fa-solid fa-print"></i></button>
+                                        <button class="hist-btn-icon" title="Opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="hist-pagination-container">
+                    <div class="hist-pagination">
+                        <button class="hist-page-btn"><i class="fa-solid fa-angle-left"></i> Anterior</button>
+                        <button class="hist-page-btn active">1</button>
+                        <button class="hist-page-btn">2</button>
+                        <button class="hist-page-btn">3</button>
+                        <button class="hist-page-btn">4</button>
+                        <button class="hist-page-btn">...</button>
+                        <button class="hist-page-btn">Siguiente <i class="fa-solid fa-angle-right"></i></button>
+                    </div>
+                    <span class="hist-page-info">Mostrando 1 a 6 de [total_ventas] ventas</span>
+                </div>
+            </section>
+
+            <aside class="hist-detail-panel" id="histDetailPanel">
+                
+                <div class="hist-detail-header">
+                    <div class="hist-detail-title">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <h3>Detalle de la Venta</h3>
+                    </div>
+                    <button class="hist-btn-close-panel" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="hist-detail-body">
+                    <div class="hist-detail-grid">
+                        <div>
+                            <small>Comprobante:</small>
+                            <span class="hist-tag-blue">[tipo_comprobante] [num_comprobante]</span>
+                            
+                            <small class="hist-mt">Fecha y Hora:</small>
+                            <span>[fecha] [hora]</span>
+
+                            <small class="hist-mt">Vendedor:</small>
+                            <span><i class="fa-regular fa-user"></i> [vendedor]</span>
+                        </div>
+                        <div>
+                            <small>Cliente:</small>
+                            <span><i class="fa-regular fa-user"></i> [nombre_cliente]</span>
+                            
+                            <small class="hist-mt">DNI/RUC:</small>
+                            <span>[dni_ruc]</span>
+
+                            <small class="hist-mt">Pago:</small>
+                            <span class="hist-badge hist-bg-efectivo"><i class="fa-solid fa-check-circle"></i> [metodo_pago]</span>
+                        </div>
+                    </div>
+
+                    <div class="hist-products-list">
+                        <h4><i class="fa-solid fa-cart-shopping"></i> Productos Vendidos</h4>
+                        <table class="hist-prod-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>P. Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                 <tr>
+                                    <td>
+                                        <div class="hist-prod-cell">
+                                            <img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" alt="img">
+                                            <div>
+                                                <span>[producto]</span><br>
+                                                <small>([codigo])</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>[cantidad] kg</td>
+                                    <td>S/[precio_unit]</td>
+                                    <td>S/[subtotal]</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="hist-prod-cell">
+                                            <img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" alt="img">
+                                            <div>
+                                                <span>[producto]</span><br>
+                                                <small>([codigo])</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>[cantidad] kg</td>
+                                    <td>S/[precio_unit]</td>
+                                    <td>S/[subtotal]</td>
+                                </tr>>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="hist-detail-totals">
+                        <div class="hist-tot-row">
+                            <span>Subtotal</span>
+                            <span>S/[valor]</span>
+                        </div>
+                        <div class="hist-tot-row">
+                            <span>IGV(18%)</span>
+                            <span>S/[valor]</span>
+                        </div>
+                        <div class="hist-tot-row">
+                            <span>Descuento (S/)</span>
+                            <span>S/[valor]</span>
+                        </div>
+                        <div class="hist-tot-row hist-tot-final">
+                            <span>TOTAL</span>
+                            <span>S/[total_final]</span>
+                        </div>
+                    </div>
+
+                    <div class="hist-detail-actions">
+                        <button class="hist-btn-blue"><i class="fa-solid fa-print"></i> Imprimir</button>
+                        <button class="hist-btn-purple"><i class="fa-solid fa-envelope"></i> Enviar por Email</button>
+                        <button class="hist-btn-green"><i class="fa-solid fa-file-pdf"></i> Ver PDF</button>
+                    </div>
+                </div>
+
+                <div class="hist-danger-zone">
+                    <h4 class="hist-danger-title"><i class="fa-solid fa-triangle-exclamation"></i> Anular esta venta</h4>
+                    <p class="hist-danger-text">Al anular, el stock de los productos se devolvera automaticamente al inventario.</p>
+                    
+                    <div class="hist-form-group">
+                        <label>Motivo de anulacion<span style="color:red">*</span></label>
+                        <select class="hist-select">
+                            <option>Selecciona el motivo de anulacion</option>
+                        </select>
+                    </div>
+                    
+                    <div class="hist-form-group">
+                        <label>Observaciones (opcional)</label>
+                        <textarea class="hist-textarea" placeholder="Escribe una nota adicional..."></textarea>
+                    </div>
+
+                    <button class="hist-btn-danger"><i class="fa-solid fa-ban"></i> Anular Venta</button>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+</html>

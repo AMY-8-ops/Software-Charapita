@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Venta - Charapita SAC</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <div class="cv-wrapper">
+
+            <header class="cv-header">
+                <div class="cv-header-left">
+                    <div class="cv-icon-circle">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <div>
+                        <h2 class="cv-title">Confirmar Venta</h2>
+                        <span class="cv-subtitle">Completa la informacion para generar el comprobante</span>
+                    </div>
+                </div>
+                <a th:href="@{/nuevaventa}" href="/nuevaventa/index.html" class="cv-btn-close" title="Cerrar">
+                    <i class="fa-solid fa-xmark"></i>
+                </a>
+            </header>
+
+            <div class="cv-body-grid">
+
+                <section class="cv-col">
+                    <h3 class="cv-section-title">1. Datos del Cliente</h3>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Tipo de cliente</label>
+                        <div class="cv-toggle-btns">
+                            <button class="cv-toggle-btn active" data-target="cliente">Cliente registrado</button>
+                            <button class="cv-toggle-btn" data-target="cliente">Cliente ocasional</button>
+                        </div>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Cliente</label>
+                        <div class="cv-input-with-btn">
+                            <div class="cv-select-wrapper">
+                                <i class="fa-regular fa-user cv-input-icon"></i>
+                                <select class="cv-select">
+                                    <option>[nombre_cliente] - DNI:[dni_cliente]</option>
+                                </select>
+                            </div>
+                            <button class="cv-btn-add"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">DNI/RUC</label>
+                        <input type="text" class="cv-input" value="[dni_ruc]" readonly>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Direccion</label>
+                        <input type="text" class="cv-input" value="[direccion_cliente]" readonly>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Correo electronico</label>
+                        <input type="email" class="cv-input" value="[correo_cliente]" readonly>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Telefono</label>
+                        <input type="text" class="cv-input" value="[telefono_cliente]" readonly>
+                    </div>
+
+                    <button class="cv-btn-edit-client">
+                        <i class="fa-solid fa-pen"></i> Editar cliente
+                    </button>
+                </section>
+
+                <section class="cv-col">
+                    <h3 class="cv-section-title">2. Tipo de Comprobante</h3>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Tipo de comprobante</label>
+                        <div class="cv-document-types">
+                            <div class="cv-doc-box active" data-target="comprobante">
+                                <i class="fa-solid fa-circle-dot cv-radio-icon"></i>
+                                <i class="fa-solid fa-file-invoice cv-doc-icon"></i>
+                                <strong>Boleta</strong>
+                                <small>Para consumidores finales</small>
+                            </div>
+                            <div class="cv-doc-box" data-target="comprobante">
+                                <i class="fa-regular fa-circle cv-radio-icon"></i>
+                                <i class="fa-solid fa-file-lines cv-doc-icon"></i>
+                                <strong>Factura</strong>
+                                <small>Para empresas</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cv-row-2">
+                        <div class="cv-form-group">
+                            <label class="cv-label">Serie<span class="cv-text-red">*</span></label>
+                            <select class="cv-select">
+                                <option>[serie_comprobante]</option>
+                            </select>
+                        </div>
+                        <div class="cv-form-group">
+                            <label class="cv-label">Numero<span class="cv-text-red">*</span></label>
+                            <div class="cv-input-locked">
+                                <input type="text" value="Automatico" readonly>
+                                <i class="fa-solid fa-lock"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cv-info-alert">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p>El numero se generara automaticamente al confirmar la venta.</p>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Fecha de emision</label>
+                        <div class="cv-input-icon-left">
+                            <i class="fa-regular fa-calendar"></i>
+                            <input type="text" class="cv-input" value="[fecha_emision]" readonly>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="cv-col cv-col-gray">
+                    <h3 class="cv-section-title">3. Resumen de la Venta</h3>
+
+                    <div class="cv-table-wrapper">
+                        <table class="cv-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>P. Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>[producto]<br><small>([codigo])</small></td>
+                                    <td>[cantidad] kg</td>
+                                    <td>S/[precio_unit]</td>
+                                    <td>S/[subtotal]</td>
+                                </tr>
+                                <tr>
+                                    <td>[producto]<br><small>([codigo])</small></td>
+                                    <td>[cantidad] kg</td>
+                                    <td>S/[precio_unit]</td>
+                                    <td>S/[subtotal]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="cv-totals-box">
+                        <div class="cv-total-row">
+                            <span>Subtotal</span>
+                            <span>S/[valor]</span>
+                        </div>
+                        <div class="cv-total-row">
+                            <span>IGV(18%)</span>
+                            <span>S/[valor]</span>
+                        </div>
+                        <div class="cv-total-row">
+                            <span>Descuento</span>
+                            <span>-S/[valor]</span>
+                        </div>
+                        <div class="cv-final-row">
+                            <span>TOTAL A PAGAR</span>
+                            <span class="cv-text-red">S/[total_final]</span>
+                        </div>
+                    </div>
+
+                    <div class="cv-success-alert">
+                        <i class="fa-solid fa-shield-check cv-success-icon"></i>
+                        <div class="cv-success-info">
+                            <strong>Pago recibido</strong>
+                            <small>Metodo: [metodo_pago]</small>
+                        </div>
+                        <strong class="cv-success-amount">S/[total_final]</strong>
+                    </div>
+                </section>
+
+            </div>
+            <div class="cv-bottom-section">
+                <h3 class="cv-section-title">4. Información Adicional (Opcional)</h3>
+                <div class="cv-bottom-grid">
+                    <div class="cv-form-group">
+                        <label class="cv-label">Observaciones</label>
+                        <textarea class="cv-textarea"
+                            placeholder="Escribe alguna observacion o nota adicional.."></textarea>
+                    </div>
+                    <div class="cv-form-group">
+                        <label class="cv-label">Vendedor</label>
+                        <div class="cv-select-wrapper">
+                            <i class="fa-regular fa-user cv-input-icon"></i>
+                            <select class="cv-select">
+                                <option>[nombre_vendedor]</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="cv-actions-footer">
+                <button class="cv-btn-cancelar">Cancelar</button>
+                <button class="cv-btn-generar">
+                    <i class="fa-solid fa-file-invoice"></i> Generar Comprobante
+                </button>
+            </footer>
+
+        </div>
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+
+</html>

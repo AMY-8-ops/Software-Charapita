@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caja - Charapita SAC</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+        
+        <div class="caja-status-bar">
+            <div class="caja-status-item">
+                <span class="caja-label">Estado actual:</span>
+                <div class="caja-badge-status caja-bg-green">
+                    <i class="fa-solid fa-lock-open"></i> CAJA ABIERTA
+                </div>
+            </div>
+            <div class="caja-status-item caja-border-left">
+                <span class="caja-label">Cajero responsable:</span>
+                <strong><i class="fa-regular fa-user"></i> [nombre_cajero]</strong>
+            </div>
+            <div class="caja-status-item caja-border-left">
+                <span class="caja-label">Apertura realizada:</span>
+                <strong><i class="fa-regular fa-calendar"></i> [fecha_apertura]</strong>
+            </div>
+            <div class="caja-status-item caja-border-left">
+                <span class="caja-label">Monto inicial:</span>
+                <strong>S/[monto_inicial]</strong>
+            </div>
+        </div>
+
+        <div class="caja-action-panels">
+            
+            <section class="caja-panel caja-panel-cierre">
+                <div class="caja-panel-header">
+                    <i class="fa-solid fa-chart-simple caja-icon-green"></i>
+                    <div>
+                        <h3 class="caja-title-green">CIERRE DE CAJA</h3>
+                        <p class="caja-subtitle">Realiza el cierre y cuadre de caja al finalizar tu turno.</p>
+                    </div>
+                </div>
+
+                <div class="caja-cierre-grid">
+                    <div>
+                        <h4 class="caja-section-title"><i class="fa-solid fa-chart-column"></i> Resumen de Ventas del Turno</h4>
+                        
+                        <div class="caja-row-flex">
+                            <span>Ventas en Efectivo</span>
+                            <span>S/[ventas_efectivo]</span>
+                        </div>
+                        <div class="caja-row-flex">
+                            <span>Ventas Electrónicas (Yape/Plin/Tarjeta)</span>
+                            <span>S/[ventas_electronicas]</span>
+                        </div>
+                        <div class="caja-row-flex caja-total-row caja-text-green">
+                            <span>TOTAL VENTAS DEL TURNO</span>
+                            <span>S/[total_ventas]</span>
+                        </div>
+
+                        <div class="caja-form-group caja-mt-20">
+                            <label>Observaciones del Cierre (Opcional)</label>
+                            <textarea class="caja-textarea" placeholder="Escribe alguna observación sobre el cierre de caja.."></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="caja-section-title"><i class="fa-solid fa-calculator"></i> Cálculo de Cuadre de Efectivo</h4>
+                        
+                        <div class="caja-row-flex">
+                            <span>Monto Inicial de Apertura</span>
+                            <span>S/[monto_inicial]</span>
+                        </div>
+                        <div class="caja-row-flex">
+                            <span>(+) Ventas en Efectivo</span>
+                            <span>S/[ventas_efectivo]</span>
+                        </div>
+                        
+                        <div class="caja-row-flex caja-total-row caja-text-green">
+                            <span>MONTO ESPERADO EN CAJA</span>
+                            <span>S/[monto_esperado]</span>
+                        </div>
+
+                        <div class="caja-form-group caja-mt-15">
+                            <label>Monto Real en Efectivo (Contado fisico) <span class="caja-text-red">*</span></label>
+                            <div class="caja-input-group">
+                                <span>S/</span>
+                                <input type="number" step="0.01" value="[monto_real]" class="caja-input">
+                            </div>
+                        </div>
+
+                        <div class="caja-form-group">
+                            <label>DIFERENCIA (Sistema vs Contado)</label>
+                            <div class="caja-diferencia-box caja-bg-red-light">
+                                <span class="caja-text-red">- S/[diferencia]</span>
+                            </div>
+                        </div>
+
+                        <button class="caja-btn-green caja-btn-full">
+                            <i class="fa-solid fa-check"></i> Confirmar Cierre de Caja e Imprimir Reporte
+                        </button>
+                        <p class="caja-help-text">
+                            <i class="fa-solid fa-circle-info"></i> Al confirmar, se registrará el cierre y no podrás realizar mas ventas.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="caja-panel caja-panel-apertura">
+                <div class="caja-panel-header">
+                    <i class="fa-solid fa-lock caja-icon-red"></i>
+                    <div>
+                        <h3 class="caja-title-red">APERTURA DE CAJA</h3>
+                        <p class="caja-subtitle">Realiza la apertura para iniciar tu turno de trabajo.</p>
+                    </div>
+                </div>
+
+                <div class="caja-apertura-body">
+                    <div class="caja-form-group">
+                        <label>Monto Inicial de Apertura (S/)</label>
+                        <div class="caja-input-with-icon">
+                            <input type="number" step="0.01" placeholder="Ej: 200.00" class="caja-input">
+                            <i class="fa-solid fa-money-bill-1"></i>
+                        </div>
+                    </div>
+
+                    <div class="caja-form-group">
+                        <label>Observaciones de Apertura (Opcional)</label>
+                        <textarea class="caja-textarea" placeholder="Escribe alguna observación sobre la apertura de caja.."></textarea>
+                    </div>
+
+                    <div class="caja-alert-red">
+                        <i class="fa-solid fa-circle-exclamation"></i> Importante: Asegurate de contar el dinero inicial antes de abrir la caja.
+                    </div>
+
+                    <div class="caja-apertura-action">
+                        <button class="caja-btn-red">
+                            <i class="fa-solid fa-lock"></i> Realizar Apertura de Caja
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <section class="caja-history-section">
+            <div class="caja-history-header">
+                <h3>HISTORIAL DE MOVIMIENTOS DE CAJA</h3>
+                <select class="caja-select-filter">
+                    <option>Ultimos 10 registros</option>
+                    <option>Ultimos 30 registros</option>
+                    <option>Todos</option>
+                </select>
+            </div>
+
+            <div class="caja-table-responsive">
+                <table class="caja-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha de Apertura</th>
+                            <th>Fecha de Cierre</th>
+                            <th>Cajero</th>
+                            <th>Monto Inicial (S/)</th>
+                            <th>Ventas Efectivo (S/)</th>
+                            <th>Ventas Electronicas (S/)</th>
+                            <th>Monto Final (S/)</th>
+                            <th>Diferencia (S/)</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>[fecha_apertura]</td>
+                            <td>[fecha_cierre]</td>
+                            <td>[cajero]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td class="caja-text-red">- S/[dif]</td>
+                            <td><span class="caja-badge-table caja-bg-cerrada">CERRADA</span></td>
+                            <td>
+                                <div class="caja-action-btns">
+                                    <button class="caja-btn-icon"><i class="fa-solid fa-print"></i></button>
+                                    <button class="caja-btn-icon"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>[fecha_apertura]</td>
+                            <td>[fecha_cierre]</td>
+                            <td>[cajero]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td>S/[monto]</td>
+                            <td class="caja-text-green">+S/[dif]</td>
+                            <td><span class="caja-badge-table caja-bg-cerrada">CERRADA</span></td>
+                            <td>
+                                <div class="caja-action-btns">
+                                    <button class="caja-btn-icon"><i class="fa-solid fa-print"></i></button>
+                                    <button class="caja-btn-icon"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>[fecha_apertura]</td>
+                            <td>-</td>
+                            <td>[cajero]</td>
+                            <td>S/[monto]</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><span class="caja-badge-table caja-bg-abierta">ABIERTA</span></td>
+                            <td>
+                                <div class="caja-action-btns">
+                                    <button class="caja-btn-icon" disabled style="opacity: 0.5;"><i class="fa-solid fa-print"></i></button>
+                                    <button class="caja-btn-icon"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+</html>

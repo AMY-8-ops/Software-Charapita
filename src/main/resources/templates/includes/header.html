@@ -1,0 +1,32 @@
+<header class="main-header" xmlns:th="http://www.thymeleaf.org">
+    <div class="header-left">
+        <button id="btn-toggle-menu" class="btn-menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <img th:src="@{/img/logo.png}" src="/img/logo.png" alt="Logo Charapita SAC" class="logo-empresa">
+        
+        <div class="header-info">
+            <h1>CARNES Y AHUMADOS CHARAPITA SAC</h1>
+            <div class="user-details">
+                <span>Bienvenido: <strong>[user]</strong></span>
+                <span>Rol: <strong>[nombre del rol]</strong></span>
+                <span>Fecha y Hora: <strong>[fecha y hora actual]</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="caja-status">
+            <i class="fa-solid fa-lock-open"></i>
+            <div class="status-text">
+                <strong>[estado caja]</strong>
+                <small>[mensaje caja]</small>
+            </div>
+        </div>
+        
+        <button class="btn-accion-caja">
+            <i class="fa-solid fa-lock"></i> [texto boton caja]
+        </button>
+    </div>
+</header>

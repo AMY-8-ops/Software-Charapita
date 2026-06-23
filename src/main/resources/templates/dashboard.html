@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Charapita SAC</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon icon-green"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-title">VENTAS DEL DIA (S/)</span>
+                    <h3 class="kpi-value">[ventas_dia]</h3>
+                    <div class="kpi-vs text-green">
+                        <small>vs ayer</small>
+                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon icon-blue"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-title">PEDIDOS REALIZADOS</span>
+                    <h3 class="kpi-value">[pedidos_dia]</h3>
+                    <div class="kpi-vs text-green">
+                        <small>vs ayer</small>
+                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon icon-purple"><i class="fa-solid fa-vault"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-title">SALDO ACTUAL EN CAJA</span>
+                    <h3 class="kpi-value">[saldo_caja]</h3>
+                    <div class="kpi-vs text-green">
+                        <small>vs ayer</small>
+                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="kpi-info">
+                    <span class="kpi-title">ALERTAS STOCK CRÍTICO</span>
+                    <h3 class="kpi-value">[alertas_stock]</h3>
+                    <div class="kpi-vs text-red">
+                        <small>vs ayer</small>
+                        <span><i class="fa-solid fa-caret-down"></i> [porcentaje_vs_ayer]%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-box">
+                <div class="box-header">
+                    <h2>Ventas de la Semana (Soles)</h2>
+                    <select class="custom-select">
+                        <option>[filtro_tiempo]</option>
+                    </select>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <div class="box-header">
+                    <h2>Ventas por Categoría (%)</h2>
+                    <select class="custom-select">
+                        <option>[filtro_tiempo]</option>
+                    </select>
+                </div>
+                <div class="canvas-container canvas-pie">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="pie-footer">
+                    <span>Total Ventas</span>
+                    <strong>[total_ventas]</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-grid">
+            <div class="table-box">
+                <h2>Top 5 Productos con Menos Stock</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Stock Actual</th>
+                                <th>Stock Mínimo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="img/placeholder-prod.png" alt="Img">
+                                        <span>[producto]</span>
+                                    </div>
+                                </td>
+                                <td>[stock_actual] kg</td>
+                                <td>[stock_minimo] kg</td>
+                                <td><span class="badge badge-critico">[estado]</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="img/placeholder-prod.png" alt="Img">
+                                        <span>[producto]</span>
+                                    </div>
+                                </td>
+                                <td>[stock_actual] kg</td>
+                                <td>[stock_minimo] kg</td>
+                                <td><span class="badge badge-bajo">[estado]</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="box-footer">
+                    <a href="producto/index.html">Ver todos los productos <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <h2>Resumen de Mermas Recientes</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Motivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>[fecha]</td>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="img/placeholder-prod.png" alt="Img">
+                                        <span>[producto]</span>
+                                    </div>
+                                </td>
+                                <td>[cantidad] kg</td>
+                                <td>[motivo]</td>
+                            </tr>
+                            <tr>
+                                <td>[fecha]</td>
+                                <td>
+                                    <div class="product-cell">
+                                        <img src="img/placeholder-prod.png" alt="Img">
+                                        <span>[producto]</span>
+                                    </div>
+                                </td>
+                                <td>[cantidad] kg</td>
+                                <td>[motivo]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="box-footer">
+                    <a href="#">Ver todas las mermas <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+
+</html>

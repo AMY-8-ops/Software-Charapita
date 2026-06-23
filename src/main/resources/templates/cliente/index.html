@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Charapita SAC</title>
+    
+    <!-- Rutas absolutas -->
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- CONTENEDORES PARA LOS INCLUDES -->
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <!-- ==============================================
+             KPIs (INDICADORES SUPERIORES)
+        =============================================== -->
+        <div class="cli-kpi-grid">
+            <div class="cli-kpi-card">
+                <div class="cli-icon-box cli-bg-blue">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="cli-kpi-info">
+                    <span>TOTAL DE CLIENTES</span>
+                    <strong>[total_clientes]</strong>
+                    <small>Clientes registrados</small>
+                </div>
+            </div>
+
+            <div class="cli-kpi-card">
+                <div class="cli-icon-box cli-bg-green">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <div class="cli-kpi-info">
+                    <span>CLIENTES NUEVOS (MES)</span>
+                    <strong>[clientes_nuevos]</strong>
+                    <small>Ultimos 30 dias</small>
+                </div>
+            </div>
+
+            <div class="cli-kpi-card">
+                <div class="cli-icon-box cli-bg-orange">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="cli-kpi-info">
+                    <span>MEJOR CLIENTE</span>
+                    <strong>[mejor_cliente]</strong>
+                    <small>Total consumido: S/[total_mejor_cliente]</small>
+                </div>
+            </div>
+
+            <div class="cli-kpi-card">
+                <div class="cli-icon-box cli-bg-purple">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+                <div class="cli-kpi-info">
+                    <span>FRECUENCIA PROMEDIO</span>
+                    <strong>[frecuencia_promedio] días</strong>
+                    <small>Entre compras</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             BARRA DE HERRAMIENTAS
+        =============================================== -->
+        <div class="cli-toolbar">
+            <div class="cli-tools-left">
+                <div class="cli-search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Buscar por DNI, RUC o nombre del cliente...">
+                </div>
+                <div class="cli-filter-box">
+                    <span class="cli-filter-label">Tipo de cliente</span>
+                    <select class="cli-select">
+                        <option>Todos</option>
+                        <option>Persona Natural</option>
+                        <option>Empresa</option>
+                    </select>
+                </div>
+            </div>
+            <div class="cli-tools-right">
+                <button class="cli-btn-new" id="btnNuevoCliente">
+                    <i class="fa-solid fa-plus"></i> Nuevo Cliente
+                </button>
+            </div>
+        </div>
+
+        <!-- ==============================================
+             DISEÑO PRINCIPAL (TABLA + PANEL DERECHO)
+        =============================================== -->
+        <div class="cli-main-layout">
+            
+            <!-- TABLA DE CLIENTES -->
+            <div class="cli-table-section">
+                <table class="cli-table">
+                    <thead>
+                        <tr>
+                            <th>DNI/RUC</th>
+                            <th>Nombre / Razón Social</th>
+                            <th>Teléfono</th>
+                            <th>Correo Electrónico</th>
+                            <th>Ultima Compra</th>
+                            <th>Total Consumido (S/)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Fila Ejemplo 1 -->
+                        <tr>
+                            <td>[dni_ruc]</td>
+                            <td>[nombre_cliente]</td>
+                            <td><i class="fa-solid fa-phone cli-table-icon"></i> [telefono]</td>
+                            <td><i class="fa-solid fa-envelope cli-table-icon"></i> [correo]</td>
+                            <td><i class="fa-regular fa-calendar cli-table-icon"></i> [fecha_compra]</td>
+                            <td>S/ [total_consumido]</td>
+                            <td>
+                                <div class="cli-actions">
+                                    <button class="cli-action-btn btn-editar-cliente" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="cli-action-btn btn-historial-cliente" title="Ver Historial"><i class="fa-regular fa-clock"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Fila Ejemplo 2 -->
+                        <tr>
+                            <td>[dni_ruc]</td>
+                            <td>[nombre_cliente]</td>
+                            <td><i class="fa-solid fa-phone cli-table-icon"></i> [telefono]</td>
+                            <td><i class="fa-solid fa-envelope cli-table-icon"></i> [correo]</td>
+                            <td><i class="fa-regular fa-calendar cli-table-icon"></i> [fecha_compra]</td>
+                            <td>S/ [total_consumido]</td>
+                            <td>
+                                <div class="cli-actions">
+                                    <button class="cli-action-btn btn-editar-cliente" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="cli-action-btn btn-historial-cliente" title="Ver Historial"><i class="fa-regular fa-clock"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="cli-pagination-row">
+                    <small>Mostrando 1 a 5 de [total_clientes] clientes</small>
+                    <div class="cli-pagination">
+                        <span>&laquo;</span>
+                        <span>&lt;</span>
+                        <span class="active">1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>&gt;</span>
+                        <span>&raquo;</span>
+                    </div>
+                    <select class="cli-select-page">
+                        <option>10 por página</option>
+                        <option>20 por página</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PANEL DERECHO: NUEVO/EDITAR CLIENTE -->
+            <aside class="cli-side-panel" id="panelClienteForm">
+                <div class="cli-panel-header">
+                    <h3>Registrar/ Editar Cliente</h3>
+                    <button class="cli-btn-close" id="closeClienteForm"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="cli-panel-body">
+                    
+                    <div class="cli-form-group">
+                        <label>Tipo de Cliente</label>
+                        <div class="cli-radio-group">
+                            <label class="cli-radio-label">
+                                <input type="radio" name="tipo_cliente" checked>
+                                <span>Persona Natural</span>
+                            </label>
+                            <label class="cli-radio-label">
+                                <input type="radio" name="tipo_cliente">
+                                <span>Empresa</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="cli-form-group">
+                        <label>DNI*</label>
+                        <input type="text" class="cli-input" placeholder="Ej. 12345678">
+                        <small class="cli-help-text">8 dígitos</small>
+                    </div>
+
+                    <div class="cli-form-group">
+                        <label>Nombre Completo</label>
+                        <input type="text" class="cli-input" placeholder="Ej. Juan Pérez Garcia">
+                    </div>
+
+                    <div class="cli-form-group">
+                        <label>Teléfono*</label>
+                        <input type="text" class="cli-input" placeholder="Ej. 987 654 321">
+                    </div>
+
+                    <div class="cli-form-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" class="cli-input" placeholder="Ej. correo@ejemplo.com">
+                    </div>
+
+                    <div class="cli-form-group">
+                        <label>Dirección</label>
+                        <input type="text" class="cli-input" placeholder="Ej. Av. Los Próceres 123 - Lima">
+                    </div>
+
+                </div>
+                <div class="cli-panel-footer">
+                    <button class="cli-btn-outline" id="cancelClienteForm">Cancelar</button>
+                    <button class="cli-btn-primary">Guardar Cliente</button>
+                </div>
+            </aside>
+        </div>
+
+        <!-- ==============================================
+             PANEL INFERIOR: HISTORIAL DEL CLIENTE
+        =============================================== -->
+        <div class="cli-bottom-panel" id="panelHistorialCliente">
+            
+            <div class="cli-bottom-header">
+                <div class="cli-bottom-title">
+                    <h3>Historial de Compras del Cliente</h3>
+                    <span class="cli-client-name">[nombre_cliente] <small>(DNI: [dni_cliente])</small></span>
+                </div>
+                <button class="cli-btn-close" id="closeHistorialCliente"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="cli-bottom-body">
+                
+                <div class="cli-history-section">
+                    <!-- TABS -->
+                    <div class="cli-tabs">
+                        <button class="cli-tab active">Historial de Compras</button>
+                        <button class="cli-tab">Productos Preferidos</button>
+                    </div>
+
+                    <table class="cli-table-history">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Comprobante</th>
+                                <th>Tipo</th>
+                                <th>Total (S/)</th>
+                                <th>Método de Pago</th>
+                                <th>Vendedor</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>[fecha_hora]</td>
+                                <td>[comprobante]</td>
+                                <td>[tipo_doc]</td>
+                                <td>S/[total]</td>
+                                <td><span class="cli-badge cli-bg-efectivo"><i class="fa-solid fa-money-bill"></i> [metodo]</span></td>
+                                <td>[vendedor]</td>
+                                <td><a href="#" class="cli-link">Ver detalle</a></td>
+                            </tr>
+                            <tr>
+                                <td>[fecha_hora]</td>
+                                <td>[comprobante]</td>
+                                <td>[tipo_doc]</td>
+                                <td>S/[total]</td>
+                                <td><span class="cli-badge cli-bg-yape"><i class="fa-solid fa-mobile-screen"></i> [metodo]</span></td>
+                                <td>[vendedor]</td>
+                                <td><a href="#" class="cli-link">Ver detalle</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <button class="cli-btn-export">
+                        <i class="fa-solid fa-download"></i> Exportar historial
+                    </button>
+                </div>
+
+                <!-- Productos preferidos (Aside) -->
+                <div class="cli-preferred-section">
+                    <div class="cli-pref-header">
+                        <div class="cli-heart-icon"><i class="fa-regular fa-heart"></i></div>
+                        <div>
+                            <h4>Productos Preferidos</h4>
+                            <p>Este cliente suele comprar frecuentemente:</p>
+                        </div>
+                    </div>
+
+                    <div class="cli-pref-list">
+                        <div class="cli-pref-item">
+                            <span class="cli-pref-num">1</span>
+                            <img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" alt="img" class="cli-pref-img">
+                            <div class="cli-pref-info">
+                                <strong>[producto]</strong>
+                                <small>Promedio: [cant] kg por compra</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- SCRIPTS -->
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración - Charapita SAC</title>
+    
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <div class="conf-kpi-grid">
+            <div class="conf-kpi-card">
+                <div class="conf-icon-box conf-bg-purple">
+                    <i class="fa-solid fa-user-group"></i>
+                </div>
+                <div class="conf-kpi-info">
+                    <span>USUARIOS ACTIVOS</span>
+                    <strong>[usuarios_activos]</strong>
+                    <small>De [total_usuarios] registrados</small>
+                </div>
+            </div>
+
+            <div class="conf-kpi-card">
+                <div class="conf-icon-box conf-bg-blue">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="conf-kpi-info">
+                    <span>ROLES DEFINIDOS</span>
+                    <strong>[total_roles]</strong>
+                    <small>Administración de roles</small>
+                </div>
+            </div>
+
+            <div class="conf-kpi-card">
+                <div class="conf-icon-box conf-bg-green">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div class="conf-kpi-info">
+                    <span>ULTIMO ACCESO</span>
+                    <strong>[ultimo_usuario]</strong>
+                    <small>[fecha_ultimo_acceso]</small>
+                </div>
+            </div>
+
+            <div class="conf-kpi-card">
+                <div class="conf-icon-box conf-bg-orange">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div class="conf-kpi-info">
+                    <span>PERMISOS CONFIGURADOS</span>
+                    <strong>[total_permisos]</strong>
+                    <small>Recursos del sistema</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="conf-main-layout">
+            
+            <div class="conf-left-col">
+                
+                <section class="conf-card-section">
+                    <div class="conf-section-header">
+                        <h3 class="conf-section-title">Gestión de Usuarios</h3>
+                        <div class="conf-header-actions">
+                            <div class="conf-search-box">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="text" placeholder="Buscar por nombre, usuario o correo...">
+                            </div>
+                            <button class="conf-btn-primary" id="btnNuevoUsuario">
+                                <i class="fa-solid fa-plus"></i> Nuevo Usuario
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="conf-table-wrapper">
+                        <table class="conf-table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Usuario (Login)</th>
+                                    <th>Rol</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="conf-user-cell">
+                                            <div class="conf-avatar conf-avatar-pink">JC</div>
+                                            <span>[nombre_usuario]</span>
+                                        </div>
+                                    </td>
+                                    <td>[login]</td>
+                                    <td><span class="conf-badge conf-badge-admin">Administrador</span></td>
+                                    <td>[correo]</td>
+                                    <td>
+                                        <label class="conf-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="conf-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <div class="conf-action-group">
+                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>
+                                        <div class="conf-user-cell">
+                                            <div class="conf-avatar conf-avatar-blue">ML</div>
+                                            <span>[nombre_usuario]</span>
+                                        </div>
+                                    </td>
+                                    <td>[login]</td>
+                                    <td><span class="conf-badge conf-badge-cajero">Cajero</span></td>
+                                    <td>[correo]</td>
+                                    <td>
+                                        <label class="conf-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="conf-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <div class="conf-action-group">
+                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="conf-row-inactive">
+                                    <td>
+                                        <div class="conf-user-cell">
+                                            <div class="conf-avatar conf-avatar-gray">AP</div>
+                                            <span>[nombre_usuario]</span>
+                                        </div>
+                                    </td>
+                                    <td>[login]</td>
+                                    <td><span class="conf-badge conf-badge-cajero">Cajero</span></td>
+                                    <td>[correo]</td>
+                                    <td>
+                                        <label class="conf-switch">
+                                            <input type="checkbox">
+                                            <span class="conf-slider"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <div class="conf-action-group">
+                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="conf-pagination-row">
+                        <small>Mostrando 1 a 5 de [total_usuarios] usuarios</small>
+                        <div class="conf-pagination">
+                            <span>&laquo;</span>
+                            <span>&lt;</span>
+                            <span class="active">1</span>
+                            <span>2</span>
+                            <span>3</span>
+                            <span>&gt;</span>
+                            <span>&raquo;</span>
+                        </div>
+                        <select class="conf-select-sm">
+                            <option>5 por página</option>
+                            <option>10 por página</option>
+                        </select>
+                    </div>
+                </section>
+
+                <section class="conf-card-section">
+                    <div class="conf-section-header">
+                        <div>
+                            <h3 class="conf-section-title" style="margin-bottom: 5px;">Roles y Permisos</h3>
+                            <p class="conf-section-subtitle">Define qué puede hacer cada rol en el sistema.</p>
+                        </div>
+                        <button class="conf-btn-outline">Editar Permisos</button>
+                    </div>
+
+                    <div class="conf-table-wrapper">
+                        <table class="conf-table conf-table-center">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">Rol</th>
+                                    <th>Nueva Venta<br><small>(Punto de Venta)</small></th>
+                                    <th>Clientes<br><small>(Gestión)</small></th>
+                                    <th>Productos<br><small>(Inventario)</small></th>
+                                    <th>Ventas / Historial<br><small>(Consultar)</small></th>
+                                    <th>Reportes<br><small>(Ver)</small></th>
+                                    <th>Caja<br><small>(Apertura / Cierre)</small></th>
+                                    <th>Configuración<br><small>(Usuarios)</small></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left;"><span class="conf-badge conf-badge-admin">Administrador</span></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left;"><span class="conf-badge conf-badge-cajero">Cajero</span></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
+                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
+                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="conf-legend">
+                        <span><i class="fa-solid fa-circle-check conf-icon-check"></i> Permitido</span>
+                        <span><i class="fa-solid fa-circle-xmark conf-icon-cross"></i> No permitido</span>
+                    </div>
+                </section>
+
+            </div>
+
+            <aside class="conf-side-panel" id="panelNuevoUsuario">
+                <div class="conf-panel-header">
+                    <h3>Nuevo Usuario</h3>
+                    <button class="conf-btn-close" id="closeNuevoUsuario"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <div class="conf-panel-body">
+                    <div class="conf-form-group">
+                        <label>Nombres y Apellidos<span class="conf-req">*</span></label>
+                        <input type="text" class="conf-input" placeholder="Ej: Juan Carlos Pérez Garcia">
+                    </div>
+
+                    <div class="conf-form-group">
+                        <label>DNI<span class="conf-req">*</span></label>
+                        <input type="text" class="conf-input" placeholder="Ej. 12345678">
+                    </div>
+
+                    <div class="conf-form-group">
+                        <label>Correo Electrónico<span class="conf-req">*</span></label>
+                        <input type="email" class="conf-input" placeholder="Ej: juan.perez@gmail.com">
+                    </div>
+
+                    <div class="conf-form-group">
+                        <label>Rol<span class="conf-req">*</span></label>
+                        <select class="conf-input">
+                            <option>Seleccionar rol</option>
+                            <option>Administrador</option>
+                            <option>Cajero</option>
+                        </select>
+                    </div>
+
+                    <div class="conf-form-group">
+                        <label>Contraseña Inicial</label>
+                        <div class="conf-input-password">
+                            <input type="password" class="conf-input" placeholder="Mínimo 6 caracteres" id="confPasswordInput">
+                            <i class="fa-regular fa-eye-slash" id="confTogglePassword"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="conf-panel-footer">
+                    <button class="conf-btn-outline" id="cancelNuevoUsuario">Cancelar</button>
+                    <button class="conf-btn-primary">Guardar Usuario</button>
+                </div>
+            </aside>
+
+        </div>
+
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos e Inventario - Charapita SAC</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div id="header-container"></div>
+    <div id="menu-container"></div>
+
+    <main class="main-content">
+
+        <div class="prod-header-text">
+            <h2>Productos/Inventario</h2>
+            <p>Gestiona tus productos, precios, stock e inventario</p>
+        </div>
+
+        <div class="prod-kpi-grid">
+            <div class="prod-kpi-card">
+                <div class="prod-icon-box" style="background:#e3f2fd; color:#1565c0;">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div class="prod-kpi-info">
+                    <span>TOTAL DE PRODUCTOS</span>
+                    <strong>[total_productos]</strong>
+                    <small>Productos activos</small>
+                </div>
+            </div>
+
+            <div class="prod-kpi-card">
+                <div class="prod-kpi-info">
+                    <span>VALOR DEL INVENTARIO</span>
+                    <strong>S/[valor_inventario]</strong>
+                    <small>Stock actual valorizado</small>
+                </div>
+            </div>
+
+            <div class="prod-kpi-card">
+                <div class="prod-kpi-info">
+                    <span>PRODUCTOS EN ALERTA</span>
+                    <strong>[productos_alerta]</strong>
+                    <small>Stock bajo del minimo</small>
+                </div>
+            </div>
+
+            <div class="prod-kpi-card">
+                <div class="prod-kpi-info">
+                    <span>MERMAS DEL MES</span>
+                    <strong>S/[valor_mermas]</strong>
+                    <small></small>
+                </div>
+            </div>
+        </div>
+
+        <div class="prod-toolbar">
+            <div class="prod-tools-left">
+                <button class="prod-btn-new" id="btnNuevoProducto">
+                    <i class="fa-solid fa-plus"></i> Nuevo Producto
+                </button>
+                <button class="prod-btn-text prod-text-green" id="btnCargarStock">
+                    Cargar Stock (Ingreso)
+                </button>
+                <button class="prod-btn-text prod-text-orange" id="btnRegistrarMerma">
+                    Registrar Merma
+                </button>
+            </div>
+            <div class="prod-tools-right">
+                <div class="prod-search-box">
+                    <input type="text" placeholder="Buscar por codigo o nombre...">
+                </div>
+                <select class="prod-select">
+                    <option>Todas las categorias</option>
+                    <option>Carnes</option>
+                    <option>Ahumados</option>
+                    <option>Embutidos</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="prod-main-layout">
+
+            <div class="prod-table-section">
+                <table class="prod-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Codigo/Nombre</th>
+                            <th>Categoria</th>
+                            <th>Presentacion</th>
+                            <th>Precio(S/)</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Minimo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
+                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
+                            <td>[categoria]</td>
+                            <td>[presentacion]</td>
+                            <td>S/[precio]</td>
+                            <td class="prod-text-green">[stock_actual] kg</td>
+                            <td>[stock_minimo] kg</td>
+                            <td><span class="prod-badge prod-bg-green">En Stock</span></td>
+                            <td>
+                                <div class="prod-actions">
+                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="prod-action-btn" style="color:#e65100;"><i
+                                            class="fa-solid fa-chart-line"></i></button>
+                                    <button class="prod-action-btn" style="color:#c62828;"><i
+                                            class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
+                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
+                            <td>[categoria]</td>
+                            <td>[presentacion]</td>
+                            <td>S/[precio]</td>
+                            <td class="prod-text-orange">[stock_actual] kg</td>
+                            <td>[stock_minimo] kg</td>
+                            <td><span class="prod-badge prod-bg-orange">Bajo</span></td>
+                            <td>
+                                <div class="prod-actions">
+                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="prod-action-btn" style="color:#e65100;"><i
+                                            class="fa-solid fa-chart-line"></i></button>
+                                    <button class="prod-action-btn" style="color:#c62828;"><i
+                                            class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
+                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
+                            <td>[categoria]</td>
+                            <td>[presentacion]</td>
+                            <td>S/[precio]</td>
+                            <td class="prod-text-red">[stock_actual] kg</td>
+                            <td>[stock_minimo] kg</td>
+                            <td><span class="prod-badge prod-bg-red">Critico</span></td>
+                            <td>
+                                <div class="prod-actions">
+                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="prod-action-btn" style="color:#e65100;"><i
+                                            class="fa-solid fa-chart-line"></i></button>
+                                    <button class="prod-action-btn" style="color:#c62828;"><i
+                                            class="fa-regular fa-trash-can"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="prod-pagination-row">
+                    <small>Mostrando 1 a 8 de [total_productos] productos</small>
+                    <div class="prod-pagination">
+                        <span>&lt;</span>
+                        <span class="active">1</span>
+                        <span>2</span>
+                        <span>3</span>
+                        <span>4</span>
+                        <span>5</span>
+                        <span>&gt;</span>
+                    </div>
+                    <small>10 por pagina</small>
+                </div>
+            </div>
+
+            <aside class="prod-side-panel active" id="panelNuevoProducto">
+                <div class="prod-panel-header">
+                    <h3>Nuevo Producto</h3>
+                    <button class="prod-btn-close" id="closeNuevoProducto"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="prod-panel-body">
+                    <div class="prod-form-grid-2">
+                        <div class="prod-form-group">
+                            <label>Codigo del Producto<span class="prod-req">*</span></label>
+                            <input type="text" class="prod-input" placeholder="Ej. CAR001">
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Nombre del Producto<span class="prod-req">*</span></label>
+                            <input type="text" class="prod-input" placeholder="Ej. Carne de Res Premium">
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Categoria<span class="prod-req">*</span></label>
+                            <select class="prod-input">
+                                <option>Seleccionar categoria</option>
+                            </select>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Presentacion<span class="prod-req">*</span></label>
+                            <select class="prod-input">
+                                <option>Seleccionar presentacion</option>
+                            </select>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Precio (S/)<span class="prod-req">*</span></label>
+                            <input type="number" class="prod-input" placeholder="Ej. 28.00">
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Stock Minimo<span class="prod-req">*</span></label>
+                            <input type="number" class="prod-input" placeholder="Ej. 10.00 kg">
+                        </div>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Descripcion (Opcional)</label>
+                        <textarea class="prod-input prod-textarea" placeholder="Descripcion del producto.."></textarea>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Imagen del Producto (Opcional)</label>
+                        <div class="prod-upload-box">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>Subir imagen</span>
+                            <small>PNG, JPG hasta 2MB</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="prod-panel-footer">
+                    <button class="prod-btn-outline">Cancelar</button>
+                    <button class="prod-btn-primary">Guardar Producto</button>
+                </div>
+            </aside>
+        </div>
+
+        <div class="prod-bottom-grid">
+
+            <div class="prod-bottom-panel active" id="panelCargarStock">
+                <div class="prod-panel-header">
+                    <h3>Cargar Stock (Ingreso de Mercaderia)</h3>
+                    <button class="prod-btn-close" id="closeCargarStock"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="prod-panel-body">
+                    <div class="prod-form-grid-3">
+                        <div class="prod-form-group">
+                            <label>Producto<span class="prod-req">*</span></label>
+                            <select class="prod-input">
+                                <option>Seleccionar producto</option>
+                            </select>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Cantidad<span class="prod-req">*</span></label>
+                            <div class="prod-input-addon">
+                                <input type="number" class="prod-input" placeholder="Ej. 1.25">
+                                <span>kg</span>
+                            </div>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Fecha de Ingreso<span class="prod-req">*</span></label>
+                            <input type="date" class="prod-input" value="[fecha_actual]">
+                        </div>
+                    </div>
+                    <div class="prod-form-grid-2">
+                        <div class="prod-form-group">
+                            <label>Costo Unitario (S/)</label>
+                            <input type="number" class="prod-input" placeholder="S/ 15.00">
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Proveedor (Opcional)</label>
+                            <input type="text" class="prod-input" placeholder="Proveedor San Fernando">
+                        </div>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Observaciones (Opcional)</label>
+                        <input type="text" class="prod-input" placeholder="Observaciones del ingreso...">
+                    </div>
+                </div>
+                <div class="prod-panel-footer">
+                    <button class="prod-btn-outline">Cancelar</button>
+                    <button class="prod-btn-success">Guardar Ingreso</button>
+                </div>
+            </div>
+
+            <div class="prod-bottom-panel active" id="panelRegistrarMerma">
+                <div class="prod-panel-header">
+                    <h3>Registrar Merma (Pérdida)</h3>
+                    <button class="prod-btn-close" id="closeRegistrarMerma"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="prod-panel-body">
+                    <div class="prod-form-grid-3">
+                        <div class="prod-form-group">
+                            <label>Producto<span class="prod-req">*</span></label>
+                            <select class="prod-input">
+                                <option>Seleccionar producto</option>
+                            </select>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Cantidad Perdida<span class="prod-req">*</span></label>
+                            <div class="prod-input-addon">
+                                <input type="number" class="prod-input" placeholder="Ej. 1.25">
+                                <span>kg</span>
+                            </div>
+                        </div>
+                        <div class="prod-form-group">
+                            <label>Fecha de Merma<span class="prod-req">*</span></label>
+                            <input type="date" class="prod-input" value="[fecha_actual]">
+                        </div>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Motivo de Merma<span class="prod-req">*</span></label>
+                        <select class="prod-input">
+                            <option>Seleccionar motivo</option>
+                        </select>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Descripcion (Opcional)</label>
+                        <input type="text" class="prod-input" placeholder="Descripcion detallada de la merma..">
+                    </div>
+                </div>
+                <div class="prod-panel-footer">
+                    <button class="prod-btn-outline">Cancelar</button>
+                    <button class="prod-btn-warning">Registrar Merma</button>
+                </div>
+            </div>
+
+            <div class="prod-bottom-panel active">
+                <div class="prod-panel-header">
+                    <h3>Historial de Mermas <small>(Ultimos 5 registros)</small></h3>
+                    <button class="prod-btn-close"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="prod-panel-body" style="padding: 10px;">
+                    <table class="prod-mini-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Motivo</th>
+                                <th>Usuario</th>
+                                <th>Valor(S/)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>[fecha]</td>
+                                <td>[producto]</td>
+                                <td>[cant]kg</td>
+                                <td>[motivo]</td>
+                                <td>[usuario]</td>
+                                <td class="prod-text-red">[valor]</td>
+                            </tr>
+                            <tr>
+                                <td>[fecha]</td>
+                                <td>[producto]</td>
+                                <td>[cant]kg</td>
+                                <td>[motivo]</td>
+                                <td>[usuario]</td>
+                                <td class="prod-text-red">[valor]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="prod-panel-footer" style="justify-content: flex-end;">
+                    <a href="#" class="prod-link">Ver historial completo <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script th:src="@{/js/main.js}" src="/js/main.js"></script>
+</body>
+
+</html>
