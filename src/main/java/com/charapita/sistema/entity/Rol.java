@@ -56,6 +56,52 @@ public class Rol {
         this.permiso = permiso;
     }
 
+    private boolean isPermisoActivo() {
+        return permiso != null && Boolean.TRUE.equals(permiso.getEstado());
+    }
+
+    public boolean hasNuevaVenta() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_VENTAS".equalsIgnoreCase(r) || "MODULO_CAJA".equalsIgnoreCase(r);
+    }
+
+    public boolean hasClientes() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_VENTAS".equalsIgnoreCase(r) || "MODULO_CAJA".equalsIgnoreCase(r);
+    }
+
+    public boolean hasProductos() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_INVENTARIO".equalsIgnoreCase(r);
+    }
+
+    public boolean hasVentasHistorial() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_VENTAS".equalsIgnoreCase(r) || "MODULO_CAJA".equalsIgnoreCase(r);
+    }
+
+    public boolean hasReportes() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_REPORTES".equalsIgnoreCase(r);
+    }
+
+    public boolean hasCaja() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r) || "MODULO_CAJA".equalsIgnoreCase(r);
+    }
+
+    public boolean hasConfiguracion() {
+        if (!isPermisoActivo() || permiso.getRecurso() == null) return false;
+        String r = permiso.getRecurso().getNombre();
+        return "SISTEMA_TOTAL".equalsIgnoreCase(r);
+    }
+
     @Override
     public String toString() {
         return "Rol [idrol=" + idrol + ", nombre=" + nombre + ", estado=" + estado + ", permiso=" + permiso + "]";

@@ -27,7 +27,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>TOTAL DE CLIENTES</span>
-                    <strong>[total_clientes]</strong>
+                    <strong th:text="${datos.totalClientes}">0</strong>
                     <small>Clientes registrados</small>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>CLIENTES NUEVOS (MES)</span>
-                    <strong>[clientes_nuevos]</strong>
+                    <strong th:text="${datos.clientesNuevos}">0</strong>
                     <small>Ultimos 30 dias</small>
                 </div>
             </div>
@@ -49,8 +49,8 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>MEJOR CLIENTE</span>
-                    <strong>[mejor_cliente]</strong>
-                    <small>Total consumido: S/[total_mejor_cliente]</small>
+                    <strong th:text="${datos.mejorCliente}">Ninguno</strong>
+                    <small>Total consumido: <span th:text="'S/' + ${#numbers.formatDecimal(datos.totalMejorCliente, 1, 'COMMA', 2, 'POINT')}">S/0.00</span></small>
                 </div>
             </div>
 
@@ -60,7 +60,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>FRECUENCIA PROMEDIO</span>
-                    <strong>[frecuencia_promedio] días</strong>
+                    <strong th:text="${datos.frecuenciaPromedio} + ' días'">15 días</strong>
                     <small>Entre compras</small>
                 </div>
             </div>
@@ -78,9 +78,8 @@
                 <div class="cli-filter-box">
                     <span class="cli-filter-label">Tipo de cliente</span>
                     <select class="cli-select">
-                        <option>Todos</option>
-                        <option>Persona Natural</option>
-                        <option>Empresa</option>
+                        <option value="">Todos</option>
+                        <option th:each="t : ${datos.tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
                     </select>
                 </div>
             </div>
@@ -111,42 +110,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Fila Ejemplo 1 -->
-                        <tr>
-                            <td>[dni_ruc]</td>
-                            <td>[nombre_cliente]</td>
-                            <td><i class="fa-solid fa-phone cli-table-icon"></i> [telefono]</td>
-                            <td><i class="fa-solid fa-envelope cli-table-icon"></i> [correo]</td>
-                            <td><i class="fa-regular fa-calendar cli-table-icon"></i> [fecha_compra]</td>
-                            <td>S/ [total_consumido]</td>
+                        <tr th:each="c : ${datos.clientes}">
+                            <td th:text="${c.cliente.nroDocumento}">[dni_ruc]</td>
+                            <td th:text="${c.cliente.nombre != null && !c.cliente.nombre.isEmpty() ? c.cliente.nombre : c.cliente.razonsocial}">[nombre_cliente]</td>
+                            <td><i class="fa-solid fa-phone cli-table-icon"></i> <span th:text="${c.telefono}">[telefono]</span></td>
+                            <td><i class="fa-solid fa-envelope cli-table-icon"></i> <span th:text="${c.correo}">[correo]</span></td>
+                            <td><i class="fa-regular fa-calendar cli-table-icon"></i> <span th:text="${c.ultimaCompra}">[fecha_compra]</span></td>
+                            <td th:text="'S/ ' + ${#numbers.formatDecimal(c.totalConsumido, 1, 'COMMA', 2, 'POINT')}">S/ [total_consumido]</td>
                             <td>
                                 <div class="cli-actions">
-                                    <button class="cli-action-btn btn-editar-cliente" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="cli-action-btn btn-historial-cliente" title="Ver Historial"><i class="fa-regular fa-clock"></i></button>
+                                    <button class="cli-action-btn btn-editar-cliente" title="Editar" th:data-id="${c.cliente.idcliente}"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="cli-action-btn btn-historial-cliente" title="Ver Historial" th:data-id="${c.cliente.idcliente}"><i class="fa-regular fa-clock"></i></button>
                                 </div>
                             </td>
                         </tr>
-
-                        <!-- Fila Ejemplo 2 -->
-                        <tr>
-                            <td>[dni_ruc]</td>
-                            <td>[nombre_cliente]</td>
-                            <td><i class="fa-solid fa-phone cli-table-icon"></i> [telefono]</td>
-                            <td><i class="fa-solid fa-envelope cli-table-icon"></i> [correo]</td>
-                            <td><i class="fa-regular fa-calendar cli-table-icon"></i> [fecha_compra]</td>
-                            <td>S/ [total_consumido]</td>
-                            <td>
-                                <div class="cli-actions">
-                                    <button class="cli-action-btn btn-editar-cliente" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="cli-action-btn btn-historial-cliente" title="Ver Historial"><i class="fa-regular fa-clock"></i></button>
-                                </div>
-                            </td>
+                        <tr th:if="${#lists.isEmpty(datos.clientes)}">
+                            <td colspan="7" style="text-align: center; color: #777;">No se encontraron clientes registrados.</td>
                         </tr>
                     </tbody>
                 </table>
                 
                 <div class="cli-pagination-row">
-                    <small>Mostrando 1 a 5 de [total_clientes] clientes</small>
+                    <small>Mostrando <span th:text="${#lists.size(datos.clientes)}">0</span> de <span th:text="${datos.totalClientes}">0</span> clientes</small>
                     <div class="cli-pagination">
                         <span>&laquo;</span>
                         <span>&lt;</span>
@@ -174,49 +159,44 @@
                 <div class="cli-panel-body">
                     
                     <div class="cli-form-group">
-                        <label>Tipo de Cliente</label>
-                        <div class="cli-radio-group">
-                            <label class="cli-radio-label">
-                                <input type="radio" name="tipo_cliente" checked>
-                                <span>Persona Natural</span>
-                            </label>
-                            <label class="cli-radio-label">
-                                <input type="radio" name="tipo_cliente">
-                                <span>Empresa</span>
-                            </label>
-                        </div>
+                        <label>Tipo de Cliente*</label>
+                        <select class="cli-select" style="width: 100%;" id="formTipoCliente">
+                            <option th:each="t : ${datos.tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
+                        </select>
+                    </div>
+
+                    <input type="hidden" id="formIdCliente">
+
+                    <div class="cli-form-group">
+                        <label>DNI/RUC*</label>
+                        <input type="text" class="cli-input" id="formNroDocumento" placeholder="Ej. 12345678" required>
+                        <small class="cli-help-text">8 o 11 dígitos</small>
                     </div>
 
                     <div class="cli-form-group">
-                        <label>DNI*</label>
-                        <input type="text" class="cli-input" placeholder="Ej. 12345678">
-                        <small class="cli-help-text">8 dígitos</small>
+                        <label>Nombre Completo / Razón Social*</label>
+                        <input type="text" class="cli-input" id="formNombre" placeholder="Ej. Juan Pérez Garcia" required>
                     </div>
 
                     <div class="cli-form-group">
-                        <label>Nombre Completo</label>
-                        <input type="text" class="cli-input" placeholder="Ej. Juan Pérez Garcia">
+                        <label>Teléfono (Simulado)*</label>
+                        <input type="text" class="cli-input" id="formTelefono" placeholder="Ej. 987 654 321">
                     </div>
 
                     <div class="cli-form-group">
-                        <label>Teléfono*</label>
-                        <input type="text" class="cli-input" placeholder="Ej. 987 654 321">
+                        <label>Correo Electrónico (Simulado)</label>
+                        <input type="email" class="cli-input" id="formCorreo" placeholder="Ej. correo@ejemplo.com">
                     </div>
 
                     <div class="cli-form-group">
-                        <label>Correo Electrónico</label>
-                        <input type="email" class="cli-input" placeholder="Ej. correo@ejemplo.com">
-                    </div>
-
-                    <div class="cli-form-group">
-                        <label>Dirección</label>
-                        <input type="text" class="cli-input" placeholder="Ej. Av. Los Próceres 123 - Lima">
+                        <label>Dirección (Simulado)</label>
+                        <input type="text" class="cli-input" id="formDireccion" placeholder="Ej. Av. Los Próceres 123 - Lima">
                     </div>
 
                 </div>
                 <div class="cli-panel-footer">
                     <button class="cli-btn-outline" id="cancelClienteForm">Cancelar</button>
-                    <button class="cli-btn-primary">Guardar Cliente</button>
+                    <button class="cli-btn-primary" id="btnGuardarCliente">Guardar Cliente</button>
                 </div>
             </aside>
         </div>

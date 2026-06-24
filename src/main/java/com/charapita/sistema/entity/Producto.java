@@ -25,12 +25,12 @@ public class Producto {
 
     @ManyToOne
     @JoinColumn(name = "idcategoria")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Categoria categoria;
 
     @ManyToOne
     @JoinColumn(name = "idpresentacion")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Presentacion presentacion;
 
     public Integer getIdproducto() {
@@ -87,6 +87,15 @@ public class Producto {
 
     public void setPresentacion(Presentacion presentacion) {
         this.presentacion = presentacion;
+    }
+
+    public String getCodigo() {
+        if (categoria == null || categoria.getNombre() == null || categoria.getNombre().trim().isEmpty()) {
+            return String.format("PROD%03d", idproducto);
+        }
+        String catName = categoria.getNombre().trim();
+        String prefix = catName.length() >= 3 ? catName.substring(0, 3) : catName;
+        return String.format("%s%03d", prefix.toUpperCase(), idproducto);
     }
 
     @Override

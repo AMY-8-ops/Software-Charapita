@@ -47,42 +47,38 @@
                         </div>
                     </div>
 
-                    <div class="cv-form-group">
+                    <div class="cv-form-group" id="groupClienteSelect">
                         <label class="cv-label">Cliente</label>
                         <div class="cv-input-with-btn">
                             <div class="cv-select-wrapper">
                                 <i class="fa-regular fa-user cv-input-icon"></i>
-                                <select class="cv-select">
-                                    <option>[nombre_cliente] - DNI:[dni_cliente]</option>
+                                <select class="cv-select" id="confirmClienteSelect">
+                                    <option value="">-- Seleccionar Cliente --</option>
+                                    <option th:each="c : ${datos.clientes}" th:value="${c.idcliente}" th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
                                 </select>
                             </div>
-                            <button class="cv-btn-add"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
 
                     <div class="cv-form-group">
                         <label class="cv-label">DNI/RUC</label>
-                        <input type="text" class="cv-input" value="[dni_ruc]" readonly>
+                        <input type="text" class="cv-input" id="confirmNroDocumento" placeholder="Sin documento" readonly>
                     </div>
 
                     <div class="cv-form-group">
-                        <label class="cv-label">Direccion</label>
-                        <input type="text" class="cv-input" value="[direccion_cliente]" readonly>
+                        <label class="cv-label">Dirección (Simulada)</label>
+                        <input type="text" class="cv-input" id="confirmDireccion" placeholder="Sin dirección" readonly>
                     </div>
 
                     <div class="cv-form-group">
-                        <label class="cv-label">Correo electronico</label>
-                        <input type="email" class="cv-input" value="[correo_cliente]" readonly>
+                        <label class="cv-label">Correo electrónico (Simulado)</label>
+                        <input type="email" class="cv-input" id="confirmCorreo" placeholder="Sin correo" readonly>
                     </div>
 
                     <div class="cv-form-group">
-                        <label class="cv-label">Telefono</label>
-                        <input type="text" class="cv-input" value="[telefono_cliente]" readonly>
+                        <label class="cv-label">Teléfono (Simulado)</label>
+                        <input type="text" class="cv-input" id="confirmTelefono" placeholder="Sin teléfono" readonly>
                     </div>
-
-                    <button class="cv-btn-edit-client">
-                        <i class="fa-solid fa-pen"></i> Editar cliente
-                    </button>
                 </section>
 
                 <section class="cv-col">
@@ -90,18 +86,16 @@
 
                     <div class="cv-form-group">
                         <label class="cv-label">Tipo de comprobante</label>
-                        <div class="cv-document-types">
-                            <div class="cv-doc-box active" data-target="comprobante">
-                                <i class="fa-solid fa-circle-dot cv-radio-icon"></i>
-                                <i class="fa-solid fa-file-invoice cv-doc-icon"></i>
-                                <strong>Boleta</strong>
-                                <small>Para consumidores finales</small>
-                            </div>
-                            <div class="cv-doc-box" data-target="comprobante">
-                                <i class="fa-regular fa-circle cv-radio-icon"></i>
-                                <i class="fa-solid fa-file-lines cv-doc-icon"></i>
-                                <strong>Factura</strong>
-                                <small>Para empresas</small>
+                        <div class="cv-document-types" id="confirmComprobanteGrid">
+                            <div th:each="tc : ${datos.comprobantes}" 
+                                 th:class="'cv-doc-box ' + (${tc.idtipo == 1} ? 'active' : '')" 
+                                 th:data-id="${tc.idtipo}" 
+                                 th:data-serie="${tc.idtipo == 1 ? 'B001' : 'F001'}" 
+                                 data-target="comprobante">
+                                <i th:class="'fa-solid cv-radio-icon ' + (${tc.idtipo == 1} ? 'fa-circle-dot' : 'fa-circle')"></i>
+                                <i th:class="'fa-solid cv-doc-icon ' + (${tc.idtipo == 1} ? 'fa-file-invoice' : 'fa-file-lines')"></i>
+                                <strong th:text="${tc.nombre}">Boleta</strong>
+                                <small th:text="${tc.idtipo == 1 ? 'Para consumidores finales' : 'Para empresas'}">Consumidor final</small>
                             </div>
                         </div>
                     </div>
@@ -109,8 +103,9 @@
                     <div class="cv-row-2">
                         <div class="cv-form-group">
                             <label class="cv-label">Serie<span class="cv-text-red">*</span></label>
-                            <select class="cv-select">
-                                <option>[serie_comprobante]</option>
+                            <select class="cv-select" id="confirmComprobanteSerie">
+                                <option value="B001">B001</option>
+                                <option value="F001">F001</option>
                             </select>
                         </div>
                         <div class="cv-form-group">
@@ -131,7 +126,17 @@
                         <label class="cv-label">Fecha de emision</label>
                         <div class="cv-input-icon-left">
                             <i class="fa-regular fa-calendar"></i>
-                            <input type="text" class="cv-input" value="[fecha_emision]" readonly>
+                            <input type="text" class="cv-input" id="confirmFechaEmision" value="" readonly>
+                        </div>
+                    </div>
+
+                    <div class="cv-form-group" style="margin-top: 15px;">
+                        <label class="cv-label">Método de Pago<span class="cv-text-red">*</span></label>
+                        <div class="cv-select-wrapper">
+                            <i class="fa-solid fa-credit-card cv-input-icon"></i>
+                            <select class="cv-select" id="confirmMetodoSelect">
+                                <option th:each="m : ${datos.metodos}" th:value="${m.idmetodo}" th:text="${m.nombre}">Efectivo</option>
+                            </select>
                         </div>
                     </div>
                 </section>
@@ -149,19 +154,8 @@
                                     <th>Subtotal</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>[producto]<br><small>([codigo])</small></td>
-                                    <td>[cantidad] kg</td>
-                                    <td>S/[precio_unit]</td>
-                                    <td>S/[subtotal]</td>
-                                </tr>
-                                <tr>
-                                    <td>[producto]<br><small>([codigo])</small></td>
-                                    <td>[cantidad] kg</td>
-                                    <td>S/[precio_unit]</td>
-                                    <td>S/[subtotal]</td>
-                                </tr>
+                            <tbody id="confirmTableBody">
+                                <!-- Generado dinámicamente -->
                             </tbody>
                         </table>
                     </div>
@@ -169,19 +163,19 @@
                     <div class="cv-totals-box">
                         <div class="cv-total-row">
                             <span>Subtotal</span>
-                            <span>S/[valor]</span>
+                            <span id="confirmSubtotal">S/ 0.00</span>
                         </div>
                         <div class="cv-total-row">
-                            <span>IGV(18%)</span>
-                            <span>S/[valor]</span>
+                            <span>IGV (18%)</span>
+                            <span id="confirmIgv">S/ 0.00</span>
                         </div>
-                        <div class="cv-total-row">
+                        <div class="cv-total-row" style="display: none;" id="confirmDescuentoRow">
                             <span>Descuento</span>
-                            <span>-S/[valor]</span>
+                            <span id="confirmDescuento">S/ 0.00</span>
                         </div>
                         <div class="cv-final-row">
                             <span>TOTAL A PAGAR</span>
-                            <span class="cv-text-red">S/[total_final]</span>
+                            <span class="cv-text-red" id="confirmTotal">S/ 0.00</span>
                         </div>
                     </div>
 
@@ -189,9 +183,9 @@
                         <i class="fa-solid fa-shield-check cv-success-icon"></i>
                         <div class="cv-success-info">
                             <strong>Pago recibido</strong>
-                            <small>Metodo: [metodo_pago]</small>
+                            <small id="confirmPaymentMethodBadge">Metodo: Efectivo</small>
                         </div>
-                        <strong class="cv-success-amount">S/[total_final]</strong>
+                        <strong class="cv-success-amount" id="confirmPaymentAmountBadge">S/ 0.00</strong>
                     </div>
                 </section>
 
@@ -201,15 +195,15 @@
                 <div class="cv-bottom-grid">
                     <div class="cv-form-group">
                         <label class="cv-label">Observaciones</label>
-                        <textarea class="cv-textarea"
+                        <textarea class="cv-textarea" id="confirmObs"
                             placeholder="Escribe alguna observacion o nota adicional.."></textarea>
                     </div>
                     <div class="cv-form-group">
                         <label class="cv-label">Vendedor</label>
                         <div class="cv-select-wrapper">
                             <i class="fa-regular fa-user cv-input-icon"></i>
-                            <select class="cv-select">
-                                <option>[nombre_vendedor]</option>
+                            <select class="cv-select" id="confirmVendedorSelect">
+                                <option th:each="u : ${datos.usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + (u.apellido != null ? u.apellido : '')}">Vendedor</option>
                             </select>
                         </div>
                     </div>
@@ -217,8 +211,8 @@
             </div>
 
             <footer class="cv-actions-footer">
-                <button class="cv-btn-cancelar">Cancelar</button>
-                <button class="cv-btn-generar">
+                <button class="cv-btn-cancelar" type="button" onclick="window.location.href='/nuevaventa'">Cancelar</button>
+                <button class="cv-btn-generar" id="btnConfirmarFinal">
                     <i class="fa-solid fa-file-invoice"></i> Generar Comprobante
                 </button>
             </footer>

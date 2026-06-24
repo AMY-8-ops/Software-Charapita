@@ -29,7 +29,7 @@
                 </div>
                 <div class="prod-kpi-info">
                     <span>TOTAL DE PRODUCTOS</span>
-                    <strong>[total_productos]</strong>
+                    <strong th:text="${datos.totalProductos}">0</strong>
                     <small>Productos activos</small>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="prod-kpi-card">
                 <div class="prod-kpi-info">
                     <span>VALOR DEL INVENTARIO</span>
-                    <strong>S/[valor_inventario]</strong>
+                    <strong th:text="'S/' + ${#numbers.formatDecimal(datos.valorInventario, 1, 'COMMA', 2, 'POINT')}">S/0.00</strong>
                     <small>Stock actual valorizado</small>
                 </div>
             </div>
@@ -45,7 +45,7 @@
             <div class="prod-kpi-card">
                 <div class="prod-kpi-info">
                     <span>PRODUCTOS EN ALERTA</span>
-                    <strong>[productos_alerta]</strong>
+                    <strong th:text="${datos.productosAlerta}">0</strong>
                     <small>Stock bajo del minimo</small>
                 </div>
             </div>
@@ -53,8 +53,8 @@
             <div class="prod-kpi-card">
                 <div class="prod-kpi-info">
                     <span>MERMAS DEL MES</span>
-                    <strong>S/[valor_mermas]</strong>
-                    <small></small>
+                    <strong th:text="'S/' + ${#numbers.formatDecimal(datos.valorMermas, 1, 'COMMA', 2, 'POINT')}">S/0.00</strong>
+                    <small>Pérdidas del periodo</small>
                 </div>
             </div>
         </div>
@@ -76,10 +76,8 @@
                     <input type="text" placeholder="Buscar por codigo o nombre...">
                 </div>
                 <select class="prod-select">
-                    <option>Todas las categorias</option>
-                    <option>Carnes</option>
-                    <option>Ahumados</option>
-                    <option>Embutidos</option>
+                    <option value="">Todas las categorias</option>
+                    <option th:each="cat : ${datos.categorias}" th:value="${cat.idcategoria}" th:text="${cat.nombre}">Categoría</option>
                 </select>
             </div>
         </div>
@@ -100,57 +98,21 @@
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
+                    </thead>                    <tbody>
+                        <tr th:each="inv : ${datos.inventarios}">
                             <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
-                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
-                            <td>[categoria]</td>
-                            <td>[presentacion]</td>
-                            <td>S/[precio]</td>
-                            <td class="prod-text-green">[stock_actual] kg</td>
-                            <td>[stock_minimo] kg</td>
-                            <td><span class="prod-badge prod-bg-green">En Stock</span></td>
+                            <td><strong th:text="${inv.producto.codigo}">[codigo]</strong><br><small th:text="${inv.producto.nombre}">[producto]</small></td>
+                            <td th:text="${inv.producto.categoria.nombre}">[categoria]</td>
+                            <td th:text="${inv.producto.presentacion.descripcion}">[presentacion]</td>
+                            <td th:text="'S/' + ${#numbers.formatDecimal(inv.producto.precio, 1, 'COMMA', 2, 'POINT')}">S/[precio]</td>
+                            <td th:class="${inv.stockactual <= 0} ? 'prod-text-red' : (${inv.stockactual <= inv.stockminimo} ? 'prod-text-orange' : 'prod-text-green')"
+                                th:text="${inv.stockactual} + ' ' + ${inv.producto.presentacion.descripcion}">[stock_actual] kg</td>
+                            <td th:text="${inv.stockminimo} + ' ' + ${inv.producto.presentacion.descripcion}">[stock_minimo] kg</td>
                             <td>
-                                <div class="prod-actions">
-                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="prod-action-btn" style="color:#e65100;"><i
-                                            class="fa-solid fa-chart-line"></i></button>
-                                    <button class="prod-action-btn" style="color:#c62828;"><i
-                                            class="fa-regular fa-trash-can"></i></button>
-                                </div>
+                                <span class="prod-badge" 
+                                      th:classappend="${inv.stockactual <= 0} ? 'prod-bg-red' : (${inv.stockactual <= inv.stockminimo} ? 'prod-bg-orange' : 'prod-bg-green')"
+                                      th:text="${inv.stockactual <= 0} ? 'Agotado' : (${inv.stockactual <= inv.stockminimo} ? 'Bajo' : 'En Stock')">Estado</span>
                             </td>
-                        </tr>
-
-                        <tr>
-                            <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
-                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
-                            <td>[categoria]</td>
-                            <td>[presentacion]</td>
-                            <td>S/[precio]</td>
-                            <td class="prod-text-orange">[stock_actual] kg</td>
-                            <td>[stock_minimo] kg</td>
-                            <td><span class="prod-badge prod-bg-orange">Bajo</span></td>
-                            <td>
-                                <div class="prod-actions">
-                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="prod-action-btn" style="color:#e65100;"><i
-                                            class="fa-solid fa-chart-line"></i></button>
-                                    <button class="prod-action-btn" style="color:#c62828;"><i
-                                            class="fa-regular fa-trash-can"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
-                            <td><strong>[codigo]</strong><br><small>[producto]</small></td>
-                            <td>[categoria]</td>
-                            <td>[presentacion]</td>
-                            <td>S/[precio]</td>
-                            <td class="prod-text-red">[stock_actual] kg</td>
-                            <td>[stock_minimo] kg</td>
-                            <td><span class="prod-badge prod-bg-red">Critico</span></td>
                             <td>
                                 <div class="prod-actions">
                                     <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
@@ -165,7 +127,7 @@
                 </table>
 
                 <div class="prod-pagination-row">
-                    <small>Mostrando 1 a 8 de [total_productos] productos</small>
+                    <small>Mostrando <span th:text="${#lists.size(datos.inventarios)}">0</span> de <span th:text="${datos.totalProductos}">0</span> productos</small>
                     <div class="prod-pagination">
                         <span>&lt;</span>
                         <span class="active">1</span>
@@ -197,13 +159,15 @@
                         <div class="prod-form-group">
                             <label>Categoria<span class="prod-req">*</span></label>
                             <select class="prod-input">
-                                <option>Seleccionar categoria</option>
+                                <option value="">Seleccionar categoria</option>
+                                <option th:each="cat : ${datos.categorias}" th:value="${cat.idcategoria}" th:text="${cat.nombre}">Categoría</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
                             <label>Presentacion<span class="prod-req">*</span></label>
                             <select class="prod-input">
-                                <option>Seleccionar presentacion</option>
+                                <option value="">Seleccionar presentacion</option>
+                                <option th:each="pres : ${datos.presentaciones}" th:value="${pres.idpresentacion}" th:text="${pres.descripcion}">Presentación</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
@@ -247,7 +211,8 @@
                         <div class="prod-form-group">
                             <label>Producto<span class="prod-req">*</span></label>
                             <select class="prod-input">
-                                <option>Seleccionar producto</option>
+                                <option value="">Seleccionar producto</option>
+                                <option th:each="prod : ${datos.productos}" th:value="${prod.idproducto}" th:text="${prod.nombre}">Producto</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
@@ -259,7 +224,7 @@
                         </div>
                         <div class="prod-form-group">
                             <label>Fecha de Ingreso<span class="prod-req">*</span></label>
-                            <input type="date" class="prod-input" value="[fecha_actual]">
+                            <input type="date" class="prod-input" th:value="${datos.fechaActual}">
                         </div>
                     </div>
                     <div class="prod-form-grid-2">
@@ -293,7 +258,8 @@
                         <div class="prod-form-group">
                             <label>Producto<span class="prod-req">*</span></label>
                             <select class="prod-input">
-                                <option>Seleccionar producto</option>
+                                <option value="">Seleccionar producto</option>
+                                <option th:each="prod : ${datos.productos}" th:value="${prod.idproducto}" th:text="${prod.nombre}">Producto</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
@@ -305,13 +271,14 @@
                         </div>
                         <div class="prod-form-group">
                             <label>Fecha de Merma<span class="prod-req">*</span></label>
-                            <input type="date" class="prod-input" value="[fecha_actual]">
+                            <input type="date" class="prod-input" th:value="${datos.fechaActual}">
                         </div>
                     </div>
                     <div class="prod-form-group">
                         <label>Motivo de Merma<span class="prod-req">*</span></label>
                         <select class="prod-input">
-                            <option>Seleccionar motivo</option>
+                            <option value="">Seleccionar motivo</option>
+                            <option th:each="mot : ${datos.motivos}" th:value="${mot.idmotivo}" th:text="${mot.descripcion}">Motivo</option>
                         </select>
                     </div>
                     <div class="prod-form-group">
@@ -343,21 +310,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>[fecha]</td>
-                                <td>[producto]</td>
-                                <td>[cant]kg</td>
-                                <td>[motivo]</td>
-                                <td>[usuario]</td>
-                                <td class="prod-text-red">[valor]</td>
+                            <tr th:each="merma : ${datos.ultimasMermas}">
+                                <td th:text="${#temporals.format(merma.fechahora, 'dd/MM/yyyy HH:mm')}">[fecha]</td>
+                                <td th:text="${merma.producto.nombre}">[producto]</td>
+                                <td th:text="${merma.cantidad} + ' ' + ${merma.producto.presentacion.descripcion}">[cant]kg</td>
+                                <td th:text="${merma.motivoMerma.descripcion}">[motivo]</td>
+                                <td>Sistema</td>
+                                <td class="prod-text-red" th:text="'S/' + ${#numbers.formatDecimal(merma.cantidad * merma.producto.precio, 1, 'COMMA', 2, 'POINT')}">[valor]</td>
                             </tr>
-                            <tr>
-                                <td>[fecha]</td>
-                                <td>[producto]</td>
-                                <td>[cant]kg</td>
-                                <td>[motivo]</td>
-                                <td>[usuario]</td>
-                                <td class="prod-text-red">[valor]</td>
+                            <tr th:if="${#lists.isEmpty(datos.ultimasMermas)}">
+                                <td colspan="6" style="text-align: center; color: #777;">No se registraron mermas recientemente.</td>
                             </tr>
                         </tbody>
                     </table>

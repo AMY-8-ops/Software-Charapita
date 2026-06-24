@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración - Charapita SAC</title>
-    
+
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
     <div id="header-container"></div>
@@ -22,8 +24,8 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>USUARIOS ACTIVOS</span>
-                    <strong>[usuarios_activos]</strong>
-                    <small>De [total_usuarios] registrados</small>
+                    <strong th:text="${datos.usuariosActivos}">0</strong>
+                    <small>De <span th:text="${datos.totalUsuarios}">0</span> registrados</small>
                 </div>
             </div>
 
@@ -33,7 +35,7 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>ROLES DEFINIDOS</span>
-                    <strong>[total_roles]</strong>
+                    <strong th:text="${datos.totalRoles}">0</strong>
                     <small>Administración de roles</small>
                 </div>
             </div>
@@ -44,8 +46,8 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>ULTIMO ACCESO</span>
-                    <strong>[ultimo_usuario]</strong>
-                    <small>[fecha_ultimo_acceso]</small>
+                    <strong th:text="${datos.ultimoUsuario}">Usuario</strong>
+                    <small th:text="${datos.fechaUltimoAcceso}">Fecha</small>
                 </div>
             </div>
 
@@ -55,16 +57,16 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>PERMISOS CONFIGURADOS</span>
-                    <strong>[total_permisos]</strong>
+                    <strong th:text="${datos.totalPermisos}">0</strong>
                     <small>Recursos del sistema</small>
                 </div>
             </div>
         </div>
 
         <div class="conf-main-layout">
-            
+
             <div class="conf-left-col">
-                
+
                 <section class="conf-card-section">
                     <div class="conf-section-header">
                         <h3 class="conf-section-title">Gestión de Usuarios</h3>
@@ -92,83 +94,45 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr th:each="user : ${datos.usuarios}"
+                                    th:classappend="${user.estado != 1} ? 'conf-row-inactive'">
                                     <td>
                                         <div class="conf-user-cell">
-                                            <div class="conf-avatar conf-avatar-pink">JC</div>
-                                            <span>[nombre_usuario]</span>
+                                            <div class="conf-avatar"
+                                                th:classappend="${user.estado != 1} ? 'conf-avatar-gray' : (${user.rol.nombre == 'ADMINISTRADOR'} ? 'conf-avatar-pink' : 'conf-avatar-blue')"
+                                                th:text="${user.iniciales}">JC</div>
+                                            <span th:text="${user.nombre + ' ' + user.apellido}">[nombre_usuario]</span>
                                         </div>
                                     </td>
-                                    <td>[login]</td>
-                                    <td><span class="conf-badge conf-badge-admin">Administrador</span></td>
-                                    <td>[correo]</td>
+                                    <td th:text="${user.dni}">[login]</td>
+                                    <td>
+                                        <span class="conf-badge"
+                                            th:classappend="${user.rol.nombre == 'ADMINISTRADOR'} ? 'conf-badge-admin' : 'conf-badge-cajero'"
+                                            th:text="${user.rol.nombre}">Administrador</span>
+                                    </td>
+                                    <td th:text="${user.correo}">[correo]</td>
                                     <td>
                                         <label class="conf-switch">
-                                            <input type="checkbox" checked>
+                                            <input type="checkbox" th:checked="${user.estado == 1}">
                                             <span class="conf-slider"></span>
                                         </label>
                                     </td>
                                     <td>
                                         <div class="conf-action-group">
-                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                
-                                <tr>
-                                    <td>
-                                        <div class="conf-user-cell">
-                                            <div class="conf-avatar conf-avatar-blue">ML</div>
-                                            <span>[nombre_usuario]</span>
-                                        </div>
-                                    </td>
-                                    <td>[login]</td>
-                                    <td><span class="conf-badge conf-badge-cajero">Cajero</span></td>
-                                    <td>[correo]</td>
-                                    <td>
-                                        <label class="conf-switch">
-                                            <input type="checkbox" checked>
-                                            <span class="conf-slider"></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <div class="conf-action-group">
-                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr class="conf-row-inactive">
-                                    <td>
-                                        <div class="conf-user-cell">
-                                            <div class="conf-avatar conf-avatar-gray">AP</div>
-                                            <span>[nombre_usuario]</span>
-                                        </div>
-                                    </td>
-                                    <td>[login]</td>
-                                    <td><span class="conf-badge conf-badge-cajero">Cajero</span></td>
-                                    <td>[correo]</td>
-                                    <td>
-                                        <label class="conf-switch">
-                                            <input type="checkbox">
-                                            <span class="conf-slider"></span>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <div class="conf-action-group">
-                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i class="fa-solid fa-key"></i></button>
+                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i
+                                                    class="fa-solid fa-pen"></i></button>
+                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i
+                                                    class="fa-solid fa-key"></i></button>
                                         </div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="conf-pagination-row">
-                        <small>Mostrando 1 a 5 de [total_usuarios] usuarios</small>
+                        <small>Mostrando <span th:text="${#lists.size(datos.usuarios)}">0</span> de <span
+                                th:text="${datos.totalUsuarios}">0</span> usuarios</small>
                         <div class="conf-pagination">
                             <span>&laquo;</span>
                             <span>&lt;</span>
@@ -209,30 +173,38 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style="text-align: left;"><span class="conf-badge conf-badge-admin">Administrador</span></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                </tr>
-                                <tr>
-                                    <td style="text-align: left;"><span class="conf-badge conf-badge-cajero">Cajero</span></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
-                                    <td><i class="fa-solid fa-circle-check conf-icon-check"></i></td>
-                                    <td><i class="fa-solid fa-circle-xmark conf-icon-cross"></i></td>
+                                <tr th:each="r : ${datos.roles}">
+                                    <td style="text-align: left;">
+                                        <span class="conf-badge"
+                                            th:classappend="${r.nombre == 'ADMINISTRADOR'} ? 'conf-badge-admin' : 'conf-badge-cajero'"
+                                            th:text="${r.nombre}">Rol</span>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasNuevaVenta()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasClientes()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasProductos()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasVentasHistorial()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasReportes()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasCaja()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
+                                    <td><i
+                                            th:class="${r.hasConfiguracion()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="conf-legend">
                         <span><i class="fa-solid fa-circle-check conf-icon-check"></i> Permitido</span>
                         <span><i class="fa-solid fa-circle-xmark conf-icon-cross"></i> No permitido</span>
@@ -246,7 +218,7 @@
                     <h3>Nuevo Usuario</h3>
                     <button class="conf-btn-close" id="closeNuevoUsuario"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                
+
                 <div class="conf-panel-body">
                     <div class="conf-form-group">
                         <label>Nombres y Apellidos<span class="conf-req">*</span></label>
@@ -275,7 +247,8 @@
                     <div class="conf-form-group">
                         <label>Contraseña Inicial</label>
                         <div class="conf-input-password">
-                            <input type="password" class="conf-input" placeholder="Mínimo 6 caracteres" id="confPasswordInput">
+                            <input type="password" class="conf-input" placeholder="Mínimo 6 caracteres"
+                                id="confPasswordInput">
                             <i class="fa-regular fa-eye-slash" id="confTogglePassword"></i>
                         </div>
                     </div>
@@ -293,4 +266,5 @@
 
     <script th:src="@{/js/main.js}" src="/js/main.js"></script>
 </body>
+
 </html>

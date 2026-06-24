@@ -22,10 +22,13 @@
                 <div class="kpi-icon icon-green"><i class="fa-solid fa-money-bill-wave"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">VENTAS DEL DIA (S/)</span>
-                    <h3 class="kpi-value">[ventas_dia]</h3>
-                    <div class="kpi-vs text-green">
+                    <h3 class="kpi-value" th:text="'S/ ' + ${#numbers.formatDecimal(datos.ventasDia, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</h3>
+                    <div class="kpi-vs" th:classappend="${datos.pctVentasVsAyer >= 0 ? 'text-green' : 'text-red'}">
                         <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                        <span>
+                            <i class="fa-solid" th:classappend="${datos.pctVentasVsAyer >= 0 ? 'fa-caret-up' : 'fa-caret-down'}"></i>
+                            <span th:text="${datos.pctVentasVsAyer >= 0 ? datos.pctVentasVsAyer : -datos.pctVentasVsAyer} + '%'">0%</span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -34,10 +37,13 @@
                 <div class="kpi-icon icon-blue"><i class="fa-solid fa-cart-shopping"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">PEDIDOS REALIZADOS</span>
-                    <h3 class="kpi-value">[pedidos_dia]</h3>
-                    <div class="kpi-vs text-green">
+                    <h3 class="kpi-value" th:text="${datos.pedidosDia}">0</h3>
+                    <div class="kpi-vs" th:classappend="${datos.pctPedidosVsAyer >= 0 ? 'text-green' : 'text-red'}">
                         <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                        <span>
+                            <i class="fa-solid" th:classappend="${datos.pctPedidosVsAyer >= 0 ? 'fa-caret-up' : 'fa-caret-down'}"></i>
+                            <span th:text="${datos.pctPedidosVsAyer >= 0 ? datos.pctPedidosVsAyer : -datos.pctPedidosVsAyer} + '%'">0%</span>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -46,10 +52,10 @@
                 <div class="kpi-icon icon-purple"><i class="fa-solid fa-vault"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">SALDO ACTUAL EN CAJA</span>
-                    <h3 class="kpi-value">[saldo_caja]</h3>
-                    <div class="kpi-vs text-green">
-                        <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                    <h3 class="kpi-value" th:text="'S/ ' + ${#numbers.formatDecimal(datos.saldoCaja, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</h3>
+                    <div class="kpi-vs" th:classappend="${datos.cajaAbierta ? 'text-green' : 'text-red'}">
+                        <small>Estado</small>
+                        <span th:text="${datos.cajaAbierta ? 'Abierta' : 'Cerrada'}">Abierta</span>
                     </div>
                 </div>
             </div>
@@ -58,10 +64,10 @@
                 <div class="kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">ALERTAS STOCK CRÍTICO</span>
-                    <h3 class="kpi-value">[alertas_stock]</h3>
+                    <h3 class="kpi-value" th:text="${datos.alertasStock}">0</h3>
                     <div class="kpi-vs text-red">
-                        <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-down"></i> [porcentaje_vs_ayer]%</span>
+                        <small>Urgente</small>
+                        <span>Revisar stock</span>
                     </div>
                 </div>
             </div>
@@ -72,11 +78,11 @@
                 <div class="box-header">
                     <h2>Ventas de la Semana (Soles)</h2>
                     <select class="custom-select">
-                        <option>[filtro_tiempo]</option>
+                        <option>Últimos 7 días</option>
                     </select>
                 </div>
                 <div class="canvas-container">
-                    <canvas id="barChart"></canvas>
+                    <canvas id="barChart" th:data-labels="${datos.semanaLabels}" th:data-valores="${datos.semanaValores}"></canvas>
                 </div>
             </div>
 
@@ -84,15 +90,15 @@
                 <div class="box-header">
                     <h2>Ventas por Categoría (%)</h2>
                     <select class="custom-select">
-                        <option>[filtro_tiempo]</option>
+                        <option>General</option>
                     </select>
                 </div>
                 <div class="canvas-container canvas-pie">
-                    <canvas id="pieChart"></canvas>
+                    <canvas id="pieChart" th:data-labels="${datos.catLabels}" th:data-valores="${datos.catValores}"></canvas>
                 </div>
                 <div class="pie-footer">
                     <span>Total Ventas</span>
-                    <strong>[total_ventas]</strong>
+                    <strong th:text="'S/ ' + ${#numbers.formatDecimal(datos.totalVentasMonto, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</strong>
                 </div>
             </div>
         </div>
@@ -111,33 +117,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr th:each="i : ${datos.bajoStock}">
                                 <td>
                                     <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
+                                        <img th:src="@{/img/placeholder-prod.png}" src="img/placeholder-prod.png" alt="Img">
+                                        <span th:text="${i.producto.nombre}">Producto</span>
                                     </div>
                                 </td>
-                                <td>[stock_actual] kg</td>
-                                <td>[stock_minimo] kg</td>
-                                <td><span class="badge badge-critico">[estado]</span></td>
+                                <td th:text="${i.stockactual != null ? i.stockactual + ' kg' : '0 kg'}">0 kg</td>
+                                <td th:text="${i.stockminimo != null ? i.stockminimo + ' kg' : '0 kg'}">0 kg</td>
+                                <td>
+                                    <span th:if="${i.stockactual <= 0}" class="badge badge-critico">Agotado</span>
+                                    <span th:if="${i.stockactual > 0 && i.stockactual <= i.stockminimo}" class="badge badge-bajo">Bajo</span>
+                                    <span th:if="${i.stockactual > i.stockminimo}" class="badge badge-verde" style="background: #e8f5e9; color: #2e7d32;">En Stock</span>
+                                </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[stock_actual] kg</td>
-                                <td>[stock_minimo] kg</td>
-                                <td><span class="badge badge-bajo">[estado]</span></td>
+                            <tr th:if="${#lists.isEmpty(datos.bajoStock)}">
+                                <td colspan="4" class="text-center" style="color: #777; padding: 20px;">No hay alertas de stock</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="box-footer">
-                    <a href="producto/index.html">Ver todos los productos <i class="fa-solid fa-arrow-right"></i></a>
+                    <a th:href="@{/producto}" href="producto/index.html">Ver todos los productos <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -154,33 +156,25 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>[fecha]</td>
+                            <tr th:each="m : ${datos.mermasRecientes}">
+                                <td th:text="${m.fechahora != null ? m.fechahora.format(T(java.time.format.DateTimeFormatter).ofPattern('dd/MM/yyyy')) : '---'}">Fecha</td>
                                 <td>
                                     <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
+                                        <img th:src="@{/img/placeholder-prod.png}" src="img/placeholder-prod.png" alt="Img">
+                                        <span th:text="${m.producto != null ? m.producto.nombre : 'Desconocido'}">Producto</span>
                                     </div>
                                 </td>
-                                <td>[cantidad] kg</td>
-                                <td>[motivo]</td>
+                                <td th:text="${m.cantidad != null ? m.cantidad + ' kg' : '0 kg'}">Cantidad</td>
+                                <td th:text="${m.motivoMerma != null ? m.motivoMerma.descripcion : 'Otros'}">Motivo</td>
                             </tr>
-                            <tr>
-                                <td>[fecha]</td>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[cantidad] kg</td>
-                                <td>[motivo]</td>
+                            <tr th:if="${#lists.isEmpty(datos.mermasRecientes)}">
+                                <td colspan="4" class="text-center" style="color: #777; padding: 20px;">No hay mermas registradas recientemente</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="box-footer">
-                    <a href="#">Ver todas las mermas <i class="fa-solid fa-arrow-right"></i></a>
+                    <a th:href="@{/producto}" href="#">Ver todas las mermas <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>

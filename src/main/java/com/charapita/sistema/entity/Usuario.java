@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "usuario")
 public class Usuario {
@@ -27,14 +26,14 @@ public class Usuario {
     private String correo;
     private String contrasena;
     private Integer estado;
-    
+
     @Column(name = "ultimo_acceso")
     private LocalDateTime ultimoAcceso;
     private Boolean eliminado;
 
     @ManyToOne
     @JoinColumn(name = "idrol")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Rol rol;
 
     public Integer getIdusuario() {
@@ -123,6 +122,17 @@ public class Usuario {
 
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public String getIniciales() {
+        String init = "";
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            init += nombre.trim().substring(0, 1).toUpperCase();
+        }
+        if (apellido != null && !apellido.trim().isEmpty()) {
+            init += apellido.trim().substring(0, 1).toUpperCase();
+        }
+        return init.isEmpty() ? "U" : init;
     }
 
     @Override
