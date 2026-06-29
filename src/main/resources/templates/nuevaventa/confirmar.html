@@ -54,7 +54,7 @@
                                 <i class="fa-regular fa-user cv-input-icon"></i>
                                 <select class="cv-select" id="confirmClienteSelect">
                                     <option value="">-- Seleccionar Cliente --</option>
-                                    <option th:each="c : ${datos.clientes}" th:value="${c.idcliente}" th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
+                                    <option th:each="c : ${clientes}" th:value="${c.idcliente}" th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
                                 </select>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                     <div class="cv-form-group">
                         <label class="cv-label">Tipo de comprobante</label>
                         <div class="cv-document-types" id="confirmComprobanteGrid">
-                            <div th:each="tc : ${datos.comprobantes}" 
+                            <div th:each="tc : ${comprobantes}" 
                                  th:class="'cv-doc-box ' + (${tc.idtipo == 1} ? 'active' : '')" 
                                  th:data-id="${tc.idtipo}" 
                                  th:data-serie="${tc.idtipo == 1 ? 'B001' : 'F001'}" 
@@ -135,7 +135,7 @@
                         <div class="cv-select-wrapper">
                             <i class="fa-solid fa-credit-card cv-input-icon"></i>
                             <select class="cv-select" id="confirmMetodoSelect">
-                                <option th:each="m : ${datos.metodos}" th:value="${m.idmetodo}" th:text="${m.nombre}">Efectivo</option>
+                                <option th:each="m : ${metodos}" th:value="${m.idmetodo}" th:text="${m.nombre}">Efectivo</option>
                             </select>
                         </div>
                     </div>
@@ -203,7 +203,7 @@
                         <div class="cv-select-wrapper">
                             <i class="fa-regular fa-user cv-input-icon"></i>
                             <select class="cv-select" id="confirmVendedorSelect">
-                                <option th:each="u : ${datos.usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + (u.apellido != null ? u.apellido : '')}">Vendedor</option>
+                                <option th:each="u : ${usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + (u.apellido != null ? u.apellido : '')}">Vendedor</option>
                             </select>
                         </div>
                     </div>

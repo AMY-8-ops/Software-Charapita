@@ -48,21 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const barCanvas = document.getElementById('barChart');
     if (barCanvas) { 
         const ctxBar = barCanvas.getContext('2d');
-        
-        // Cargar datos dinámicos desde atributos data de Thymeleaf
-        const barLabelsStr = barCanvas.getAttribute('data-labels') || '';
-        const barValoresStr = barCanvas.getAttribute('data-valores') || '';
-        
-        const barLabels = barLabelsStr ? barLabelsStr.split(',') : ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-        const barData = barValoresStr ? barValoresStr.split(',').map(Number) : [0, 0, 0, 0, 0, 0, 0];
-
         new Chart(ctxBar, {
             type: 'bar',
             data: {
-                labels: barLabels,
+                labels: ['[dia]', '[dia]', '[dia]', '[dia]', '[dia]', '[dia]', '[dia]'],
                 datasets: [{
                     label: 'Ventas (S/)',
-                    data: barData,
+                    data: [800, 1200, 1600, 1050, 1700, 900, 1450],
                     backgroundColor: '#8a1529',
                     borderRadius: 4
                 }]
@@ -79,25 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const pieCanvas = document.getElementById('pieChart');
     if (pieCanvas) {
         const ctxPie = pieCanvas.getContext('2d');
-        
-        // Cargar datos dinámicos desde atributos data de Thymeleaf
-        const pieLabelsStr = pieCanvas.getAttribute('data-labels') || '';
-        const pieValoresStr = pieCanvas.getAttribute('data-valores') || '';
-        
-        const pieLabels = pieLabelsStr ? pieLabelsStr.split(',') : ['Sin categorías'];
-        const pieData = pieValoresStr ? pieValoresStr.split(',').map(Number) : [100];
-        
-        // Generar colores agradables según la cantidad de categorías
-        const predefinedColors = ['#8a1529', '#f39c12', '#27ae60', '#2980b9', '#8e44ad', '#1abc9c', '#d35400', '#2c3e50'];
-        const backgroundColors = pieLabels.map((_, i) => predefinedColors[i % predefinedColors.length]);
-
         new Chart(ctxPie, {
             type: 'doughnut',
             data: {
-                labels: pieLabels,
+                labels: ['[categoria]', '[categoria]', '[categoria]', '[categoria]', '[categoria]'],
                 datasets: [{
-                    data: pieData,
-                    backgroundColor: backgroundColors,
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: ['#8a1529', '#f39c12', '#27ae60', '#2980b9', '#8e44ad'],
                     borderWidth: 2
                 }]
             },
@@ -452,38 +432,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // LÓGICA VISTA: REPORTES (rep-)
     // =========================================
 
-    let repChartInstance = null;
-
     // 1. Interacción de Pestañas (Tabs)
     const repTabs = document.querySelectorAll('.rep-tab');
     if (repTabs.length > 0) {
-        repTabs.forEach((tab, index) => {
+        repTabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
                 // Quita la clase active de todas
                 repTabs.forEach(t => t.classList.remove('active'));
                 // Añade active a la clickeada
                 e.currentTarget.classList.add('active');
                 
-                // Mostrar/ocultar secciones basadas en la pestaña
-                const secVentas = document.getElementById('repVentasSection');
-                const secMermas = document.getElementById('repMermasSection');
-                const secInventario = document.getElementById('repInventarioSection');
-                
-                if (secVentas && secMermas && secInventario) {
-                    if (index === 0) {
-                        secVentas.style.display = 'block';
-                        secMermas.style.display = 'none';
-                        secInventario.style.display = 'none';
-                    } else if (index === 1) {
-                        secVentas.style.display = 'none';
-                        secMermas.style.display = 'block';
-                        secInventario.style.display = 'none';
-                    } else if (index === 2) {
-                        secVentas.style.display = 'none';
-                        secMermas.style.display = 'none';
-                        secInventario.style.display = 'block';
-                    }
-                }
+                // NOTA: Para este prototipo, todas las tablas están visibles.
+                // En un desarrollo completo, aquí ocultarías/mostrarías los section correspondientes.
             });
         });
     }
@@ -492,15 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const repCanvas = document.getElementById('repBarChart');
     if (repCanvas) {
         const ctxRep = repCanvas.getContext('2d');
-        const initialVentas = parseFloat(repCanvas.getAttribute('data-ventas')) || 0;
-        const initialMermas = parseFloat(repCanvas.getAttribute('data-mermas')) || 0;
-        repChartInstance = new Chart(ctxRep, {
+        new Chart(ctxRep, {
             type: 'bar',
             data: {
                 labels: ['Ventas', 'Mermas'],
                 datasets: [{
                     label: 'Monto (S/)',
-                    data: [initialVentas, initialMermas],
+                    data: [8524.70, 61.40], // Datos simulados basados en la imagen
                     backgroundColor: [
                         '#218838', // Verde para ventas
                         '#c62828'  // Rojo para mermas
@@ -527,190 +485,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                if (value >= 1000) {
-                                    return (value / 1000) + 'K'; // Formato "10K", "8K"
-                                }
-                                return 'S/ ' + value;
+                                return (value / 1000) + 'K'; // Formato "10K", "8K"
                             }
                         }
                     }
                 }
             }
-        });
-    }
-
-    // 3. Lógica de Filtrado Local (Ventas e Inventario)
-    function applyReportFilters() {
-        const desdeInput = document.getElementById('repFechaDesde');
-        const hastaInput = document.getElementById('repFechaHasta');
-        const cajaSelect = document.getElementById('repCajaFilter');
-        const vendedorSelect = document.getElementById('repVendedorFilter');
-        const categoriaSelect = document.getElementById('repCategoriaFilter');
-
-        if (!desdeInput || !hastaInput || !cajaSelect || !vendedorSelect || !categoriaSelect) return;
-
-        const desdeVal = desdeInput.value; // YYYY-MM-DD
-        const hastaVal = hastaInput.value; // YYYY-MM-DD
-        const cajaVal = cajaSelect.value;
-        const vendedorVal = vendedorSelect.value;
-        const categoriaVal = categoriaSelect.value;
-
-        // 3.1. Filtrar Ventas
-        const salesRows = document.querySelectorAll('#repVentasTableBody tr');
-        let visibleSalesCount = 0;
-        let visibleSalesTotal = 0;
-
-        salesRows.forEach(row => {
-            const rowFecha = row.getAttribute('data-fecha'); // YYYY-MM-DD
-            const rowCaja = row.getAttribute('data-caja');
-            const rowVendedor = row.getAttribute('data-vendedor');
-            const rowCategorias = row.getAttribute('data-categorias') || '';
-
-            let matchesFecha = true;
-            if (rowFecha) {
-                if (desdeVal && rowFecha < desdeVal) matchesFecha = false;
-                if (hastaVal && rowFecha > hastaVal) matchesFecha = false;
-            }
-
-            const matchesCaja = (cajaVal === 'Todas' || rowCaja === cajaVal);
-            const matchesVendedor = (vendedorVal === 'Todos' || rowVendedor === vendedorVal);
-            
-            let matchesCategoria = true;
-            if (categoriaVal !== 'Todas') {
-                const rowCatsList = rowCategorias.split(',').map(s => s.trim());
-                matchesCategoria = rowCatsList.includes(categoriaVal);
-            }
-
-            if (matchesFecha && matchesCaja && matchesVendedor && matchesCategoria) {
-                row.style.display = '';
-                visibleSalesCount++;
-                
-                // Extraer total de la sexta columna (índice 5)
-                const totalTd = row.children[5];
-                if (totalTd) {
-                    const totalText = totalTd.textContent.replace('S/', '').replace(/,/g, '').trim();
-                    const totalVal = parseFloat(totalText) || 0;
-                    
-                    // Solo sumar si la venta está completada (no anulada)
-                    const isCompletada = !row.children[1].classList.contains('rep-text-muted');
-                    if (isCompletada) {
-                        visibleSalesTotal += totalVal;
-                    }
-                }
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        const infoLabel = document.getElementById('repVentasInfoLabel');
-        if (infoLabel) {
-            infoLabel.innerText = `Mostrando ${visibleSalesCount} de ${salesRows.length} ventas`;
-        }
-
-        // 3.2. Filtrar Inventario
-        const invRows = document.querySelectorAll('#repInventoryTableBody tr');
-        let totalInvProducts = 0;
-        let totalInvStock = 0;
-        let totalInvVal = 0;
-
-        invRows.forEach(row => {
-            const rowCategoria = row.getAttribute('data-categoria');
-            const matchesCategoria = (categoriaVal === 'Todas' || rowCategoria === categoriaVal);
-
-            if (matchesCategoria) {
-                row.style.display = '';
-                
-                const prodVal = parseInt(row.children[1].textContent.trim()) || 0;
-                const stockVal = parseFloat(row.children[2].textContent.replace(/,/g, '').trim()) || 0;
-                const valVal = parseFloat(row.children[3].textContent.replace(/,/g, '').trim()) || 0;
-
-                totalInvProducts += prodVal;
-                totalInvStock += stockVal;
-                totalInvVal += valVal;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        const footerProducts = document.getElementById('repInvTotalProducts');
-        const footerStock = document.getElementById('repInvTotalStock');
-        const footerVal = document.getElementById('repInvTotalVal');
-
-        if (footerProducts) footerProducts.textContent = totalInvProducts;
-        if (footerStock) footerStock.textContent = totalInvStock.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        if (footerVal) footerVal.textContent = totalInvVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-        // 3.3. Actualizar Gráfico
-        let mermasTotal = 0;
-        const mermasTotalCell = document.querySelector('#repMermasSection tfoot tr.rep-total-row td:last-child');
-        if (mermasTotalCell) {
-            mermasTotal = parseFloat(mermasTotalCell.textContent.replace(/,/g, '').trim()) || 0;
-        } else if (repCanvas) {
-            mermasTotal = parseFloat(repCanvas.getAttribute('data-mermas')) || 0;
-        }
-
-        if (repChartInstance) {
-            repChartInstance.data.datasets[0].data = [visibleSalesTotal, mermasTotal];
-            repChartInstance.update();
-        }
-
-        // 3.4. Actualizar Alerta de Porcentaje de Mermas
-        const alertSpan = document.querySelector('#repMermasSection .rep-alert-red span');
-        if (alertSpan) {
-            let mermaPct = 0;
-            if (visibleSalesTotal > 0) {
-                mermaPct = (mermasTotal / visibleSalesTotal) * 100;
-                mermaPct = Math.round(mermaPct * 100) / 100;
-            }
-            alertSpan.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Las mermas representan el <strong>${mermaPct.toFixed(2)}%</strong> de las ventas totales.`;
-        }
-    }
-
-    function clearReportFilters() {
-        const desdeInput = document.getElementById('repFechaDesde');
-        const hastaInput = document.getElementById('repFechaHasta');
-        const cajaSelect = document.getElementById('repCajaFilter');
-        const vendedorSelect = document.getElementById('repVendedorFilter');
-        const categoriaSelect = document.getElementById('repCategoriaFilter');
-
-        if (desdeInput && hastaInput) {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const finStr = `${yyyy}-${mm}-${dd}`;
-
-            const prevMonthDate = new Date();
-            prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
-            const pyyyy = prevMonthDate.getFullYear();
-            const pmm = String(prevMonthDate.getMonth() + 1).padStart(2, '0');
-            const pdd = String(prevMonthDate.getDate()).padStart(2, '0');
-            const inicioStr = `${pyyyy}-${pmm}-${pdd}`;
-
-            desdeInput.value = inicioStr;
-            hastaInput.value = finStr;
-        }
-
-        if (cajaSelect) cajaSelect.value = 'Todas';
-        if (vendedorSelect) vendedorSelect.value = 'Todos';
-        if (categoriaSelect) categoriaSelect.value = 'Todas';
-
-        applyReportFilters();
-    }
-
-    const repBtnBuscar = document.getElementById('repBtnBuscar');
-    if (repBtnBuscar) {
-        repBtnBuscar.addEventListener('click', (e) => {
-            e.preventDefault();
-            applyReportFilters();
-        });
-    }
-
-    const repBtnLimpiar = document.getElementById('repBtnLimpiar');
-    if (repBtnLimpiar) {
-        repBtnLimpiar.addEventListener('click', (e) => {
-            e.preventDefault();
-            clearReportFilters();
         });
     }
     // =========================================
@@ -896,12 +676,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicializar método de pago por defecto si no existe o no tiene estructura
     if (!selectedPayMethod || typeof selectedPayMethod !== 'object' || !selectedPayMethod.id) {
-        // Buscamos el elemento .pos-pay-method que esté activo en el DOM al iniciar
-        const activePayElem = document.querySelector('.pos-pay-method.active');
-        if (activePayElem) {
+        const posPaymentSelect = document.getElementById('posPaymentSelect');
+        if (posPaymentSelect && posPaymentSelect.value) {
+            const selectedOption = posPaymentSelect.options[posPaymentSelect.selectedIndex];
             selectedPayMethod = {
-                id: parseInt(activePayElem.getAttribute('data-id')),
-                nombre: activePayElem.getAttribute('data-nombre')
+                id: parseInt(posPaymentSelect.value),
+                nombre: selectedOption.getAttribute('data-nombre')
             };
         } else {
             selectedPayMethod = { id: 1, nombre: 'Efectivo' };
@@ -1117,30 +897,61 @@ document.addEventListener('DOMContentLoaded', () => {
         posSearchInput.addEventListener('input', filterProducts);
     }
 
-    // SELECCIÓN DE MÉTODO DE PAGO EN EL GRID DE POS
-    const posPaymentGrid = document.getElementById('posPaymentGrid');
-    if (posPaymentGrid) {
-        // Resaltar método activo guardado
-        posPaymentGrid.querySelectorAll('.pos-pay-method').forEach(item => {
-            const payId = parseInt(item.getAttribute('data-id'));
-            if (payId === selectedPayMethod.id) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
+    // AGREGAR PRODUCTO POR CÓDIGO MANUALMENTE
+    const posCodeInput = document.getElementById('posCodeInput');
+    const btnAgregarPorCodigo = document.getElementById('btnAgregarPorCodigo');
+
+    function addProductByCode() {
+        if (!posCodeInput) return;
+        const code = posCodeInput.value.trim().toLowerCase();
+        if (code === '') return;
+
+        let foundCard = null;
+        productCards.forEach(card => {
+            const cardCodigo = card.getAttribute('data-codigo').toLowerCase();
+            if (cardCodigo === code) {
+                foundCard = card;
             }
         });
 
-        posPaymentGrid.addEventListener('click', (e) => {
-            const item = e.target.closest('.pos-pay-method');
-            if (item) {
-                posPaymentGrid.querySelectorAll('.pos-pay-method').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                selectedPayMethod = {
-                    id: parseInt(item.getAttribute('data-id')),
-                    nombre: item.getAttribute('data-nombre')
-                };
-                savePayMethodToStorage();
+        if (foundCard) {
+            foundCard.click();
+            posCodeInput.value = '';
+            posCodeInput.focus();
+        } else {
+            alert(`No se encontró ningún producto con el código: ${posCodeInput.value}`);
+        }
+    }
+
+    if (posCodeInput) {
+        posCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addProductByCode();
             }
+        });
+    }
+
+    if (btnAgregarPorCodigo) {
+        btnAgregarPorCodigo.addEventListener('click', (e) => {
+            e.preventDefault();
+            addProductByCode();
+        });
+    }
+
+    // SELECCIÓN DE MÉTODO DE PAGO EN EL COMBOBOX DE POS
+    const posPaymentSelect = document.getElementById('posPaymentSelect');
+    if (posPaymentSelect) {
+        // Establecer el método activo guardado en el select
+        posPaymentSelect.value = selectedPayMethod.id;
+
+        posPaymentSelect.addEventListener('change', () => {
+            const selectedOption = posPaymentSelect.options[posPaymentSelect.selectedIndex];
+            selectedPayMethod = {
+                id: parseInt(posPaymentSelect.value),
+                nombre: selectedOption.getAttribute('data-nombre')
+            };
+            savePayMethodToStorage();
         });
     }
 

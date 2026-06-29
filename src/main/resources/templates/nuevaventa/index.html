@@ -26,18 +26,22 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="posSearchInput" placeholder="Buscar por nombre o codigo..">
                     </div>
-                    <button class="pos-btn-scan">
-                        <i class="fa-solid fa-barcode"></i> Escanear codigo
+                    <div class="pos-input-group" style="flex: 0 0 220px;">
+                        <i class="fa-solid fa-barcode"></i>
+                        <input type="text" id="posCodeInput" placeholder="Ingresar codigo..">
+                    </div>
+                    <button type="button" class="pos-btn-scan" id="btnAgregarPorCodigo">
+                        <i class="fa-solid fa-plus"></i> Agregar
                     </button>
                 </div>
 
                 <div class="pos-categories" id="posCategoriesRow">
                     <button class="pos-cat-btn active" data-id="">Todos</button>
-                    <button th:each="c : ${datos.categorias}" class="pos-cat-btn" th:data-id="${c.idcategoria}" th:text="${c.nombre}">Categoría</button>
+                    <button th:each="c : ${categorias}" class="pos-cat-btn" th:data-id="${c.idcategoria}" th:text="${c.nombre}">Categoría</button>
                 </div>
 
                 <div class="pos-products-grid">
-                    <div th:each="i : ${datos.inventarios}" class="pos-product-card btn-pos-add-to-cart" 
+                    <div th:each="i : ${inventarios}" class="pos-product-card btn-pos-add-to-cart" 
                          th:data-id="${i.producto.idproducto}" 
                          th:data-nombre="${i.producto.nombre}" 
                          th:data-codigo="${i.producto.getCodigo()}" 
@@ -113,18 +117,12 @@
                     <div class="pos-payment-header">
                         <h3>Selecciona el medio de pago</h3>
                     </div>
-                    <div class="pos-payment-grid" id="posPaymentGrid">
-                        <div th:each="m, iter : ${datos.metodos}" 
-                             th:class="'pos-pay-method ' + (${iter.index == 0} ? 'active' : '')" 
-                             th:data-id="${m.idmetodo}" 
-                             th:data-nombre="${m.nombre}">
-                            <i th:if="${#strings.contains(#strings.toLowerCase(m.nombre), 'efectivo')}" class="fa-solid fa-money-bill-wave"></i>
-                            <img th:if="${#strings.contains(#strings.toLowerCase(m.nombre), 'yape')}" th:src="@{/img/yape-logo.png}" src="/img/yape-logo.png" alt="Yape" class="pos-pay-logo">
-                            <img th:if="${#strings.contains(#strings.toLowerCase(m.nombre), 'plin')}" th:src="@{/img/plin-logo.png}" src="/img/plin-logo.png" alt="Plin" class="pos-pay-logo">
-                            <i th:if="${!#strings.contains(#strings.toLowerCase(m.nombre), 'efectivo') && !#strings.contains(#strings.toLowerCase(m.nombre), 'yape') && !#strings.contains(#strings.toLowerCase(m.nombre), 'plin')}" class="fa-solid fa-building-columns"></i>
-                            <span th:text="${m.nombre}">Efectivo</span>
-                        </div>
-                    </div>
+                    <select id="posPaymentSelect" class="cv-select">
+                        <option th:each="m : ${metodos}" 
+                                th:value="${m.idmetodo}" 
+                                th:data-nombre="${m.nombre}"
+                                th:text="${m.nombre}"></option>
+                    </select>
                 </div>
 
                 <a class="pos-btn-confirm" id="btnConfirmarVenta" th:href="@{/nuevaventa/confirmar}" href="confirmar.html">

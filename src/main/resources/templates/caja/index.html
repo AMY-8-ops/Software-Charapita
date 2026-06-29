@@ -18,30 +18,30 @@
         <div class="caja-status-bar">
             <div class="caja-status-item">
                 <span class="caja-label">Estado actual:</span>
-                <div th:if="${datos.abierta}" class="caja-badge-status caja-bg-green">
+                <div th:if="${is_abierta}" class="caja-badge-status caja-bg-green">
                     <i class="fa-solid fa-lock-open"></i> CAJA ABIERTA
                 </div>
-                <div th:unless="${datos.abierta}" class="caja-badge-status" style="background: #ffebee; color: #c62828;">
+                <div th:unless="${is_abierta}" class="caja-badge-status" style="background: #ffebee; color: #c62828;">
                     <i class="fa-solid fa-lock"></i> CAJA CERRADA
                 </div>
             </div>
-            <div th:if="${datos.abierta}" class="caja-status-item caja-border-left">
+            <div th:if="${is_abierta}" class="caja-status-item caja-border-left">
                 <span class="caja-label">Cajero responsable:</span>
-                <strong><i class="fa-regular fa-user"></i> <span th:text="${datos.nombreCajero}">Rachel Admin</span></strong>
+                <strong><i class="fa-regular fa-user"></i> <span th:text="${nombre_cajero}">Rachel Admin</span></strong>
             </div>
-            <div th:if="${datos.abierta}" class="caja-status-item caja-border-left">
+            <div th:if="${is_abierta}" class="caja-status-item caja-border-left">
                 <span class="caja-label">Apertura realizada:</span>
-                <strong><i class="fa-regular fa-calendar"></i> <span th:text="${datos.fechaApertura}">23/06/2026 08:30</span></strong>
+                <strong><i class="fa-regular fa-calendar"></i> <span th:text="${fecha_apertura}">23/06/2026 08:30</span></strong>
             </div>
-            <div th:if="${datos.abierta}" class="caja-status-item caja-border-left">
+            <div th:if="${is_abierta}" class="caja-status-item caja-border-left">
                 <span class="caja-label">Monto inicial:</span>
-                <strong>S/ <span th:text="${#numbers.formatDecimal(datos.montoInicial, 1, 'COMMA', 2, 'POINT')}">200.00</span></strong>
+                <strong>S/ <span th:text="${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">200.00</span></strong>
             </div>
         </div>
 
         <div class="caja-action-panels">
             
-            <section th:if="${datos.abierta}" class="caja-panel caja-panel-cierre" th:data-id="${datos.activeId}" id="panelCierreCaja">
+            <section th:if="${is_abierta}" class="caja-panel caja-panel-cierre" th:data-id="${active_id}" id="panelCierreCaja">
                 <div class="caja-panel-header">
                     <i class="fa-solid fa-chart-simple caja-icon-green"></i>
                     <div>
@@ -56,15 +56,15 @@
                         
                         <div class="caja-row-flex">
                             <span>Ventas en Efectivo</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.ventasEfectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                         </div>
                         <div class="caja-row-flex">
                             <span>Ventas Electrónicas (Yape/Plin/Tarjeta)</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.ventasElectronicas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_electronicas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                         </div>
                         <div class="caja-row-flex caja-total-row caja-text-green">
                             <span>TOTAL VENTAS DEL TURNO</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.totalVentas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(total_ventas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                         </div>
 
                         <div class="caja-form-group caja-mt-20">
@@ -78,16 +78,16 @@
                         
                         <div class="caja-row-flex">
                             <span>Monto Inicial de Apertura</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.montoInicial, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                         </div>
                         <div class="caja-row-flex">
                             <span>(+) Ventas en Efectivo</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.ventasEfectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
                         </div>
                         
                         <div class="caja-row-flex caja-total-row caja-text-green">
                             <span>MONTO ESPERADO EN CAJA</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(datos.montoEsperado, 1, 'COMMA', 2, 'POINT')}" id="valMontoEsperado" th:data-esperado="${datos.montoEsperado}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_esperado, 1, 'COMMA', 2, 'POINT')}" id="valMontoEsperado" th:data-esperado="${monto_esperado}">S/ 0.00</span>
                         </div>
 
                         <div class="caja-form-group caja-mt-15">
@@ -115,7 +115,7 @@
                 </div>
             </section>
 
-            <section th:unless="${datos.abierta}" class="caja-panel caja-panel-apertura">
+            <section th:unless="${is_abierta}" class="caja-panel caja-panel-apertura">
                 <div class="caja-panel-header">
                     <i class="fa-solid fa-lock caja-icon-red"></i>
                     <div>
@@ -128,14 +128,14 @@
                     <div class="caja-form-group">
                         <label>Cajero responsable*</label>
                         <select class="caja-select" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;" id="selectCajero">
-                            <option th:each="u : ${datos.usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + u.apellido}">Rachel Admin</option>
+                            <option th:each="u : ${usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + u.apellido}">Rachel Admin</option>
                         </select>
                     </div>
                     
                     <div class="caja-form-group" style="margin-top: 10px;">
                         <label>Caja registradora*</label>
                         <select class="caja-select" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;" id="selectCaja">
-                            <option th:each="c : ${datos.cajas}" th:value="${c.idcaja}" th:text="${c.nombre}">Caja Principal</option>
+                            <option th:each="c : ${cajas}" th:value="${c.idcaja}" th:text="${c.nombre}">Caja Principal</option>
                         </select>
                     </div>
 
@@ -193,7 +193,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="h : ${datos.historial}">
+                        <tr th:each="h : ${historial}">
                             <td th:text="${h.fechaApertura}">[fecha_apertura]</td>
                             <td th:text="${h.fechaCierre}">[fecha_cierre]</td>
                             <td th:text="${h.cajero}">[cajero]</td>
@@ -214,7 +214,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(datos.historial)}">
+                        <tr th:if="${#lists.isEmpty(historial)}">
                             <td colspan="10" style="text-align: center; color: #888; padding: 15px;">No se encontraron movimientos de caja registrados.</td>
                         </tr>
                     </tbody>

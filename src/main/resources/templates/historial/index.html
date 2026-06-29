@@ -28,11 +28,11 @@
                         <div class="hist-date-inputs">
                             <div class="hist-input-with-icon">
                                 <span>Desde</span>
-                                <input type="date" th:value="${datos.fechaInicio}" id="filterFechaDesde">
+                                <input type="date" th:value="${fecha_inicio}" id="filterFechaDesde">
                             </div>
                             <div class="hist-input-with-icon">
                                 <span>Hasta</span>
-                                <input type="date" th:value="${datos.fechaFin}" id="filterFechaHasta">
+                                <input type="date" th:value="${fecha_fin}" id="filterFechaHasta">
                             </div>
                         </div>
                     </div>
@@ -70,7 +70,7 @@
                 </div>
 
                 <div class="hist-table-header">
-                    <i class="fa-solid fa-file-lines"></i> Total de ventas: <span id="totalVentasCount" th:text="${datos.totalVentas}">0</span>
+                    <i class="fa-solid fa-file-lines"></i> Total de ventas: <span id="totalVentasCount" th:text="${total_ventas}">0</span>
                 </div>
 
                 <div class="hist-table-container">
@@ -88,7 +88,7 @@
                             </tr>
                         </thead>
                         <tbody id="historialTableBody">
-                            <tr th:each="v : ${datos.ventas}" 
+                            <tr th:each="v : ${ventas}" 
                                 th:class="${!v.isCompletada} ? 'hist-row-anulada' : ''"
                                 th:data-id="${v.idventa}"
                                 th:data-fecha="${v.rawFecha}"
@@ -130,10 +130,10 @@
                         <button class="hist-page-btn">...</button>
                         <button class="hist-page-btn">Siguiente <i class="fa-solid fa-angle-right"></i></button>
                     </div>
-                    <span class="hist-page-info" id="historialPageInfo" th:text="'Mostrando ' + ${datos.totalVentas} + ' de ' + ${datos.totalVentas} + ' ventas'">Mostrando 0 de 0 ventas</span>
+                    <span class="hist-page-info" id="historialPageInfo" th:text="'Mostrando ' + ${total_ventas} + ' de ' + ${total_ventas} + ' ventas'">Mostrando 0 de 0 ventas</span>
                 </div>
             </section>
-            <aside class="hist-detail-panel" id="histDetailPanel" data-id="">
+            <aside class="hist-detail-panel" id="histDetailPanel" data-id="">
                 
                 <div class="hist-detail-header">
                     <div class="hist-detail-title">

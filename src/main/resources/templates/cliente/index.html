@@ -27,7 +27,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>TOTAL DE CLIENTES</span>
-                    <strong th:text="${datos.totalClientes}">0</strong>
+                    <strong th:text="${total_clientes}">0</strong>
                     <small>Clientes registrados</small>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>CLIENTES NUEVOS (MES)</span>
-                    <strong th:text="${datos.clientesNuevos}">0</strong>
+                    <strong th:text="${clientes_nuevos}">0</strong>
                     <small>Ultimos 30 dias</small>
                 </div>
             </div>
@@ -49,8 +49,8 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>MEJOR CLIENTE</span>
-                    <strong th:text="${datos.mejorCliente}">Ninguno</strong>
-                    <small>Total consumido: <span th:text="'S/' + ${#numbers.formatDecimal(datos.totalMejorCliente, 1, 'COMMA', 2, 'POINT')}">S/0.00</span></small>
+                    <strong th:text="${mejor_cliente}">Ninguno</strong>
+                    <small>Total consumido: <span th:text="'S/' + ${#numbers.formatDecimal(total_mejor_cliente, 1, 'COMMA', 2, 'POINT')}">S/0.00</span></small>
                 </div>
             </div>
 
@@ -60,7 +60,7 @@
                 </div>
                 <div class="cli-kpi-info">
                     <span>FRECUENCIA PROMEDIO</span>
-                    <strong th:text="${datos.frecuenciaPromedio} + ' días'">15 días</strong>
+                    <strong th:text="${frecuencia_promedio} + ' días'">15 días</strong>
                     <small>Entre compras</small>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                     <span class="cli-filter-label">Tipo de cliente</span>
                     <select class="cli-select">
                         <option value="">Todos</option>
-                        <option th:each="t : ${datos.tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
+                        <option th:each="t : ${tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
                     </select>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="c : ${datos.clientes}">
+                        <tr th:each="c : ${clientes}">
                             <td th:text="${c.cliente.nroDocumento}">[dni_ruc]</td>
                             <td th:text="${c.cliente.nombre != null && !c.cliente.nombre.isEmpty() ? c.cliente.nombre : c.cliente.razonsocial}">[nombre_cliente]</td>
                             <td><i class="fa-solid fa-phone cli-table-icon"></i> <span th:text="${c.telefono}">[telefono]</span></td>
@@ -124,14 +124,14 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(datos.clientes)}">
+                        <tr th:if="${#lists.isEmpty(clientes)}">
                             <td colspan="7" style="text-align: center; color: #777;">No se encontraron clientes registrados.</td>
                         </tr>
                     </tbody>
                 </table>
                 
                 <div class="cli-pagination-row">
-                    <small>Mostrando <span th:text="${#lists.size(datos.clientes)}">0</span> de <span th:text="${datos.totalClientes}">0</span> clientes</small>
+                    <small>Mostrando <span th:text="${#lists.size(clientes)}">0</span> de <span th:text="${total_clientes}">0</span> clientes</small>
                     <div class="cli-pagination">
                         <span>&laquo;</span>
                         <span>&lt;</span>
@@ -161,7 +161,7 @@
                     <div class="cli-form-group">
                         <label>Tipo de Cliente*</label>
                         <select class="cli-select" style="width: 100%;" id="formTipoCliente">
-                            <option th:each="t : ${datos.tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
+                            <option th:each="t : ${tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
                         </select>
                     </div>
 

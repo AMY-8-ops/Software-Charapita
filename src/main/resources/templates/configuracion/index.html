@@ -24,8 +24,8 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>USUARIOS ACTIVOS</span>
-                    <strong th:text="${datos.usuariosActivos}">0</strong>
-                    <small>De <span th:text="${datos.totalUsuarios}">0</span> registrados</small>
+                    <strong th:text="${usuarios_activos}">0</strong>
+                    <small>De <span th:text="${total_usuarios}">0</span> registrados</small>
                 </div>
             </div>
 
@@ -35,7 +35,7 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>ROLES DEFINIDOS</span>
-                    <strong th:text="${datos.totalRoles}">0</strong>
+                    <strong th:text="${total_roles}">0</strong>
                     <small>Administración de roles</small>
                 </div>
             </div>
@@ -46,8 +46,8 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>ULTIMO ACCESO</span>
-                    <strong th:text="${datos.ultimoUsuario}">Usuario</strong>
-                    <small th:text="${datos.fechaUltimoAcceso}">Fecha</small>
+                    <strong th:text="${ultimo_usuario}">Usuario</strong>
+                    <small th:text="${fecha_ultimo_acceso}">Fecha</small>
                 </div>
             </div>
 
@@ -57,7 +57,7 @@
                 </div>
                 <div class="conf-kpi-info">
                     <span>PERMISOS CONFIGURADOS</span>
-                    <strong th:text="${datos.totalPermisos}">0</strong>
+                    <strong th:text="${total_permisos}">0</strong>
                     <small>Recursos del sistema</small>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="user : ${datos.usuarios}"
+                                <tr th:each="user : ${usuarios}"
                                     th:classappend="${user.estado != 1} ? 'conf-row-inactive'">
                                     <td>
                                         <div class="conf-user-cell">
@@ -131,8 +131,8 @@
                     </div>
 
                     <div class="conf-pagination-row">
-                        <small>Mostrando <span th:text="${#lists.size(datos.usuarios)}">0</span> de <span
-                                th:text="${datos.totalUsuarios}">0</span> usuarios</small>
+                        <small>Mostrando <span th:text="${#lists.size(usuarios)}">0</span> de <span
+                                th:text="${total_usuarios}">0</span> usuarios</small>
                         <div class="conf-pagination">
                             <span>&laquo;</span>
                             <span>&lt;</span>
@@ -173,7 +173,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="r : ${datos.roles}">
+                                <tr th:each="r : ${roles}">
                                     <td style="text-align: left;">
                                         <span class="conf-badge"
                                             th:classappend="${r.nombre == 'ADMINISTRADOR'} ? 'conf-badge-admin' : 'conf-badge-cajero'"
