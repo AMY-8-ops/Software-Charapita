@@ -99,6 +99,10 @@ public class MermaServiceImpl implements IMermaService {
         merma.setEstado(true);
 
         mermaRepository.save(merma);
+
+        // Descontar del inventario
+        inventario.setStockactual(inventario.getStockactual() - dto.getCantidad());
+        inventarioRepository.save(inventario);
     }
 
     @Override

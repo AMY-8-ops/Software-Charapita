@@ -73,9 +73,9 @@
             </div>
             <div class="prod-tools-right">
                 <div class="prod-search-box">
-                    <input type="text" placeholder="Buscar por codigo o nombre...">
+                    <input type="text" id="prodSearchInput" placeholder="Buscar por codigo o nombre...">
                 </div>
-                <select class="prod-select">
+                <select class="prod-select" id="prodCategorySelect">
                     <option value="">Todas las categorias</option>
                     <option th:each="cat : ${categorias}" th:value="${cat.idcategoria}" th:text="${cat.nombre}">Categoría</option>
                 </select>
@@ -99,7 +99,10 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>                    <tbody>
-                        <tr th:each="inv : ${inventarios}">
+                        <tr th:each="inv : ${inventarios}"
+                            th:data-categoria="${inv.producto.categoria.idcategoria}"
+                            th:data-search="${#strings.toLowerCase(inv.producto.codigo) + ' ' + #strings.toLowerCase(inv.producto.nombre)}"
+                            th:data-unidad="${inv.producto.presentacion.descripcion}">
                             <td><img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" class="prod-img-td" alt="img"></td>
                             <td><strong th:text="${inv.producto.codigo}">[codigo]</strong><br><small th:text="${inv.producto.nombre}">[producto]</small></td>
                             <td th:text="${inv.producto.categoria.nombre}">[categoria]</td>
@@ -115,10 +118,19 @@
                             </td>
                             <td>
                                 <div class="prod-actions">
-                                    <button class="prod-action-btn"><i class="fa-solid fa-pen"></i></button>
-                                    <button class="prod-action-btn" style="color:#e65100;"><i
-                                            class="fa-solid fa-chart-line"></i></button>
-                                    <button class="prod-action-btn" style="color:#c62828;"><i
+                                    <button class="prod-action-btn btn-editar-producto" 
+                                            th:data-id="${inv.producto.idproducto}" 
+                                            th:data-nombre="${inv.producto.nombre}"
+                                            th:data-precio="${inv.producto.precio}"
+                                            th:data-categoria="${inv.producto.categoria.idcategoria}"
+                                            th:data-presentacion="${inv.producto.presentacion.idpresentacion}"
+                                            th:data-stockminimo="${inv.stockminimo}"
+                                            th:data-descripcion="${inv.producto.descripcion != null ? inv.producto.descripcion : ''}"
+                                            th:data-codigo="${inv.producto.codigo}"
+                                            title="Editar Producto"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="prod-action-btn btn-cargar-stock-directo" th:data-id="${inv.producto.idproducto}" style="color:#e65100;" title="Cargar Stock de este Producto"><i
+                                            class="fa-solid fa-circle-plus"></i></button>
+                                    <button class="prod-action-btn btn-eliminar-producto" th:data-id="${inv.producto.idproducto}" style="color:#c62828;" title="Desactivar Producto"><i
                                             class="fa-regular fa-trash-can"></i></button>
                                 </div>
                             </td>
@@ -141,47 +153,48 @@
                 </div>
             </div>
 
-            <aside class="prod-side-panel active" id="panelNuevoProducto">
+            <aside class="prod-side-panel" id="panelNuevoProducto">
+                <input type="hidden" id="prodFormId" value="">
                 <div class="prod-panel-header">
-                    <h3>Nuevo Producto</h3>
+                    <h3 id="prodPanelTitle">Nuevo Producto</h3>
                     <button class="prod-btn-close" id="closeNuevoProducto"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="prod-panel-body">
                     <div class="prod-form-grid-2">
                         <div class="prod-form-group">
-                            <label>Codigo del Producto<span class="prod-req">*</span></label>
-                            <input type="text" class="prod-input" placeholder="Ej. CAR001">
+                            <label>Codigo del Producto</label>
+                            <input type="text" class="prod-input" id="prodFormCodigo" readonly placeholder="Auto-generado" style="background:#f4f6f9; color:#888;">
                         </div>
                         <div class="prod-form-group">
                             <label>Nombre del Producto<span class="prod-req">*</span></label>
-                            <input type="text" class="prod-input" placeholder="Ej. Carne de Res Premium">
+                            <input type="text" class="prod-input" id="prodFormNombre" placeholder="Ej. Carne de Res Premium">
                         </div>
                         <div class="prod-form-group">
                             <label>Categoria<span class="prod-req">*</span></label>
-                            <select class="prod-input">
+                            <select class="prod-input" id="prodFormCategoria">
                                 <option value="">Seleccionar categoria</option>
                                 <option th:each="cat : ${categorias}" th:value="${cat.idcategoria}" th:text="${cat.nombre}">Categoría</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
                             <label>Presentacion<span class="prod-req">*</span></label>
-                            <select class="prod-input">
+                            <select class="prod-input" id="prodFormPresentacion">
                                 <option value="">Seleccionar presentacion</option>
                                 <option th:each="pres : ${presentaciones}" th:value="${pres.idpresentacion}" th:text="${pres.descripcion}">Presentación</option>
                             </select>
                         </div>
                         <div class="prod-form-group">
                             <label>Precio (S/)<span class="prod-req">*</span></label>
-                            <input type="number" class="prod-input" placeholder="Ej. 28.00">
+                            <input type="number" class="prod-input" id="prodFormPrecio" step="0.01" placeholder="Ej. 28.00">
                         </div>
                         <div class="prod-form-group">
                             <label>Stock Minimo<span class="prod-req">*</span></label>
-                            <input type="number" class="prod-input" placeholder="Ej. 10.00 kg">
+                            <input type="number" class="prod-input" id="prodFormStockMinimo" placeholder="Ej. 10">
                         </div>
                     </div>
                     <div class="prod-form-group">
                         <label>Descripcion (Opcional)</label>
-                        <textarea class="prod-input prod-textarea" placeholder="Descripcion del producto.."></textarea>
+                        <textarea class="prod-input prod-textarea" id="prodFormDescripcion" placeholder="Descripcion del producto.."></textarea>
                     </div>
                     <div class="prod-form-group">
                         <label>Imagen del Producto (Opcional)</label>
@@ -193,120 +206,115 @@
                     </div>
                 </div>
                 <div class="prod-panel-footer">
-                    <button class="prod-btn-outline">Cancelar</button>
-                    <button class="prod-btn-primary">Guardar Producto</button>
+                    <button class="prod-btn-outline" id="prodFormCancelBtn">Cancelar</button>
+                    <button class="prod-btn-primary" id="prodFormSaveBtn">Guardar Producto</button>
                 </div>
             </aside>
-        </div>
 
-        <div class="prod-bottom-grid">
-
-            <div class="prod-bottom-panel active" id="panelCargarStock">
+            <!-- Mover Cargar Stock a Panel Lateral -->
+            <aside class="prod-side-panel" id="panelCargarStock">
                 <div class="prod-panel-header">
                     <h3>Cargar Stock (Ingreso de Mercaderia)</h3>
                     <button class="prod-btn-close" id="closeCargarStock"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="prod-panel-body">
-                    <div class="prod-form-grid-3">
-                        <div class="prod-form-group">
-                            <label>Producto<span class="prod-req">*</span></label>
-                            <select class="prod-input">
-                                <option value="">Seleccionar producto</option>
-                                <option th:each="prod : ${productos}" th:value="${prod.idproducto}" th:text="${prod.nombre}">Producto</option>
-                            </select>
-                        </div>
-                        <div class="prod-form-group">
-                            <label>Cantidad<span class="prod-req">*</span></label>
-                            <div class="prod-input-addon">
-                                <input type="number" class="prod-input" placeholder="Ej. 1.25">
-                                <span>kg</span>
-                            </div>
-                        </div>
-                        <div class="prod-form-group">
-                            <label>Fecha de Ingreso<span class="prod-req">*</span></label>
-                            <input type="date" class="prod-input" th:value="${fecha_actual}">
-                        </div>
+                    <div class="prod-form-group">
+                        <label>Producto<span class="prod-req">*</span></label>
+                        <select class="prod-input" id="stockFormProducto">
+                            <option value="">Seleccionar producto</option>
+                            <option th:each="inv : ${inventarios}" th:value="${inv.producto.idproducto}" th:data-unidad="${inv.producto.presentacion.descripcion}" th:text="${inv.producto.nombre}">Producto</option>
+                        </select>
                     </div>
-                    <div class="prod-form-grid-2">
-                        <div class="prod-form-group">
-                            <label>Costo Unitario (S/)</label>
-                            <input type="number" class="prod-input" placeholder="S/ 15.00">
-                        </div>
-                        <div class="prod-form-group">
-                            <label>Proveedor (Opcional)</label>
-                            <input type="text" class="prod-input" placeholder="Proveedor San Fernando">
+                    <div class="prod-form-group">
+                        <label>Cantidad<span class="prod-req">*</span></label>
+                        <div class="prod-input-addon">
+                            <input type="number" class="prod-input" id="stockFormCantidad" step="0.01" placeholder="Ej. 1.25">
+                            <span id="stockFormUnidad">kg</span>
                         </div>
                     </div>
                     <div class="prod-form-group">
+                        <label>Fecha de Ingreso<span class="prod-req">*</span></label>
+                        <input type="date" class="prod-input" id="stockFormFecha" th:value="${fecha_actual}">
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Costo Unitario (S/)</label>
+                        <input type="number" class="prod-input" id="stockFormCosto" step="0.01" placeholder="S/ 15.00">
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Proveedor (Opcional)</label>
+                        <input type="text" class="prod-input" id="stockFormProveedor" placeholder="Proveedor San Fernando">
+                    </div>
+                    <div class="prod-form-group">
                         <label>Observaciones (Opcional)</label>
-                        <input type="text" class="prod-input" placeholder="Observaciones del ingreso...">
+                        <input type="text" class="prod-input" id="stockFormObservaciones" placeholder="Observaciones del ingreso...">
                     </div>
                 </div>
                 <div class="prod-panel-footer">
-                    <button class="prod-btn-outline">Cancelar</button>
-                    <button class="prod-btn-success">Guardar Ingreso</button>
+                    <button class="prod-btn-outline" id="stockFormCancelBtn">Cancelar</button>
+                    <button class="prod-btn-success" id="stockFormSaveBtn">Guardar Ingreso</button>
                 </div>
-            </div>
+            </aside>
 
-            <div class="prod-bottom-panel active" id="panelRegistrarMerma">
+            <!-- Mover Registrar Merma a Panel Lateral -->
+            <aside class="prod-side-panel" id="panelRegistrarMerma">
                 <div class="prod-panel-header">
                     <h3>Registrar Merma (Pérdida)</h3>
                     <button class="prod-btn-close" id="closeRegistrarMerma"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="prod-panel-body">
-                    <div class="prod-form-grid-3">
-                        <div class="prod-form-group">
-                            <label>Producto<span class="prod-req">*</span></label>
-                            <select class="prod-input">
-                                <option value="">Seleccionar producto</option>
-                                <option th:each="prod : ${productos}" th:value="${prod.idproducto}" th:text="${prod.nombre}">Producto</option>
-                            </select>
-                        </div>
-                        <div class="prod-form-group">
-                            <label>Cantidad Perdida<span class="prod-req">*</span></label>
-                            <div class="prod-input-addon">
-                                <input type="number" class="prod-input" placeholder="Ej. 1.25">
-                                <span>kg</span>
-                            </div>
-                        </div>
-                        <div class="prod-form-group">
-                            <label>Fecha de Merma<span class="prod-req">*</span></label>
-                            <input type="date" class="prod-input" th:value="${fecha_actual}">
+                    <div class="prod-form-group">
+                        <label>Producto<span class="prod-req">*</span></label>
+                        <select class="prod-input" id="mermaFormProducto">
+                            <option value="">Seleccionar producto</option>
+                            <option th:each="inv : ${inventarios}" th:value="${inv.producto.idproducto}" th:data-unidad="${inv.producto.presentacion.descripcion}" th:text="${inv.producto.nombre}">Producto</option>
+                        </select>
+                    </div>
+                    <div class="prod-form-group">
+                        <label>Cantidad Perdida<span class="prod-req">*</span></label>
+                        <div class="prod-input-addon">
+                            <input type="number" class="prod-input" id="mermaFormCantidad" step="0.01" placeholder="Ej. 1.25">
+                            <span id="mermaFormUnidad">kg</span>
                         </div>
                     </div>
                     <div class="prod-form-group">
+                        <label>Fecha de Merma<span class="prod-req">*</span></label>
+                        <input type="date" class="prod-input" id="mermaFormFecha" th:value="${fecha_actual}">
+                    </div>
+                    <div class="prod-form-group">
                         <label>Motivo de Merma<span class="prod-req">*</span></label>
-                        <select class="prod-input">
+                        <select class="prod-input" id="mermaFormMotivo">
                             <option value="">Seleccionar motivo</option>
                             <option th:each="mot : ${motivos}" th:value="${mot.idmotivo}" th:text="${mot.descripcion}">Motivo</option>
                         </select>
                     </div>
                     <div class="prod-form-group">
                         <label>Descripcion (Opcional)</label>
-                        <input type="text" class="prod-input" placeholder="Descripcion detallada de la merma..">
+                        <input type="text" class="prod-input" id="mermaFormDescripcion" placeholder="Descripcion detallada de la merma..">
                     </div>
                 </div>
                 <div class="prod-panel-footer">
-                    <button class="prod-btn-outline">Cancelar</button>
-                    <button class="prod-btn-warning">Registrar Merma</button>
+                    <button class="prod-btn-outline" id="mermaFormCancelBtn">Cancelar</button>
+                    <button class="prod-btn-warning" id="mermaFormSaveBtn">Registrar Merma</button>
                 </div>
-            </div>
+            </aside>
+        </div>
+
+        <div class="prod-bottom-grid" style="grid-template-columns: 1fr;">
 
             <div class="prod-bottom-panel active">
                 <div class="prod-panel-header">
-                    <h3>Historial de Mermas <small>(Ultimos 5 registros)</small></h3>
-                    <button class="prod-btn-close"><i class="fa-solid fa-xmark"></i></button>
+                    <h3>Historial de Mermas <small>(Ultimos 5 registros del mes)</small></h3>
                 </div>
-                <div class="prod-panel-body" style="padding: 10px;">
+                <div class="prod-panel-body" style="padding: 15px;">
                     <table class="prod-mini-table">
                         <thead>
                             <tr>
-                                <th>Fecha</th>
+                                <th>Fecha/Hora</th>
                                 <th>Producto</th>
                                 <th>Cantidad</th>
                                 <th>Motivo</th>
-                                <th>Usuario</th>
-                                <th>Valor(S/)</th>
+                                <th>Responsable</th>
+                                <th>Valor de Pérdida (S/)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -316,15 +324,15 @@
                                 <td th:text="${merma.cantidad} + ' ' + ${merma.producto.presentacion.descripcion}">[cant]kg</td>
                                 <td th:text="${merma.motivoMerma.descripcion}">[motivo]</td>
                                 <td>Sistema</td>
-                                <td class="prod-text-red" th:text="'S/' + ${#numbers.formatDecimal(merma.cantidad * merma.producto.precio, 1, 'COMMA', 2, 'POINT')}">[valor]</td>
+                                <td class="prod-text-red" style="font-weight: 500;" th:text="'S/' + ${#numbers.formatDecimal(merma.cantidad * merma.producto.precio, 1, 'COMMA', 2, 'POINT')}">[valor]</td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(ultimas_mermas)}">
-                                <td colspan="6" style="text-align: center; color: #777;">No se registraron mermas recientemente.</td>
+                                <td colspan="6" style="text-align: center; color: #777; padding: 15px;">No se registraron mermas recientemente.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="prod-panel-footer" style="justify-content: flex-end;">
+                <div class="prod-panel-footer" style="justify-content: flex-end; padding: 10px 15px;">
                     <a href="#" class="prod-link">Ver historial completo <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>

@@ -22,6 +22,7 @@ public class Cliente {
     
     @Column(name = "nro_documento")
     private String nroDocumento;
+    private String telefono;
     private Boolean estado;
 
     @ManyToOne
@@ -59,6 +60,14 @@ public class Cliente {
 
     public void setNroDocumento(String nroDocumento) {
         this.nroDocumento = nroDocumento;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public Boolean getEstado() {

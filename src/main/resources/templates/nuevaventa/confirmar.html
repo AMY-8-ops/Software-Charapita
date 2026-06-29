@@ -112,6 +112,7 @@
                                         th:value="${c.idcliente}" 
                                         th:data-doc="${c.nroDocumento}" 
                                         th:data-nombre="${c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial}" 
+                                        th:data-tipo="${c.tipoCliente != null ? c.tipoCliente.nombre : ''}"
                                         th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
                             </select>
                         </div>
@@ -120,6 +121,11 @@
                     <div class="cv-form-group">
                         <label class="cv-label">DNI/RUC</label>
                         <input type="text" class="cv-input" id="confirmNroDocumento" placeholder="Sin documento" readonly>
+                    </div>
+
+                    <div class="cv-form-group">
+                        <label class="cv-label">Tipo de Cliente</label>
+                        <input type="text" class="cv-input" id="confirmTipoClienteDisplay" placeholder="Sin tipo de cliente" readonly>
                     </div>
 
                     <div class="cv-form-group">
@@ -222,6 +228,16 @@
                                 <!-- Generado dinámicamente -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <div style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 12px 15px; border-radius: 6px; border: 1px solid var(--color-borde);">
+                        <span style="font-size: 0.9rem; font-weight: 500; color: #444; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-percent" style="color: var(--color-primario);"></i> Aplicar IGV (18%)
+                        </span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggleIgvCheckbox" checked>
+                            <span class="slider"></span>
+                        </label>
                     </div>
 
                     <div class="cv-totals-box">

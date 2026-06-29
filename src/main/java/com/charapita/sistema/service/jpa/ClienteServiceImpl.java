@@ -88,6 +88,7 @@ public class ClienteServiceImpl implements IClienteService {
         dto.setNombre(cliente.getNombre());
         dto.setNroDocumento(cliente.getNroDocumento());
         dto.setEstado(cliente.getEstado());
+        dto.setTelefono(cliente.getTelefono());
         dto.setIdtipocliente(cliente.getTipoCliente().getIdtipocliente());
         dto.setTipoClienteNombre(cliente.getTipoCliente().getNombre());
         return dto;
@@ -97,6 +98,7 @@ public class ClienteServiceImpl implements IClienteService {
         cliente.setRazonsocial(dto.getRazonsocial());
         cliente.setNombre(dto.getNombre());
         cliente.setNroDocumento(dto.getNroDocumento());
+        cliente.setTelefono(dto.getTelefono());
         
         TipoCliente tipo = tipoClienteRepository.findById(dto.getIdtipocliente())
                 .orElseThrow(() -> new IllegalArgumentException("Tipo de cliente inválido"));

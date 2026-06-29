@@ -33,6 +33,9 @@ public class Producto {
     @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private Presentacion presentacion;
 
+    @jakarta.persistence.Transient
+    private Integer stockMinimo;
+
     public Integer getIdproducto() {
         return idproducto;
     }
@@ -87,6 +90,14 @@ public class Producto {
 
     public void setPresentacion(Presentacion presentacion) {
         this.presentacion = presentacion;
+    }
+
+    public Integer getStockMinimo() {
+        return stockMinimo;
+    }
+
+    public void setStockMinimo(Integer stockMinimo) {
+        this.stockMinimo = stockMinimo;
     }
 
     public String getCodigo() {

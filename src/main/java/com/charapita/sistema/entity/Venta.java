@@ -50,6 +50,9 @@ public class Venta {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private MetodoPago metodoPago;
 
+    @Column(name = "apply_igv")
+    private Boolean applyIgv = true;
+
     public Integer getIdventa() {
         return idventa;
     }
@@ -128,6 +131,14 @@ public class Venta {
 
     public void setNroOperacion(String nroOperacion) {
         this.nroOperacion = nroOperacion;
+    }
+
+    public Boolean getApplyIgv() {
+        return applyIgv;
+    }
+
+    public void setApplyIgv(Boolean applyIgv) {
+        this.applyIgv = applyIgv;
     }
 
     @Override

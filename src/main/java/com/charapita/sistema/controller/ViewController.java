@@ -3,6 +3,10 @@ package com.charapita.sistema.controller;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import com.charapita.sistema.service.IVentaService;
+import com.charapita.sistema.service.IMermaService;
+import com.charapita.sistema.dto.VentaResponseDTO;
+import com.charapita.sistema.dto.MermaResponseDTO;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -63,6 +67,8 @@ public class ViewController {
     private final MovimientoCajaRepository movimientoCajaRepository;
     private final TipoComprobanteRepository tipoComprobanteRepository;
     private final MetodoPagoRepository metodoPagoRepository;
+    private final IVentaService serviceVenta;
+    private final IMermaService serviceMerma;
 
     public ViewController(UsuarioRepository usuarioRepository, RolRepository rolRepository,
             PermisoRepository permisoRepository, InventarioRepository inventarioRepository,
@@ -72,7 +78,7 @@ public class ViewController {
             TipoClienteRepository tipoClienteRepository, VentaRepository ventaRepository,
             DetalleVentaRepository detalleVentaRepository, CajaRepository cajaRepository,
             MovimientoCajaRepository movimientoCajaRepository, TipoComprobanteRepository tipoComprobanteRepository,
-            MetodoPagoRepository metodoPagoRepository) {
+            MetodoPagoRepository metodoPagoRepository, IVentaService serviceVenta, IMermaService serviceMerma) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.permisoRepository = permisoRepository;
@@ -90,6 +96,8 @@ public class ViewController {
         this.movimientoCajaRepository = movimientoCajaRepository;
         this.tipoComprobanteRepository = tipoComprobanteRepository;
         this.metodoPagoRepository = metodoPagoRepository;
+        this.serviceVenta = serviceVenta;
+        this.serviceMerma = serviceMerma;
     }
 
 
@@ -283,7 +291,10 @@ public class ViewController {
                             .orElse("Sin compras");
 
                     String doc = c.getNroDocumento();
-                    String tel = "9" + (doc != null && doc.length() >= 8 ? doc.substring(doc.length() - 8) : "87654321");
+                    String tel = c.getTelefono();
+                    if (tel == null || tel.trim().isEmpty()) {
+                        tel = null;
+                    }
                     String cleanName = c.getNombre() != null ? c.getNombre() : c.getRazonsocial();
                     String email = cleanName.toLowerCase().trim().replace(" ", ".") + "@gmail.com";
 
@@ -567,7 +578,43 @@ public class ViewController {
     }
 
     @GetMapping({ "/reporte", "/reporte/index", "/reporte/index.html" })
-    public String reporte() {
+    public String reporte(Model model) {
+        // Cargar listas reales
+        List<VentaResponseDTO> ventas = serviceVenta.listarTodas().stream()
+                .filter(v -> Boolean.TRUE.equals(v.getEstado()))
+                .sorted((v1, v2) -> v2.getFecha().compareTo(v1.getFecha()))
+                .toList();
+
+        List<Merma> mermas = mermaRepository.findAll().stream()
+                .filter(m -> Boolean.TRUE.equals(m.getEstado()))
+                .sorted((m1, m2) -> m2.getFechahora().compareTo(m1.getFechahora()))
+                .toList();
+
+        List<Inventario> inventarios = inventarioRepository.findAll().stream()
+                .filter(i -> Boolean.TRUE.equals(i.getEstado()) && Boolean.TRUE.equals(i.getProducto().getEstado()))
+                .toList();
+
+        List<Categoria> categorias = categoriaRepository.findAll().stream()
+                .filter(c -> Boolean.TRUE.equals(c.getEstado()))
+                .toList();
+
+        List<Usuario> vendedores = usuarioRepository.findAll().stream()
+                .filter(u -> Boolean.TRUE.equals(u.getEstado()))
+                .toList();
+
+        List<Caja> cajas = cajaRepository.findAll();
+
+        model.addAttribute("ventas", ventas);
+        model.addAttribute("mermas", mermas);
+        model.addAttribute("inventarios", inventarios);
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("vendedores", vendedores);
+        model.addAttribute("cajas", cajas);
+
+        // Rango de fechas por defecto (último mes)
+        model.addAttribute("fecha_inicio", java.time.LocalDate.now().minusMonths(1).toString());
+        model.addAttribute("fecha_fin", java.time.LocalDate.now().toString());
+
         return "reporte/index";
     }
 

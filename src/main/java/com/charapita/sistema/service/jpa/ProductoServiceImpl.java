@@ -13,6 +13,8 @@ import com.charapita.sistema.entity.Producto;
 import com.charapita.sistema.repository.CategoriaRepository;
 import com.charapita.sistema.repository.PresentacionRepository;
 import com.charapita.sistema.repository.ProductoRepository;
+import com.charapita.sistema.repository.InventarioRepository;
+import com.charapita.sistema.entity.Inventario;
 import com.charapita.sistema.service.IProductoService;
 
 @Service
@@ -21,14 +23,17 @@ public class ProductoServiceImpl implements IProductoService {
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
     private final PresentacionRepository presentacionRepository;
+    private final InventarioRepository inventarioRepository;
 
-    // Inyectamos los 3 repositorios en el constructor
+    // Inyectamos los 4 repositorios en el constructor
     public ProductoServiceImpl(ProductoRepository productoRepository, 
                                CategoriaRepository categoriaRepository, 
-                               PresentacionRepository presentacionRepository) {
+                               PresentacionRepository presentacionRepository,
+                               InventarioRepository inventarioRepository) {
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
         this.presentacionRepository = presentacionRepository;
+        this.inventarioRepository = inventarioRepository;
     }
 
     @Override
@@ -66,7 +71,20 @@ public class ProductoServiceImpl implements IProductoService {
         }
 
         producto.setEstado(true); // Activo por defecto al crear
-        return productoRepository.save(producto);
+        Producto guardado = productoRepository.save(producto);
+
+        // Crear/Actualizar Inventario correspondiente
+        Inventario inventario = inventarioRepository.findByProducto_Idproducto(guardado.getIdproducto())
+                .orElse(new Inventario());
+        inventario.setProducto(guardado);
+        inventario.setStockminimo(producto.getStockMinimo() != null ? producto.getStockMinimo() : 10);
+        if (inventario.getStockactual() == null) {
+            inventario.setStockactual(0);
+        }
+        inventario.setEstado(true);
+        inventarioRepository.save(inventario);
+
+        return guardado;
     }
 
     // --- NUEVO: MÉTODO ACTUALIZAR (PATCHING) ---
@@ -103,7 +121,22 @@ public class ProductoServiceImpl implements IProductoService {
 
         if (productoRecibido.getEstado() != null) existente.setEstado(productoRecibido.getEstado());
 
-        return productoRepository.save(existente);
+        Producto guardado = productoRepository.save(existente);
+
+        // Si se recibe stockMinimo, actualizamos el Inventario
+        if (productoRecibido.getStockMinimo() != null) {
+            Inventario inventario = inventarioRepository.findByProducto_Idproducto(guardado.getIdproducto())
+                    .orElse(new Inventario());
+            inventario.setProducto(guardado);
+            inventario.setStockminimo(productoRecibido.getStockMinimo());
+            if (inventario.getStockactual() == null) {
+                inventario.setStockactual(0);
+            }
+            inventario.setEstado(true);
+            inventarioRepository.save(inventario);
+        }
+
+        return guardado;
     }
 
     @Override

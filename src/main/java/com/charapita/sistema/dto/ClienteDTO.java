@@ -6,6 +6,7 @@ public class ClienteDTO {
     private String nombre;
     private String nroDocumento;
     private Boolean estado;
+    private String telefono;
     
     private Integer idtipocliente; 
     
@@ -57,6 +58,14 @@ public class ClienteDTO {
 
     public void setIdtipocliente(Integer idtipocliente) {
         this.idtipocliente = idtipocliente;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public String getTipoClienteNombre() {

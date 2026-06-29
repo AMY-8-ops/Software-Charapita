@@ -29,269 +29,260 @@
                     <label>Rango de Fechas</label>
                     <div class="rep-date-range">
                         <i class="fa-regular fa-calendar rep-icon-cal"></i>
-                        <input type="date" class="rep-input-date" value="[fecha_inicio]">
+                        <input type="date" class="rep-input-date" id="repFilterFechaInicio" th:value="${fecha_inicio}">
                         <i class="fa-solid fa-arrow-right rep-icon-arrow"></i>
-                        <input type="date" class="rep-input-date" value="[fecha_fin]">
+                        <input type="date" class="rep-input-date" id="repFilterFechaFin" th:value="${fecha_fin}">
                     </div>
                 </div>
 
                 <div class="rep-form-group">
                     <label>Sede / Caja</label>
-                    <select class="rep-select">
-                        <option>Todas</option>
-                        <option>Caja Principal</option>
+                    <select class="rep-select" id="repFilterCaja">
+                        <option value="">Todas</option>
+                        <option th:each="c : ${cajas}" th:value="${c.idcaja}" th:text="${c.nombre}">Caja</option>
                     </select>
                 </div>
 
                 <div class="rep-form-group">
                     <label>Vendedor</label>
-                    <select class="rep-select">
-                        <option>Todos</option>
-                        <option>[nombre_vendedor]</option>
+                    <select class="rep-select" id="repFilterVendedor">
+                        <option value="">Todos</option>
+                        <option th:each="v : ${vendedores}" th:value="${v.nombre}" th:text="${v.nombre}">Vendedor
+                        </option>
                     </select>
                 </div>
 
                 <div class="rep-form-group">
                     <label>Categoria de Producto</label>
-                    <select class="rep-select">
-                        <option>Todas</option>
-                        <option>Carnes</option>
-                        <option>Ahumados</option>
+                    <select class="rep-select" id="repFilterCategoria">
+                        <option value="">Todas</option>
+                        <option th:each="cat : ${categorias}" th:value="${cat.idcategoria}" th:text="${cat.nombre}">
+                            Categoría</option>
                     </select>
                 </div>
 
                 <div class="rep-filters-actions">
-                    <button class="rep-btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Aplicar
-                        Filtros</button>
-                    <button class="rep-btn-outline"><i class="fa-solid fa-rotate-right"></i> Limpiar</button>
+                    <button class="rep-btn-primary" id="repFilterBtnApply"><i class="fa-solid fa-magnifying-glass"></i>
+                        Aplicar Filtros</button>
+                    <button class="rep-btn-outline" id="repFilterBtnClean"><i class="fa-solid fa-rotate-right"></i>
+                        Limpiar</button>
                 </div>
             </div>
         </section>
 
         <div class="rep-tabs-container">
-            <button class="rep-tab active"><i class="fa-solid fa-chart-column"></i> Ventas Detallado</button>
-            <button class="rep-tab"><i class="fa-solid fa-triangle-exclamation"></i> Mermas y Pérdidas</button>
-            <button class="rep-tab"><i class="fa-solid fa-box-open"></i> Inventario y Valorización</button>
+            <button class="rep-tab active" id="tabVentas"><i class="fa-solid fa-chart-column"></i> Ventas
+                Detallado</button>
+            <button class="rep-tab" id="tabMermas"><i class="fa-solid fa-triangle-exclamation"></i> Mermas y
+                Pérdidas</button>
+            <button class="rep-tab" id="tabInventario"><i class="fa-solid fa-box-open"></i> Inventario y
+                Valorización</button>
         </div>
 
-        <section class="rep-report-block">
+        <!-- REPORTE 1: VENTAS DETALLADO -->
+        <section class="rep-report-block" id="repBlockVentas">
             <div class="rep-block-header">
                 <div>
                     <h3 class="rep-block-title">Reporte de Ventas Detallado</h3>
                     <p class="rep-block-subtitle">Detalle de todas las ventas realizadas en el periodo seleccionado.</p>
                 </div>
                 <div class="rep-export-actions">
-                    <button class="rep-btn-excel"><i class="fa-solid fa-file-excel"></i> Exportar a Excel</button>
-                    <button class="rep-btn-pdf"><i class="fa-solid fa-file-pdf"></i> Generar PDF</button>
+                    <button class="rep-btn-excel" id="btnExportVentasExcel"><i class="fa-solid fa-file-excel"></i>
+                        Exportar a Excel</button>
+                    <button class="rep-btn-pdf" id="btnExportVentasPdf"><i class="fa-solid fa-file-pdf"></i> Generar
+                        PDF</button>
                 </div>
             </div>
 
             <div class="rep-table-responsive">
-                <table class="rep-table">
+                <table class="rep-table" id="tableVentas">
                     <thead>
                         <tr>
                             <th>Fecha y Hora</th>
                             <th>Comprobante</th>
                             <th>Cliente</th>
                             <th>Subtotal (S/)</th>
-                            <th>IGV(18%)</th>
+                            <th>IGV (18%)</th>
                             <th>Total (S/)</th>
                             <th>Metodo de Pago</th>
                             <th>Vendedor</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>[fecha_hora]</td>
-                            <td class="rep-text-red">Boleta [numero]</td>
-                            <td>[nombre_cliente]</td>
-                            <td>[subtotal]</td>
-                            <td>[igv]</td>
-                            <td>[total]</td>
-                            <td><span class="rep-badge rep-bg-efectivo"><i class="fa-solid fa-money-bill"></i>
-                                    Efectivo</span></td>
-                            <td>[vendedor]</td>
+                        <tr th:each="venta : ${ventas}" th:data-fecha="${#temporals.format(venta.fecha, 'yyyy-MM-dd')}"
+                            th:data-vendedor="${venta.usuarioNombre}" th:data-total="${venta.total}"
+                            th:data-apply-igv="${venta.applyIgv}" class="rep-venta-row">
+                            <td th:text="${#temporals.format(venta.fecha, 'dd/MM/yyyy HH:mm')}">[fecha]</td>
+                            <td th:text="${venta.nroPedido}" class="rep-text-red">Boleta [numero]</td>
+                            <td th:text="${venta.clienteNombre}">[cliente]</td>
+                            <td class="col-subtotal"
+                                th:text="${#numbers.formatDecimal(venta.subtotal, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                            <td class="col-igv" th:text="${#numbers.formatDecimal(venta.igv, 1, 'COMMA', 2, 'POINT')}">
+                                0.00</td>
+                            <td class="col-total"
+                                th:text="${#numbers.formatDecimal(venta.total, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                            <td>
+                                <span class="rep-badge"
+                                    th:classappend="${#strings.toLowerCase(venta.metodoPagoDescripcion).contains('yape')} ? 'rep-bg-yape' : (${#strings.toLowerCase(venta.metodoPagoDescripcion).contains('plin')} ? 'rep-bg-plin' : (${#strings.toLowerCase(venta.metodoPagoDescripcion).contains('transf')} ? 'rep-bg-transferencia' : 'rep-bg-efectivo'))"
+                                    th:text="${venta.metodoPagoDescripcion}">Efectivo</span>
+                            </td>
+                            <td th:text="${venta.usuarioNombre}">[vendedor]</td>
                         </tr>
-                        <tr>
-                            <td>[fecha_hora]</td>
-                            <td class="rep-text-purple">Factura [numero]</td>
-                            <td>[nombre_empresa]</td>
-                            <td>[subtotal]</td>
-                            <td>[igv]</td>
-                            <td>[total]</td>
-                            <td><span class="rep-badge rep-bg-yape"><i class="fa-solid fa-mobile-screen"></i>
-                                    Yape</span></td>
-                            <td>[vendedor]</td>
-                        </tr>
-                        <tr>
-                            <td>[fecha_hora]</td>
-                            <td class="rep-text-red">Boleta [numero]</td>
-                            <td>Cliente General</td>
-                            <td>[subtotal]</td>
-                            <td>[igv]</td>
-                            <td>[total]</td>
-                            <td><span class="rep-badge rep-bg-plin"><i class="fa-solid fa-mobile-screen"></i>
-                                    Plin</span></td>
-                            <td>[vendedor]</td>
-                        </tr>
-                        <tr>
-                            <td>[fecha_hora]</td>
-                            <td class="rep-text-red">Boleta [numero]</td>
-                            <td>[nombre_cliente]</td>
-                            <td>[subtotal]</td>
-                            <td>[igv]</td>
-                            <td>[total]</td>
-                            <td><span class="rep-badge rep-bg-transferencia"><i
-                                        class="fa-solid fa-building-columns"></i> Transferencia</span></td>
-                            <td>[vendedor]</td>
+                        <tr th:if="${#lists.isEmpty(ventas)}" id="repVentasEmptyRow">
+                            <td colspan="8" style="text-align: center; color: #777; padding: 20px;">No se encontraron
+                                ventas para los filtros seleccionados.</td>
                         </tr>
                     </tbody>
+                    <tfoot>
+                        <tr class="rep-total-row"
+                            style="background: #f4f6f9; font-weight: bold; border-top: 2px solid #ccc;">
+                            <td colspan="3">Totales Filtrados</td>
+                            <td id="repSumVentasSubtotal">0.00</td>
+                            <td id="repSumVentasIgv">0.00</td>
+                            <td id="repSumVentasTotal">0.00</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
             <div class="rep-table-footer">
-                <small>Mostrando 1 a 5 de [total_ventas] ventas</small>
-                <button class="rep-btn-text">Ver todas <i class="fa-solid fa-arrow-right"></i></button>
+                <small id="repVentasCount">Mostrando 0 de 0 ventas</small>
             </div>
         </section>
 
-        <div class="rep-bottom-grid">
-
-            <section class="rep-report-block">
-                <div class="rep-block-header">
-                    <div>
-                        <h3 class="rep-block-title">Reporte de Mermas y Pérdidas</h3>
-                        <p class="rep-block-subtitle">Análisis de pérdidas por merma en el periodo seleccionado.</p>
-                    </div>
-                    <div class="rep-export-actions">
-                        <button class="rep-btn-excel rep-btn-sm"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                        <button class="rep-btn-pdf rep-btn-sm"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                    </div>
+        <!-- REPORTE 2: MERMAS Y PÉRDIDAS -->
+        <section class="rep-report-block" id="repBlockMermas" style="display: none;">
+            <div class="rep-block-header">
+                <div>
+                    <h3 class="rep-block-title">Reporte de Mermas y Pérdidas</h3>
+                    <p class="rep-block-subtitle">Análisis de pérdidas por merma en el periodo seleccionado.</p>
                 </div>
-
-                <div class="rep-mermas-layout">
-                    <div class="rep-mermas-table-container">
-                        <table class="rep-table rep-table-compact">
-                            <thead>
-                                <tr>
-                                    <th>Motivo de Merma</th>
-                                    <th>Cantidad (kg)</th>
-                                    <th>Valor Perdido (S/)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Carne oscurecida</td>
-                                    <td>3.20</td>
-                                    <td>33.60</td>
-                                </tr>
-                                <tr>
-                                    <td>Mal corte</td>
-                                    <td>1.50</td>
-                                    <td>15.20</td>
-                                </tr>
-                                <tr>
-                                    <td>Vencimiento</td>
-                                    <td>0.80</td>
-                                    <td>8.40</td>
-                                </tr>
-                                <tr>
-                                    <td>Empaque dañado</td>
-                                    <td>0.40</td>
-                                    <td>4.20</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr class="rep-total-row">
-                                    <td>Total</td>
-                                    <td>5.90</td>
-                                    <td>61.40</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-
-                    <div class="rep-chart-container">
-                        <h4 class="rep-chart-title">Ventas vs. Mermas (S/)</h4>
-                        <div class="rep-canvas-wrapper">
-                            <canvas id="repBarChart"></canvas>
-                        </div>
-                    </div>
+                <div class="rep-export-actions">
+                    <button class="rep-btn-excel" id="btnExportMermasExcel"><i class="fa-solid fa-file-excel"></i>
+                        Exportar a Excel</button>
+                    <button class="rep-btn-pdf" id="btnExportMermasPdf"><i class="fa-solid fa-file-pdf"></i> Generar
+                        PDF</button>
                 </div>
+            </div>
 
-                <div class="rep-alert rep-alert-red">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <span>Las mermas representan el <strong>[porcentaje]%</strong> de las ventas totales.</span>
-                </div>
-            </section>
-
-            <section class="rep-report-block">
-                <div class="rep-block-header">
-                    <div>
-                        <h3 class="rep-block-title">Reporte de Inventario y Valorización</h3>
-                        <p class="rep-block-subtitle">Valorización del inventario actual en almacén.</p>
-                    </div>
-                    <div class="rep-export-actions">
-                        <button class="rep-btn-excel rep-btn-sm"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                        <button class="rep-btn-pdf rep-btn-sm"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                    </div>
-                </div>
-
-                <div class="rep-table-responsive" style="margin-bottom: 20px;">
-                    <table class="rep-table rep-table-compact">
+            <div class="rep-mermas-layout">
+                <div class="rep-mermas-table-container">
+                    <table class="rep-table rep-table-compact" id="tableMermas">
                         <thead>
                             <tr>
-                                <th>Categoria</th>
-                                <th>Productos</th>
-                                <th>Stock Total (kg)</th>
-                                <th>Valor Inventario (S/)</th>
+                                <th>Fecha y Hora</th>
+                                <th>Producto</th>
+                                <th>Motivo de Merma</th>
+                                <th>Cantidad</th>
+                                <th>Valor Perdido (S/)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Carnes</td>
-                                <td>12</td>
-                                <td>156.80</td>
-                                <td>4,256.30</td>
+                            <tr th:each="merma : ${mermas}"
+                                th:data-fecha="${#temporals.format(merma.fechahora, 'yyyy-MM-dd')}"
+                                th:data-categoria="${merma.producto.categoria.idcategoria}"
+                                th:data-cantidad="${merma.cantidad}"
+                                th:data-valor="${merma.cantidad * merma.producto.precio}" class="rep-merma-row">
+                                <td th:text="${#temporals.format(merma.fechahora, 'dd/MM/yyyy HH:mm')}">[fecha]</td>
+                                <td th:text="${merma.producto.nombre}">[producto]</td>
+                                <td th:text="${merma.motivoMerma.descripcion}">[motivo]</td>
+                                <td th:text="${merma.cantidad} + ' ' + ${merma.producto.presentacion.descripcion}">
+                                    [cantidad]</td>
+                                <td class="col-merma-valor"
+                                    th:text="${#numbers.formatDecimal(merma.cantidad * merma.producto.precio, 1, 'COMMA', 2, 'POINT')}">
+                                    0.00</td>
                             </tr>
-                            <tr>
-                                <td>Ahumados</td>
-                                <td>8</td>
-                                <td>52.30</td>
-                                <td>1,245.60</td>
-                            </tr>
-                            <tr>
-                                <td>Embutidos</td>
-                                <td>6</td>
-                                <td>38.60</td>
-                                <td>865.40</td>
-                            </tr>
-                            <tr>
-                                <td>Pollo</td>
-                                <td>4</td>
-                                <td>45.20</td>
-                                <td>678.80</td>
+                            <tr th:if="${#lists.isEmpty(mermas)}" id="repMermasEmptyRow">
+                                <td colspan="5" style="text-align: center; color: #777; padding: 20px;">No se
+                                    encontraron mermas para los filtros seleccionados.</td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr class="rep-total-row">
-                                <td>TOTAL</td>
-                                <td>30</td>
-                                <td>292.90</td>
-                                <td>7,046.10</td>
+                                <td colspan="3">Total Filtro</td>
+                                <td id="repTotalMermaCant">0.00</td>
+                                <td id="repTotalMermaValor">0.00</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
 
-                <div class="rep-alert rep-alert-blue">
-                    <i class="fa-solid fa-circle-info"></i>
-                    <span>Valor total del inventario actual valorizado a precios de venta.</span>
+                <div class="rep-chart-container">
+                    <h4 class="rep-chart-title">Ventas vs. Mermas (S/)</h4>
+                    <div class="rep-canvas-wrapper">
+                        <canvas id="repBarChart"></canvas>
+                    </div>
                 </div>
-            </section>
+            </div>
 
-        </div>
+            <div class="rep-alert rep-alert-red" style="margin-top: 15px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>Las mermas representan el <strong id="repMermaPercentage">0.00</strong>% de las ventas totales
+                    filtradas.</span>
+            </div>
+        </section>
 
+        <!-- REPORTE 3: INVENTARIO Y VALORIZACIÓN -->
+        <section class="rep-report-block" id="repBlockInventario" style="display: none;">
+            <div class="rep-block-header">
+                <div>
+                    <h3 class="rep-block-title">Reporte de Inventario y Valorización</h3>
+                    <p class="rep-block-subtitle">Valorización del inventario actual en almacén.</p>
+                </div>
+                <div class="rep-export-actions">
+                    <button class="rep-btn-excel" id="btnExportInventarioExcel"><i class="fa-solid fa-file-excel"></i>
+                        Exportar a Excel</button>
+                    <button class="rep-btn-pdf" id="btnExportInventarioPdf"><i class="fa-solid fa-file-pdf"></i> Generar
+                        PDF</button>
+                </div>
+            </div>
+
+            <div class="rep-table-responsive" style="margin-bottom: 20px;">
+                <table class="rep-table rep-table-compact" id="tableInventario">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Producto</th>
+                            <th>Stock Actual</th>
+                            <th>Precio Unitario (S/)</th>
+                            <th>Valor Inventario (S/)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="inv : ${inventarios}" th:data-categoria="${inv.producto.categoria.idcategoria}"
+                            th:data-stock="${inv.stockactual}" th:data-valor="${inv.stockactual * inv.producto.precio}"
+                            class="rep-inventario-row">
+                            <td th:text="${inv.producto.categoria.nombre}">[categoria]</td>
+                            <td th:text="${inv.producto.nombre}">[producto]</td>
+                            <td th:text="${inv.stockactual} + ' ' + ${inv.producto.presentacion.descripcion}">[stock]
+                            </td>
+                            <td th:text="${#numbers.formatDecimal(inv.producto.precio, 1, 'COMMA', 2, 'POINT')}">
+                                [precio]</td>
+                            <td class="col-inv-valor"
+                                th:text="${#numbers.formatDecimal(inv.stockactual * inv.producto.precio, 1, 'COMMA', 2, 'POINT')}">
+                                0.00</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(inventarios)}" id="repInventarioEmptyRow">
+                            <td colspan="5" style="text-align: center; color: #777; padding: 20px;">No se encontraron
+                                registros de inventario para los filtros seleccionados.</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="rep-total-row">
+                            <td colspan="2">TOTAL</td>
+                            <td id="repTotalInventarioStock">0.00</td>
+                            <td id="repTotalInventarioValor">0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="rep-alert rep-alert-blue">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Valor total del inventario actual valorizado a precios de venta.</span>
+            </div>
+        </section>
     </main>
 
     <script th:src="@{/js/main.js}" src="/js/main.js"></script>

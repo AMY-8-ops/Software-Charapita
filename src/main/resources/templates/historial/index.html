@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historial de Ventas - Charapita SAC</title>
-    
+
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
     <div id="header-container"></div>
     <div id="menu-container"></div>
 
     <main class="main-content">
-        
+
         <div class="hist-header-text">
             <p>Consulta, imprime o anula ventas realizadas</p>
         </div>
 
         <div class="hist-layout">
-            
+
             <section class="hist-main-section">
                 <div class="hist-filters-bar">
                     <div class="hist-filter-group">
@@ -58,19 +60,23 @@
                     <div class="hist-filter-group hist-search-group">
                         <label>&nbsp;</label>
                         <div class="hist-search-input">
-                            <input type="text" placeholder="Buscar por Nº comprobante, cliente o DNI" id="filterSearchInput">
+                            <input type="text" placeholder="Buscar por Nº comprobante, cliente o DNI"
+                                id="filterSearchInput">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </div>
                     </div>
                 </div>
 
                 <div class="hist-actions-bar">
-                    <button class="hist-btn-buscar" id="btnBuscarHistorial"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
-                    <button class="hist-btn-limpiar" id="btnLimpiarHistorial"><i class="fa-solid fa-rotate-left"></i> Limpiar filtros</button>
+                    <button class="hist-btn-buscar" id="btnBuscarHistorial"><i class="fa-solid fa-magnifying-glass"></i>
+                        Buscar</button>
+                    <button class="hist-btn-limpiar" id="btnLimpiarHistorial"><i class="fa-solid fa-rotate-left"></i>
+                        Limpiar filtros</button>
                 </div>
 
                 <div class="hist-table-header">
-                    <i class="fa-solid fa-file-lines"></i> Total de ventas: <span id="totalVentasCount" th:text="${total_ventas}">0</span>
+                    <i class="fa-solid fa-file-lines"></i> Total de ventas: <span id="totalVentasCount"
+                        th:text="${total_ventas}">0</span>
                 </div>
 
                 <div class="hist-table-container">
@@ -88,31 +94,41 @@
                             </tr>
                         </thead>
                         <tbody id="historialTableBody">
-                            <tr th:each="v : ${ventas}" 
-                                th:class="${!v.isCompletada} ? 'hist-row-anulada' : ''"
-                                th:data-id="${v.idventa}"
-                                th:data-fecha="${v.rawFecha}"
-                                th:data-comprobante="${v.tipoComprobante}"
-                                th:data-estado="${v.estado}"
+                            <tr th:each="v : ${ventas}" th:class="${!v.isCompletada} ? 'hist-row-anulada' : ''"
+                                th:data-id="${v.idventa}" th:data-fecha="${v.rawFecha}"
+                                th:data-comprobante="${v.tipoComprobante}" th:data-estado="${v.estado}"
                                 th:data-search="${#strings.toLowerCase(v.numComprobante) + ' ' + #strings.toLowerCase(v.clienteNombre) + ' ' + v.clienteDoc}">
-                                <td><span th:text="${v.fecha}">Fecha</span><br><small th:text="${v.hora}">Hora</small></td>
-                                <td><span th:text="${v.tipoComprobante}">Tipo</span><br><strong th:text="${v.numComprobante}">Numero</strong></td>
-                                <td><span th:text="${v.clienteNombre}">Cliente</span><br><small th:text="'DNI:' + ${v.clienteDoc}">DNI</small></td>
-                                <td>
-                                    <span th:if="${#strings.contains(#strings.toLowerCase(v.metodoPago), 'efectivo')}" class="hist-badge hist-bg-efectivo" th:text="${v.metodoPago}">Efectivo</span>
-                                    <span th:if="${#strings.contains(#strings.toLowerCase(v.metodoPago), 'yape')}" class="hist-badge hist-bg-yape" th:text="${v.metodoPago}">Yape</span>
-                                    <span th:if="${!#strings.contains(#strings.toLowerCase(v.metodoPago), 'efectivo') && !#strings.contains(#strings.toLowerCase(v.metodoPago), 'yape')}" class="hist-badge hist-bg-plin" th:text="${v.metodoPago}">Plin</span>
+                                <td><span th:text="${v.fecha}">Fecha</span><br><small th:text="${v.hora}">Hora</small>
                                 </td>
-                                <td th:text="'S/ ' + ${#numbers.formatDecimal(v.total, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</td>
+                                <td><span th:text="${v.tipoComprobante}">Tipo</span><br><strong
+                                        th:text="${v.numComprobante}">Numero</strong></td>
+                                <td><span th:text="${v.clienteNombre}">Cliente</span><br><small
+                                        th:text="'DNI:' + ${v.clienteDoc}">DNI</small></td>
+                                <td>
+                                    <span th:if="${#strings.contains(#strings.toLowerCase(v.metodoPago), 'efectivo')}"
+                                        class="hist-badge hist-bg-efectivo" th:text="${v.metodoPago}">Efectivo</span>
+                                    <span th:if="${#strings.contains(#strings.toLowerCase(v.metodoPago), 'yape')}"
+                                        class="hist-badge hist-bg-yape" th:text="${v.metodoPago}">Yape</span>
+                                    <span
+                                        th:if="${!#strings.contains(#strings.toLowerCase(v.metodoPago), 'efectivo') && !#strings.contains(#strings.toLowerCase(v.metodoPago), 'yape')}"
+                                        class="hist-badge hist-bg-plin" th:text="${v.metodoPago}">Plin</span>
+                                </td>
+                                <td th:text="'S/ ' + ${#numbers.formatDecimal(v.total, 1, 'COMMA', 2, 'POINT')}">S/ 0.00
+                                </td>
                                 <td th:text="${v.vendedor}">Vendedor</td>
                                 <td>
-                                    <span th:class="'hist-badge ' + (${v.isCompletada} ? 'hist-bg-completada' : 'hist-bg-anulada')" th:text="${v.estado}">Completada</span>
+                                    <span
+                                        th:class="'hist-badge ' + (${v.isCompletada} ? 'hist-bg-completada' : 'hist-bg-anulada')"
+                                        th:text="${v.estado}">Completada</span>
                                 </td>
                                 <td>
                                     <div class="hist-action-btns">
-                                        <button class="hist-btn-icon hist-btn-view" th:data-id="${v.idventa}" title="Ver detalle"><i class="fa-regular fa-eye"></i></button>
-                                        <button class="hist-btn-icon hist-btn-print" th:data-id="${v.idventa}" title="Imprimir"><i class="fa-solid fa-print"></i></button>
-                                        <button class="hist-btn-icon hist-btn-options" th:data-id="${v.idventa}" title="Opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                        <button class="hist-btn-icon hist-btn-view" th:data-id="${v.idventa}"
+                                            title="Ver detalle"><i class="fa-regular fa-eye"></i></button>
+                                        <button class="hist-btn-icon hist-btn-print" th:data-id="${v.idventa}"
+                                            title="Imprimir"><i class="fa-solid fa-print"></i></button>
+                                        <button class="hist-btn-icon hist-btn-options" th:data-id="${v.idventa}"
+                                            th:data-estado="${v.estado}" title="Opciones"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -130,11 +146,14 @@
                         <button class="hist-page-btn">...</button>
                         <button class="hist-page-btn">Siguiente <i class="fa-solid fa-angle-right"></i></button>
                     </div>
-                    <span class="hist-page-info" id="historialPageInfo" th:text="'Mostrando ' + ${total_ventas} + ' de ' + ${total_ventas} + ' ventas'">Mostrando 0 de 0 ventas</span>
+                    <span class="hist-page-info" id="historialPageInfo"
+                        th:text="'Mostrando ' + ${total_ventas} + ' de ' + ${total_ventas} + ' ventas'">Mostrando 0 de 0
+                        ventas</span>
                 </div>
             </section>
-            <aside class="hist-detail-panel" id="histDetailPanel" data-id="">
-                
+
+            <aside class="hist-detail-panel" id="histDetailPanel" data-id="">
+
                 <div class="hist-detail-header">
                     <div class="hist-detail-title">
                         <i class="fa-solid fa-file-lines"></i>
@@ -147,8 +166,9 @@
                     <div class="hist-detail-grid">
                         <div>
                             <small>Comprobante:</small>
-                            <span class="hist-tag-blue" id="detailComprobante">[tipo_comprobante] [num_comprobante]</span>
-                            
+                            <span class="hist-tag-blue" id="detailComprobante">[tipo_comprobante]
+                                [num_comprobante]</span>
+
                             <small class="hist-mt">Fecha y Hora:</small>
                             <span id="detailFecha">[fecha] [hora]</span>
 
@@ -157,13 +177,21 @@
                         </div>
                         <div>
                             <small>Cliente:</small>
-                            <span><i class="fa-regular fa-user"></i> <span id="detailCliente">[nombre_cliente]</span></span>
-                            
+                            <span><i class="fa-regular fa-user"></i> <span
+                                    id="detailCliente">[nombre_cliente]</span></span>
+
                             <small class="hist-mt">DNI/RUC:</small>
                             <span id="detailDniRuc">[dni_ruc]</span>
 
                             <small class="hist-mt">Pago:</small>
-                            <span class="hist-badge" id="detailPagoBadge"><i class="fa-solid fa-check-circle"></i> <span id="detailPago">[metodo_pago]</span></span>
+                            <span class="hist-badge" id="detailPagoBadge"><i class="fa-solid fa-check-circle"></i> <span
+                                    id="detailPago">[metodo_pago]</span></span>
+
+                            <div id="detailNroOperacionContainer" style="display: none; margin-top: 10px;">
+                                <small>Nº Operación/Verificación:</small>
+                                <span><i class="fa-solid fa-receipt"></i> <strong
+                                        id="detailNroOperacion">---</strong></span>
+                            </div>
                         </div>
                     </div>
 
@@ -190,7 +218,7 @@
                             <span id="detailSubtotal">S/ 0.00</span>
                         </div>
                         <div class="hist-tot-row">
-                            <span>IGV (18%)</span>
+                            <span id="detailIgvLabel">IGV (18%)</span>
                             <span id="detailIgv">S/ 0.00</span>
                         </div>
                         <div class="hist-tot-row" style="display: none;" id="detailDescuentoRow">
@@ -204,16 +232,22 @@
                     </div>
 
                     <div class="hist-detail-actions">
-                        <button class="hist-btn-blue"><i class="fa-solid fa-print"></i> Imprimir</button>
-                        <button class="hist-btn-purple"><i class="fa-solid fa-envelope"></i> Enviar por Email</button>
-                        <button class="hist-btn-green"><i class="fa-solid fa-file-pdf"></i> Ver PDF</button>
+                        <button class="hist-btn-blue" id="btnDetailPrint"><i class="fa-solid fa-print"></i>
+                            Imprimir</button>
+                        <button class="hist-btn-purple" id="btnDetailWhatsapp"
+                            style="background-color: #25d366; border-color: #25d366; color: white;"><i
+                                class="fa-brands fa-whatsapp"></i> Enviar a WhatsApp</button>
+                        <button class="hist-btn-green" id="btnDetailPdf"><i class="fa-solid fa-file-pdf"></i> Ver
+                            PDF</button>
                     </div>
                 </div>
 
                 <div class="hist-danger-zone" id="detailDangerZone">
-                    <h4 class="hist-danger-title"><i class="fa-solid fa-triangle-exclamation"></i> Anular esta venta</h4>
-                    <p class="hist-danger-text">Al anular, el stock de los productos se devolvera automaticamente al inventario.</p>
-                    
+                    <h4 class="hist-danger-title"><i class="fa-solid fa-triangle-exclamation"></i> Anular esta venta
+                    </h4>
+                    <p class="hist-danger-text">Al anular, el stock de los productos se devolvera automaticamente al
+                        inventario.</p>
+
                     <div class="hist-form-group">
                         <label>Motivo de anulacion<span style="color:red">*</span></label>
                         <select class="hist-select" id="anularMotivo">
@@ -224,19 +258,243 @@
                             <option value="Otros">Otros</option>
                         </select>
                     </div>
-                    
+
                     <div class="hist-form-group">
                         <label>Observaciones (opcional)</label>
-                        <textarea class="hist-textarea" id="anularObs" placeholder="Escribe una nota adicional..."></textarea>
+                        <textarea class="hist-textarea" id="anularObs"
+                            placeholder="Escribe una nota adicional..."></textarea>
                     </div>
 
-                    <button class="hist-btn-danger" id="btnAnularVenta"><i class="fa-solid fa-ban"></i> Anular Venta</button>
+                    <button class="hist-btn-danger" id="btnAnularVenta"><i class="fa-solid fa-ban"></i> Anular
+                        Venta</button>
                 </div>
             </aside>
 
         </div>
     </main>
 
+    <!-- ESTILOS Y ESTRUCTURA DEL MODAL PERSONALIZADO DE TELÉFONO -->
+    <style>
+        .custom-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .custom-modal-overlay.active {
+            opacity: 1;
+        }
+
+        .custom-modal-card {
+            background-color: #fff;
+            width: 90%;
+            max-width: 480px;
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transform: scale(0.85);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .custom-modal-overlay.active .custom-modal-card {
+            transform: scale(1);
+        }
+
+        .custom-modal-header {
+            background-color: #fff;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .custom-modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--color-primario);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: #bbb;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .custom-modal-close:hover {
+            color: #333;
+        }
+
+        .custom-modal-body {
+            padding: 24px;
+        }
+
+        .custom-alert-info {
+            background-color: #fdf6ec;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            color: #7f5b2b;
+        }
+
+        .custom-alert-info i {
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .custom-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .custom-form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #444;
+        }
+
+        .custom-modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #dcdfe6;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .custom-modal-input:focus {
+            border-color: var(--color-primario);
+            box-shadow: 0 0 0 3px rgba(138, 21, 41, 0.15);
+        }
+
+        .custom-help-text {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .custom-modal-footer {
+            padding: 16px 24px;
+            background-color: #fafafa;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .custom-btn-secondary {
+            padding: 10px 20px;
+            background-color: #fff;
+            border: 1px solid #dcdfe6;
+            border-radius: 8px;
+            color: #606266;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .custom-btn-secondary:hover {
+            background-color: #f5f7fa;
+            border-color: #c0c4cc;
+        }
+
+        .custom-btn-primary {
+            padding: 10px 20px;
+            background-color: #25d366;
+            border: 1px solid #25d366;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-btn-primary:hover {
+            background-color: #20ba5a;
+            border-color: #20ba5a;
+        }
+
+        .custom-btn-primary:active {
+            transform: scale(0.97);
+        }
+    </style>
+
+    <div id="customPhoneModal" class="custom-modal-overlay" style="display: none;">
+        <div class="custom-modal-card">
+            <div class="custom-modal-header">
+                <h3><i class="fa-brands fa-whatsapp" style="color: #25d366; font-size: 1.4rem;"></i> Registrar Teléfono
+                </h3>
+                <button type="button" class="custom-modal-close" id="btnCancelPhoneModal">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <div class="custom-alert-info">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #f39c12; font-size: 1.1rem;"></i>
+                    <span>El cliente no tiene un número de teléfono registrado en el sistema. Ingrese el número a
+                        continuación para guardarlo y enviar el comprobante.</span>
+                </div>
+                <div class="custom-form-group">
+                    <label for="customPhoneInput">Número de Teléfono / Celular (9 dígitos)*</label>
+                    <input type="text" id="customPhoneInput" class="custom-modal-input" placeholder="Ej. 987654321"
+                        maxlength="9" autocomplete="off">
+                    <small class="custom-help-text">Se guardará automáticamente en el perfil del cliente.</small>
+                </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button type="button" class="custom-btn-secondary" id="btnRejectPhoneModal">Cancelar</button>
+                <button type="button" class="custom-btn-primary" id="btnSubmitPhoneModal">Guardar y Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENÚ DROPDOWN DE OPCIONES DE VENTA -->
+    <div id="historialDropdownMenu" class="hist-options-dropdown" style="display: none;">
+        <button class="hist-dropdown-item" id="optVerDetalle">
+            <i class="fa-regular fa-eye"></i> Ver Detalle
+        </button>
+        <button class="hist-dropdown-item" id="optImprimir">
+            <i class="fa-solid fa-print"></i> Imprimir Ticket
+        </button>
+        <button class="hist-dropdown-item" id="optDescargarPdf">
+            <i class="fa-solid fa-file-pdf"></i> Descargar PDF (A4)
+        </button>
+        <button class="hist-dropdown-item" id="optEnviarWhatsapp">
+            <i class="fa-brands fa-whatsapp"></i> Enviar a WhatsApp
+        </button>
+        <button class="hist-dropdown-item danger" id="optAnularVenta">
+            <i class="fa-solid fa-ban"></i> Anular Venta
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script th:src="@{/js/main.js}" src="/js/main.js"></script>
 </body>
+
 </html>

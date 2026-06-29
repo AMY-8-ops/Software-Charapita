@@ -128,6 +128,7 @@ public class ClienteController {
                         String prodName = d.getProducto().getNombre();
                         String unit = d.getProducto().getPresentacion() != null ? d.getProducto().getPresentacion().getDescripcion() : "unidades";
                         int qty = d.getCantidad() != null ? d.getCantidad() : 0;
+                        BigDecimal importe = d.getImporte() != null ? d.getImporte() : BigDecimal.ZERO;
                         
                         productStats.putIfAbsent(prodName, new HashMap<>());
                         Map<String, Object> stat = productStats.get(prodName);
@@ -135,6 +136,8 @@ public class ClienteController {
                         stat.put("unidad", unit);
                         stat.put("totalQty", (int)stat.getOrDefault("totalQty", 0) + qty);
                         stat.put("purchaseCount", (int)stat.getOrDefault("purchaseCount", 0) + 1);
+                        BigDecimal prevImporte = (BigDecimal) stat.getOrDefault("totalImporte", BigDecimal.ZERO);
+                        stat.put("totalImporte", prevImporte.add(importe));
                     }
                 }
             }
@@ -149,10 +152,15 @@ public class ClienteController {
                 pref.put("unidad", stat.get("unidad"));
                 pref.put("promedioCantidad", avgQtyRounded);
                 pref.put("totalQty", stat.get("totalQty"));
+                pref.put("totalImporte", stat.get("totalImporte"));
                 prefProducts.add(pref);
             }
             
-            prefProducts.sort((p1, p2) -> Integer.compare((int)p2.get("totalQty"), (int)p1.get("totalQty")));
+            prefProducts.sort((p1, p2) -> {
+                BigDecimal i1 = (BigDecimal) p1.get("totalImporte");
+                BigDecimal i2 = (BigDecimal) p2.get("totalImporte");
+                return i2.compareTo(i1);
+            });
             
             if (prefProducts.size() > 3) {
                 prefProducts = prefProducts.subList(0, 3);

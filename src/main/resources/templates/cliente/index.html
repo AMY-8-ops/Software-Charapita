@@ -73,11 +73,11 @@
             <div class="cli-tools-left">
                 <div class="cli-search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Buscar por DNI, RUC o nombre del cliente...">
+                    <input type="text" id="clienteSearchInput" placeholder="Buscar por DNI, RUC o nombre del cliente...">
                 </div>
                 <div class="cli-filter-box">
                     <span class="cli-filter-label">Tipo de cliente</span>
-                    <select class="cli-select">
+                    <select class="cli-select" id="clienteTipoSelect">
                         <option value="">Todos</option>
                         <option th:each="t : ${tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
                     </select>
@@ -110,10 +110,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="c : ${clientes}">
+                        <tr th:each="c : ${clientes}"
+                            th:data-tipo="${c.cliente.tipoCliente != null ? c.cliente.tipoCliente.idtipocliente : ''}"
+                            th:data-search="${#strings.toLowerCase(c.cliente.nroDocumento) + ' ' + #strings.toLowerCase(c.cliente.nombre != null ? c.cliente.nombre : '') + ' ' + #strings.toLowerCase(c.cliente.razonsocial != null ? c.cliente.razonsocial : '')}">
                             <td th:text="${c.cliente.nroDocumento}">[dni_ruc]</td>
                             <td th:text="${c.cliente.nombre != null && !c.cliente.nombre.isEmpty() ? c.cliente.nombre : c.cliente.razonsocial}">[nombre_cliente]</td>
-                            <td><i class="fa-solid fa-phone cli-table-icon"></i> <span th:text="${c.telefono}">[telefono]</span></td>
+                            <td><i class="fa-solid fa-phone cli-table-icon"></i> <span th:text="${c.telefono != null ? c.telefono : 'No registrado'}" th:style="${c.telefono == null ? 'color: #999; font-style: italic;' : ''}">[telefono]</span></td>
                             <td><i class="fa-solid fa-envelope cli-table-icon"></i> <span th:text="${c.correo}">[correo]</span></td>
                             <td><i class="fa-regular fa-calendar cli-table-icon"></i> <span th:text="${c.ultimaCompra}">[fecha_compra]</span></td>
                             <td th:text="'S/ ' + ${#numbers.formatDecimal(c.totalConsumido, 1, 'COMMA', 2, 'POINT')}">S/ [total_consumido]</td>
@@ -131,21 +133,14 @@
                 </table>
                 
                 <div class="cli-pagination-row">
-                    <small>Mostrando <span th:text="${#lists.size(clientes)}">0</span> de <span th:text="${total_clientes}">0</span> clientes</small>
-                    <div class="cli-pagination">
-                        <span>&laquo;</span>
-                        <span>&lt;</span>
-                        <span class="active">1</span>
-                        <span>2</span>
-                        <span>3</span>
-                        <span>4</span>
-                        <span>5</span>
-                        <span>&gt;</span>
-                        <span>&raquo;</span>
+                    <small>Mostrando <span id="cliShowingCount">0</span> de <span id="cliTotalCount" th:text="${total_clientes}">0</span> clientes</small>
+                    <div class="cli-pagination" id="clientePaginationContainer">
+                        <!-- Generado dinámicamente -->
                     </div>
-                    <select class="cli-select-page">
-                        <option>10 por página</option>
-                        <option>20 por página</option>
+                    <select class="cli-select-page" id="clientePageSizeSelect">
+                        <option value="10">10 por página</option>
+                        <option value="20">20 por página</option>
+                        <option value="50">50 por página</option>
                     </select>
                 </div>
             </div>
@@ -223,7 +218,7 @@
                         <button class="cli-tab">Productos Preferidos</button>
                     </div>
 
-                    <table class="cli-table-history">
+                    <table class="cli-table-history" id="cliTableHistory">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -257,7 +252,7 @@
                         </tbody>
                     </table>
                     
-                    <button class="cli-btn-export">
+                    <button class="cli-btn-export" id="btnExportarHistorialCliente">
                         <i class="fa-solid fa-download"></i> Exportar historial
                     </button>
                 </div>

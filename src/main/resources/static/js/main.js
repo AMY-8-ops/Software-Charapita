@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // INICIALIZACIÓN DE GRÁFICOS (Chart.js)
     // =========================================
     const barCanvas = document.getElementById('barChart');
-    if (barCanvas) { 
+    if (barCanvas) {
         const ctxBar = barCanvas.getContext('2d');
         new Chart(ctxBar, {
             type: 'bar',
@@ -90,10 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-// =========================================
+    // =========================================
     // LÓGICA VISTA: CONFIRMAR VENTA (cv-)
     // =========================================
-    
+
     // Toggles de botones simples (Ej: Cliente registrado / ocasional)
     const toggleBtns = document.querySelectorAll('.cv-toggle-btn');
     toggleBtns.forEach(btn => {
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         box.addEventListener('click', (e) => {
             // Prevenir errores si se hace clic en el icono interno en lugar de la caja
             const targetBox = e.target.closest('.cv-doc-box');
-            
+
             const siblings = targetBox.parentElement.querySelectorAll('.cv-doc-box');
             siblings.forEach(s => {
                 s.classList.remove('active');
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon.classList.add('fa-circle');
                 }
             });
-            
+
             targetBox.classList.add('active');
             // Cambiar icono a circulo lleno
             const activeIcon = targetBox.querySelector('.cv-radio-icon');
@@ -136,14 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     // LÓGICA VISTA: HISTORIAL (hist-)
     // =========================================
-    
+
     const panelDetalle = document.getElementById('histDetailPanel');
     const btnCloseDetalle = document.getElementById('btnCloseDetail');
     const btnsVerDetalle = document.querySelectorAll('.hist-btn-view');
 
     // Solo ejecuta si estamos en la pantalla de historial
     if (panelDetalle && btnCloseDetalle && btnsVerDetalle.length > 0) {
-        
+
         // Al hacer clic en la "X", cierra el panel
         btnCloseDetalle.addEventListener('click', () => {
             panelDetalle.classList.remove('active');
@@ -162,32 +162,428 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Panel Lateral: Nuevo Producto
     const btnNuevoProducto = document.getElementById('btnNuevoProducto');
-    const panelNuevoProducto = document.getElementById('panelNuevoProducto');
-    const closeNuevoProducto = document.getElementById('closeNuevoProducto');
-
-    if (btnNuevoProducto && panelNuevoProducto && closeNuevoProducto) {
-        btnNuevoProducto.addEventListener('click', () => panelNuevoProducto.classList.add('active'));
-        closeNuevoProducto.addEventListener('click', () => panelNuevoProducto.classList.remove('active'));
-    }
-
-    // Panel Inferior: Cargar Stock
     const btnCargarStock = document.getElementById('btnCargarStock');
-    const panelCargarStock = document.getElementById('panelCargarStock');
-    const closeCargarStock = document.getElementById('closeCargarStock');
-
-    if (btnCargarStock && panelCargarStock && closeCargarStock) {
-        btnCargarStock.addEventListener('click', () => panelCargarStock.classList.add('active'));
-        closeCargarStock.addEventListener('click', () => panelCargarStock.classList.remove('active'));
-    }
-
-    // Panel Inferior: Registrar Merma
     const btnRegistrarMerma = document.getElementById('btnRegistrarMerma');
+
+    const panelNuevoProducto = document.getElementById('panelNuevoProducto');
+    const panelCargarStock = document.getElementById('panelCargarStock');
     const panelRegistrarMerma = document.getElementById('panelRegistrarMerma');
+
+    const closeNuevoProducto = document.getElementById('closeNuevoProducto');
+    const closeCargarStock = document.getElementById('closeCargarStock');
     const closeRegistrarMerma = document.getElementById('closeRegistrarMerma');
 
-    if (btnRegistrarMerma && panelRegistrarMerma && closeRegistrarMerma) {
-        btnRegistrarMerma.addEventListener('click', () => panelRegistrarMerma.classList.add('active'));
-        closeRegistrarMerma.addEventListener('click', () => panelRegistrarMerma.classList.remove('active'));
+    const prodFormCancelBtn = document.getElementById('prodFormCancelBtn');
+    const stockFormCancelBtn = document.getElementById('stockFormCancelBtn');
+    const mermaFormCancelBtn = document.getElementById('mermaFormCancelBtn');
+
+    // List of panels to manage single-panel active status
+    const allProductPanels = [panelNuevoProducto, panelCargarStock, panelRegistrarMerma];
+
+    function showProductPanel(panelToShow) {
+        allProductPanels.forEach(p => {
+            if (p) p.classList.remove('active');
+        });
+        if (panelToShow) {
+            panelToShow.classList.add('active');
+        }
+    }
+
+    function closeAllProductPanels() {
+        allProductPanels.forEach(p => {
+            if (p) p.classList.remove('active');
+        });
+    }
+
+    // Form fields for Nuevo Producto
+    const prodFormId = document.getElementById('prodFormId');
+    const prodPanelTitle = document.getElementById('prodPanelTitle');
+    const prodFormCodigo = document.getElementById('prodFormCodigo');
+    const prodFormNombre = document.getElementById('prodFormNombre');
+    const prodFormCategoria = document.getElementById('prodFormCategoria');
+    const prodFormPresentacion = document.getElementById('prodFormPresentacion');
+    const prodFormPrecio = document.getElementById('prodFormPrecio');
+    const prodFormStockMinimo = document.getElementById('prodFormStockMinimo');
+    const prodFormDescripcion = document.getElementById('prodFormDescripcion');
+    const prodFormSaveBtn = document.getElementById('prodFormSaveBtn');
+
+    // Form fields for Cargar Stock
+    const stockFormProducto = document.getElementById('stockFormProducto');
+    const stockFormCantidad = document.getElementById('stockFormCantidad');
+    const stockFormUnidad = document.getElementById('stockFormUnidad');
+    const stockFormFecha = document.getElementById('stockFormFecha');
+    const stockFormCosto = document.getElementById('stockFormCosto');
+    const stockFormProveedor = document.getElementById('stockFormProveedor');
+    const stockFormObservaciones = document.getElementById('stockFormObservaciones');
+    const stockFormSaveBtn = document.getElementById('stockFormSaveBtn');
+
+    // Form fields for Registrar Merma
+    const mermaFormProducto = document.getElementById('mermaFormProducto');
+    const mermaFormCantidad = document.getElementById('mermaFormCantidad');
+    const mermaFormUnidad = document.getElementById('mermaFormUnidad');
+    const mermaFormFecha = document.getElementById('mermaFormFecha');
+    const mermaFormMotivo = document.getElementById('mermaFormMotivo');
+    const mermaFormDescripcion = document.getElementById('mermaFormDescripcion');
+    const mermaFormSaveBtn = document.getElementById('mermaFormSaveBtn');
+
+    // Toggles side panel open/close
+    if (btnNuevoProducto) {
+        btnNuevoProducto.addEventListener('click', () => {
+            if (prodPanelTitle) prodPanelTitle.innerText = "Nuevo Producto";
+            if (prodFormId) prodFormId.value = "";
+            if (prodFormCodigo) prodFormCodigo.value = "";
+            if (prodFormNombre) prodFormNombre.value = "";
+            if (prodFormCategoria) prodFormCategoria.value = "";
+            if (prodFormPresentacion) prodFormPresentacion.value = "";
+            if (prodFormPrecio) prodFormPrecio.value = "";
+            if (prodFormStockMinimo) prodFormStockMinimo.value = "";
+            if (prodFormDescripcion) prodFormDescripcion.value = "";
+            showProductPanel(panelNuevoProducto);
+        });
+    }
+
+    if (btnCargarStock) {
+        btnCargarStock.addEventListener('click', () => {
+            if (stockFormProducto) stockFormProducto.value = "";
+            if (stockFormCantidad) stockFormCantidad.value = "";
+            if (stockFormUnidad) stockFormUnidad.innerText = "kg";
+            if (stockFormCosto) stockFormCosto.value = "";
+            if (stockFormProveedor) stockFormProveedor.value = "";
+            if (stockFormObservaciones) stockFormObservaciones.value = "";
+            showProductPanel(panelCargarStock);
+        });
+    }
+
+    if (btnRegistrarMerma) {
+        btnRegistrarMerma.addEventListener('click', () => {
+            if (mermaFormProducto) mermaFormProducto.value = "";
+            if (mermaFormCantidad) mermaFormCantidad.value = "";
+            if (mermaFormUnidad) mermaFormUnidad.innerText = "kg";
+            if (mermaFormMotivo) mermaFormMotivo.value = "";
+            if (mermaFormDescripcion) mermaFormDescripcion.value = "";
+            showProductPanel(panelRegistrarMerma);
+        });
+    }
+
+    [closeNuevoProducto, prodFormCancelBtn].forEach(btn => {
+        if (btn) btn.addEventListener('click', closeAllProductPanels);
+    });
+    [closeCargarStock, stockFormCancelBtn].forEach(btn => {
+        if (btn) btn.addEventListener('click', closeAllProductPanels);
+    });
+    [closeRegistrarMerma, mermaFormCancelBtn].forEach(btn => {
+        if (btn) btn.addEventListener('click', closeAllProductPanels);
+    });
+
+    // Dynamic Unit Selection based on chosen product
+    if (stockFormProducto) {
+        stockFormProducto.addEventListener('change', () => {
+            const opt = stockFormProducto.options[stockFormProducto.selectedIndex];
+            const unidad = opt ? opt.getAttribute('data-unidad') : 'kg';
+            if (stockFormUnidad) stockFormUnidad.innerText = unidad || 'kg';
+        });
+    }
+    if (mermaFormProducto) {
+        mermaFormProducto.addEventListener('change', () => {
+            const opt = mermaFormProducto.options[mermaFormProducto.selectedIndex];
+            const unidad = opt ? opt.getAttribute('data-unidad') : 'kg';
+            if (mermaFormUnidad) mermaFormUnidad.innerText = unidad || 'kg';
+        });
+    }
+
+    // =========================================
+    // PRODUCT ACTIONS (EDIT & DELETE & DIRECT STOCK LOAD)
+    // =========================================
+    document.querySelectorAll('.btn-editar-producto').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (prodPanelTitle) prodPanelTitle.innerText = "Editar Producto";
+
+            const id = btn.getAttribute('data-id') || '';
+            const nombre = btn.getAttribute('data-nombre') || '';
+            const precio = btn.getAttribute('data-precio') || '';
+            const cat = btn.getAttribute('data-categoria') || '';
+            const pres = btn.getAttribute('data-presentacion') || '';
+            const stockMin = btn.getAttribute('data-stockminimo') || '';
+            const desc = btn.getAttribute('data-descripcion') || '';
+            const cod = btn.getAttribute('data-codigo') || '';
+
+            if (prodFormId) prodFormId.value = id;
+            if (prodFormCodigo) prodFormCodigo.value = cod;
+            if (prodFormNombre) prodFormNombre.value = nombre;
+            if (prodFormCategoria) prodFormCategoria.value = cat;
+            if (prodFormPresentacion) prodFormPresentacion.value = pres;
+            if (prodFormPrecio) prodFormPrecio.value = precio;
+            if (prodFormStockMinimo) prodFormStockMinimo.value = stockMin;
+            if (prodFormDescripcion) prodFormDescripcion.value = desc;
+
+            showProductPanel(panelNuevoProducto);
+        });
+    });
+
+    document.querySelectorAll('.btn-cargar-stock-directo').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id') || '';
+            if (stockFormProducto) {
+                stockFormProducto.value = id;
+                stockFormProducto.dispatchEvent(new Event('change'));
+            }
+            if (stockFormCantidad) stockFormCantidad.value = "";
+            if (stockFormCosto) stockFormCosto.value = "";
+            if (stockFormProveedor) stockFormProveedor.value = "";
+            if (stockFormObservaciones) stockFormObservaciones.value = "";
+            showProductPanel(panelCargarStock);
+        });
+    });
+
+    document.querySelectorAll('.btn-eliminar-producto').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-id');
+            if (!id) return;
+            if (confirm('¿Está seguro de que desea desactivar este producto?')) {
+                fetch(`/api/productos/${id}`, {
+                    method: 'DELETE'
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error al desactivar el producto');
+                        return res.text();
+                    })
+                    .then(() => {
+                        window.location.reload();
+                    })
+                    .catch(err => {
+                        alert(err.message);
+                        console.error(err);
+                    });
+            }
+        });
+    });
+
+    // =========================================
+    // SUBMIT FORM: SAVE/EDIT PRODUCT
+    // =========================================
+    if (prodFormSaveBtn) {
+        prodFormSaveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const id = prodFormId ? prodFormId.value : '';
+            const nombre = prodFormNombre ? prodFormNombre.value.trim() : '';
+            const catId = prodFormCategoria ? prodFormCategoria.value : '';
+            const presId = prodFormPresentacion ? prodFormPresentacion.value : '';
+            const precio = prodFormPrecio ? parseFloat(prodFormPrecio.value) : 0;
+            const stockMin = prodFormStockMinimo ? parseInt(prodFormStockMinimo.value) : 10;
+            const desc = prodFormDescripcion ? prodFormDescripcion.value.trim() : '';
+
+            if (!nombre || !catId || !presId || isNaN(precio) || isNaN(stockMin)) {
+                alert('Por favor, complete todos los campos requeridos marcados con (*)');
+                return;
+            }
+
+            const isEdit = id !== '';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const payload = {
+                nombre: nombre,
+                precio: precio,
+                descripcion: desc,
+                stockMinimo: stockMin,
+                categoria: { idcategoria: parseInt(catId) },
+                presentacion: { idpresentacion: parseInt(presId) }
+            };
+
+            if (isEdit) {
+                payload.idproducto = parseInt(id);
+            }
+
+            prodFormSaveBtn.disabled = true;
+            prodFormSaveBtn.innerText = 'Guardando...';
+
+            fetch('/api/productos', {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al guardar producto') });
+                    }
+                    return res.json();
+                })
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert(err.message);
+                    prodFormSaveBtn.disabled = false;
+                    prodFormSaveBtn.innerText = 'Guardar Producto';
+                });
+        });
+    }
+
+    // =========================================
+    // SUBMIT FORM: CARGAR STOCK (INGRESO)
+    // =========================================
+    if (stockFormSaveBtn) {
+        stockFormSaveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const prodId = stockFormProducto ? stockFormProducto.value : '';
+            const cantidad = stockFormCantidad ? stockFormCantidad.value.trim() : '';
+            const fecha = stockFormFecha ? stockFormFecha.value : '';
+            const costo = stockFormCosto ? stockFormCosto.value.trim() : '';
+            const proveedor = stockFormProveedor ? stockFormProveedor.value.trim() : '';
+            const observaciones = stockFormObservaciones ? stockFormObservaciones.value.trim() : '';
+
+            if (!prodId || !cantidad || !fecha) {
+                alert('Por favor, complete los campos obligatorios: Producto, Cantidad y Fecha.');
+                return;
+            }
+
+            // IngresoProduccion API requires an IngresoRequestDTO
+            const payload = {
+                dniResponsable: '00000000',
+                nombreResponsable: 'Sistema',
+                detalle: observaciones || `Ingreso de Mercaderia - Prov: ${proveedor || 'No especificado'}`,
+                detalles: [{
+                    idproducto: parseInt(prodId),
+                    nroLote: 'LOTE-' + new Date().toISOString().slice(0, 10).replace(/-/g, ''),
+                    cantidad: cantidad,
+                    fechaVencimiento: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().slice(0, 10) // Vence en 1 año
+                }]
+            };
+
+            stockFormSaveBtn.disabled = true;
+            stockFormSaveBtn.innerText = 'Guardando...';
+
+            fetch('/api/ingresos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al guardar stock') });
+                    }
+                    return res.json();
+                })
+                .then(() => {
+                    alert('Stock cargado exitosamente.');
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert(err.message);
+                    stockFormSaveBtn.disabled = false;
+                    stockFormSaveBtn.innerText = 'Guardar Ingreso';
+                });
+        });
+    }
+
+    // =========================================
+    // SUBMIT FORM: REGISTRAR MERMA
+    // =========================================
+    if (mermaFormSaveBtn) {
+        mermaFormSaveBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const prodId = mermaFormProducto ? mermaFormProducto.value : '';
+            const cantidad = mermaFormCantidad ? parseInt(mermaFormCantidad.value, 10) : 0;
+            const motivoId = mermaFormMotivo ? mermaFormMotivo.value : '';
+            const desc = mermaFormDescripcion ? mermaFormDescripcion.value.trim() : '';
+
+            if (!prodId || !cantidad || isNaN(cantidad) || cantidad <= 0 || !motivoId) {
+                alert('Por favor, complete los campos obligatorios y asegúrese de que la cantidad sea mayor a cero.');
+                return;
+            }
+
+            const payload = {
+                idproducto: parseInt(prodId),
+                cantidad: cantidad,
+                idmotivo: parseInt(motivoId)
+            };
+
+            mermaFormSaveBtn.disabled = true;
+            mermaFormSaveBtn.innerText = 'Guardando...';
+
+            fetch('/api/mermas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al registrar merma') });
+                    }
+                    return res.text();
+                })
+                .then(() => {
+                    alert('Merma registrada exitosamente.');
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert(err.message);
+                    mermaFormSaveBtn.disabled = false;
+                    mermaFormSaveBtn.innerText = 'Registrar Merma';
+                });
+        });
+    }
+
+    // =========================================
+    // PRODUCT REACTIVE FILTERS & SEARCH
+    // =========================================
+    const prodSearchInput = document.getElementById('prodSearchInput');
+    const prodCategorySelect = document.getElementById('prodCategorySelect');
+    const productRows = document.querySelectorAll('.prod-table tbody tr');
+
+    function filterProductos() {
+        if (!productRows || productRows.length === 0) return;
+
+        const query = prodSearchInput ? prodSearchInput.value.toLowerCase().trim() : '';
+        const catVal = prodCategorySelect ? prodCategorySelect.value : '';
+
+        productRows.forEach(row => {
+            if (row.id === 'prodEmptyRow') return;
+
+            const rowSearch = (row.getAttribute('th:data-search') || row.getAttribute('data-search') || '').toLowerCase();
+            const rowCat = row.getAttribute('th:data-categoria') || row.getAttribute('data-categoria') || '';
+
+            const matchesSearch = query === '' || rowSearch.includes(query);
+            const matchesCat = catVal === '' || rowCat === catVal;
+
+            if (matchesSearch && matchesCat) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Mostrar fila de "no hay resultados" si es necesario
+        let visibleCount = 0;
+        productRows.forEach(row => {
+            if (row.id !== 'prodEmptyRow' && row.style.display !== 'none') {
+                visibleCount++;
+            }
+        });
+
+        let emptyRow = document.getElementById('prodEmptyRow');
+        if (visibleCount === 0) {
+            if (!emptyRow) {
+                emptyRow = document.createElement('tr');
+                emptyRow.id = 'prodEmptyRow';
+                emptyRow.innerHTML = '<td colspan="9" style="text-align: center; color: #777; padding: 20px;">No se encontraron productos con los filtros aplicados.</td>';
+                const tbody = document.querySelector('.prod-table tbody');
+                if (tbody) tbody.appendChild(emptyRow);
+            } else {
+                emptyRow.style.display = '';
+            }
+        } else {
+            if (emptyRow) emptyRow.style.display = 'none';
+        }
+    }
+
+    if (prodSearchInput) {
+        prodSearchInput.addEventListener('input', filterProductos);
+    }
+    if (prodCategorySelect) {
+        prodCategorySelect.addEventListener('change', filterProductos);
     }
     // =========================================
     // LÓGICA VISTA: CLIENTES (cli-)
@@ -200,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelClienteForm = document.getElementById('cancelClienteForm');
     const btnsEditarCliente = document.querySelectorAll('.btn-editar-cliente');
     const btnGuardarCliente = document.getElementById('btnGuardarCliente');
-    
+
     // Form fields
     const formIdCliente = document.getElementById('formIdCliente');
     const formTipoCliente = document.getElementById('formTipoCliente');
@@ -221,17 +617,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (formTelefono) formTelefono.value = '';
                 if (formCorreo) formCorreo.value = '';
                 if (formDireccion) formDireccion.value = '';
-                
+
                 panelCliente.classList.add('active');
             });
         }
-        
+
         // Abrir panel (Botones Editar en la tabla)
         btnsEditarCliente.forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
                 if (!id) return;
-                
+
                 fetch(`/api/clientes/${id}`)
                     .then(res => {
                         if (!res.ok) throw new Error('Error al obtener datos del cliente');
@@ -241,13 +637,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (formIdCliente) formIdCliente.value = data.idcliente || '';
                         if (formTipoCliente) formTipoCliente.value = data.idtipocliente || '';
                         if (formNroDocumento) formNroDocumento.value = data.nroDocumento || '';
-                        
+
                         const name = data.nombre || data.razonsocial || '';
                         if (formNombre) formNombre.value = name;
-                        
-                        // Mock fields matching the table representation
+
+                        // Real database fields
                         if (formTelefono) {
-                            formTelefono.value = '9' + (data.nroDocumento && data.nroDocumento.length >= 8 ? data.nroDocumento.substring(data.nroDocumento.length - 8) : '87654321');
+                            formTelefono.value = data.telefono || '';
                         }
                         if (formCorreo) {
                             formCorreo.value = name.toLowerCase().trim().replace(/ /g, '.') + '@gmail.com';
@@ -255,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (formDireccion) {
                             formDireccion.value = 'Jr. Charapita ' + (data.nroDocumento || '');
                         }
-                        
+
                         panelCliente.classList.add('active');
                     })
                     .catch(err => {
@@ -269,32 +665,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnGuardarCliente) {
             btnGuardarCliente.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 const id = formIdCliente ? formIdCliente.value : '';
                 const tipoClienteId = formTipoCliente ? formTipoCliente.value : '';
                 const nroDoc = formNroDocumento ? formNroDocumento.value.trim() : '';
                 const name = formNombre ? formNombre.value.trim() : '';
-                
+
                 if (!nroDoc || !name || !tipoClienteId) {
                     alert('Por favor, complete todos los campos obligatorios (*).');
                     return;
                 }
-                
+
                 const isEdit = id !== '';
                 const method = isEdit ? 'PUT' : 'POST';
-                
+
                 const clientData = {
                     nombre: name,
                     razonsocial: name,
                     nroDocumento: nroDoc,
                     idtipocliente: parseInt(tipoClienteId),
+                    telefono: formTelefono ? formTelefono.value.trim() : '',
                     estado: true
                 };
-                
+
                 if (isEdit) {
                     clientData.idcliente = parseInt(id);
                 }
-                
+
                 fetch('/api/clientes', {
                     method: method,
                     headers: {
@@ -302,19 +699,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify(clientData)
                 })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text || 'Error al guardar cliente') });
-                    }
-                    return res.json();
-                })
-                .then(() => {
-                    window.location.reload();
-                })
-                .catch(err => {
-                    alert('Ocurrió un error al guardar el cliente: ' + err.message);
-                    console.error(err);
-                });
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.text().then(text => { throw new Error(text || 'Error al guardar cliente') });
+                        }
+                        return res.json();
+                    })
+                    .then(() => {
+                        window.location.reload();
+                    })
+                    .catch(err => {
+                        alert('Ocurrió un error al guardar el cliente: ' + err.message);
+                        console.error(err);
+                    });
             });
         }
 
@@ -334,18 +731,18 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const id = btn.getAttribute('data-id');
                 if (!id) return;
-                
+
                 const titleSpan = panelHistorial.querySelector('.cli-client-name');
                 if (titleSpan) titleSpan.innerHTML = 'Cargando historial...';
-                
+
                 const tableBody = panelHistorial.querySelector('.cli-table-history tbody');
                 if (tableBody) tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 15px;">Cargando compras...</td></tr>';
-                
+
                 const prefList = panelHistorial.querySelector('.cli-pref-list');
                 if (prefList) prefList.innerHTML = '<div style="text-align: center; font-size: 0.85rem; color: #888; padding: 15px;">Cargando...</div>';
 
                 panelHistorial.classList.add('active');
-                
+
                 // Fetch customer purchases and preferences
                 fetch(`/api/clientes/${id}/historial`)
                     .then(res => {
@@ -359,7 +756,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (titleSpan) {
                             titleSpan.innerHTML = `${clientName} <small>(Doc: ${clientDoc})</small>`;
                         }
-                        
+
+                        // Guardar datos en el botón de exportación
+                        const btnExport = document.getElementById('btnExportarHistorialCliente');
+                        if (btnExport) {
+                            btnExport.setAttribute('data-name', clientName);
+                            btnExport.setAttribute('data-doc', clientDoc);
+                        }
+
                         // 2. Tabla de compras
                         if (tableBody) {
                             if (data.compras.length === 0) {
@@ -369,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     let badgeClass = 'cli-bg-blue';
                                     let iconClass = 'fa-solid fa-credit-card';
                                     const methodLower = (c.metodo || '').toLowerCase();
-                                    
+
                                     if (methodLower.includes('efectivo')) {
                                         badgeClass = 'cli-bg-efectivo';
                                         iconClass = 'fa-solid fa-money-bill';
@@ -377,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         badgeClass = 'cli-bg-yape';
                                         iconClass = 'fa-solid fa-mobile-screen';
                                     }
-                                    
+
                                     return `
                                         <tr>
                                             <td>${c.fecha}</td>
@@ -386,28 +790,34 @@ document.addEventListener('DOMContentLoaded', () => {
                                             <td>S/ ${parseFloat(c.total).toFixed(2)}</td>
                                             <td><span class="cli-badge ${badgeClass}"><i class="${iconClass}"></i> ${c.metodo}</span></td>
                                             <td>${c.vendedor}</td>
-                                            <td><a href="/historial" class="cli-link">Ver detalle</a></td>
+                                            <td><a href="/historial?ventaId=${c.idventa}" class="cli-link"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.75rem; margin-right:4px;"></i>Ver detalle</a></td>
                                         </tr>
                                     `;
                                 }).join('');
                             }
                         }
-                        
+
                         // 3. Productos Preferidos
                         if (prefList) {
                             if (data.productosPreferidos.length === 0) {
                                 prefList.innerHTML = '<div style="text-align: center; font-size: 0.85rem; color: #888; padding: 15px;">Sin compras recurrentes.</div>';
                             } else {
-                                prefList.innerHTML = data.productosPreferidos.map((p, idx) => `
+                                prefList.innerHTML = data.productosPreferidos.map((p, idx) => {
+                                    const totalImporte = p.totalImporte != null ? parseFloat(p.totalImporte).toFixed(2) : '0.00';
+                                    return `
                                     <div class="cli-pref-item">
                                         <span class="cli-pref-num">${idx + 1}</span>
-                                        <div class="cli-heart-icon" style="width:30px; height:30px; font-size:0.9rem; background:#fff; border:1px solid #f0f0f0;"><i class="fa-solid fa-basket-shopping" style="color:#a85867;"></i></div>
+                                        <div class="cli-heart-icon" style="width:30px; height:30px; font-size:0.9rem; background:#fff; border:1px solid #f0f0f0;">
+                                            <i class="fa-solid fa-basket-shopping" style="color:#a85867;"></i>
+                                        </div>
                                         <div class="cli-pref-info">
                                             <strong>${p.nombre}</strong>
-                                            <small>Promedio: ${p.promedioCantidad} ${p.unidad} por compra</small>
+                                            <small>Cantidad total: <b>${p.totalQty} ${p.unidad}</b> &bull; Promedio: ${p.promedioCantidad} ${p.unidad}/compra</small>
+                                            <small style="color:#8a1529; font-weight:600;">Total gastado: S/ ${totalImporte}</small>
                                         </div>
                                     </div>
-                                `).join('');
+                                    `;
+                                }).join('');
                             }
                         }
                     })
@@ -417,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (tableBody) tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #d32f2f; padding: 15px;">No se pudo cargar el historial del cliente.</td></tr>';
                         if (prefList) prefList.innerHTML = '<div style="text-align: center; color: #d32f2f; padding: 15px;">Error</div>';
                     });
-                
+
                 // Opcional: hacer un pequeño scroll hacia abajo para asegurar que el usuario lo vea
                 setTimeout(() => {
                     panelHistorial.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -428,53 +838,486 @@ document.addEventListener('DOMContentLoaded', () => {
         // Cerrar historial
         closeHistorial.addEventListener('click', () => panelHistorial.classList.remove('active'));
     }
+
+    // =========================================
+    // FILTROS Y PAGINACIÓN DE CLIENTES (cli-)
+    // =========================================
+    const clienteSearchInput = document.getElementById('clienteSearchInput');
+    const clienteTipoSelect = document.getElementById('clienteTipoSelect');
+    const clientePageSizeSelect = document.getElementById('clientePageSizeSelect');
+    const clientePaginationContainer = document.getElementById('clientePaginationContainer');
+    const cliShowingCount = document.getElementById('cliShowingCount');
+    const cliTotalCount = document.getElementById('cliTotalCount');
+    const clientRows = document.querySelectorAll('.cli-table tbody tr:not([colspan])');
+
+    let cliCurrentPage = 1;
+    let cliPageSize = 10;
+
+    function filterAndPaginateClientes() {
+        if (!clientRows || clientRows.length === 0) return;
+
+        const query = clienteSearchInput ? clienteSearchInput.value.toLowerCase().trim() : '';
+        const tipoVal = clienteTipoSelect ? clienteTipoSelect.value : '';
+
+        // 1. Filtrar filas
+        let visibleRows = [];
+        clientRows.forEach(row => {
+            if (row.id === 'clienteEmptyRow') return;
+            const rowSearch = (row.getAttribute('data-search') || '').toLowerCase();
+            const rowTipo = row.getAttribute('data-tipo') || '';
+
+            const matchesSearch = query === '' || rowSearch.includes(query);
+            const matchesTipo = tipoVal === '' || rowTipo === tipoVal;
+
+            if (matchesSearch && matchesTipo) {
+                visibleRows.push(row);
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Actualizar total count
+        const totalRows = visibleRows.length;
+        if (cliTotalCount) cliTotalCount.innerText = totalRows;
+
+        // Si no hay filas visibles
+        if (totalRows === 0) {
+            let emptyRow = document.getElementById('clienteEmptyRow');
+            if (!emptyRow) {
+                emptyRow = document.createElement('tr');
+                emptyRow.id = 'clienteEmptyRow';
+                emptyRow.innerHTML = '<td colspan="7" style="text-align: center; color: #777; padding: 20px;">No se encontraron clientes con los filtros aplicados.</td>';
+                const tbody = document.querySelector('.cli-table tbody');
+                if (tbody) tbody.appendChild(emptyRow);
+            } else {
+                emptyRow.style.display = '';
+            }
+
+            if (cliShowingCount) cliShowingCount.innerText = '0';
+            if (clientePaginationContainer) clientePaginationContainer.innerHTML = '';
+            return;
+        } else {
+            const emptyRow = document.getElementById('clienteEmptyRow');
+            if (emptyRow) emptyRow.style.display = 'none';
+        }
+
+        // 2. Calcular paginación
+        const totalPages = Math.ceil(totalRows / cliPageSize);
+
+        // Clampar página actual
+        if (cliCurrentPage > totalPages) cliCurrentPage = totalPages;
+        if (cliCurrentPage < 1) cliCurrentPage = 1;
+
+        // Ocultar todas las filas visibles primero
+        visibleRows.forEach(row => row.style.display = 'none');
+
+        // Mostrar solo las filas de la página actual
+        const start = (cliCurrentPage - 1) * cliPageSize;
+        const end = Math.min(start + cliPageSize, totalRows);
+
+        for (let i = start; i < end; i++) {
+            visibleRows[i].style.display = '';
+        }
+
+        // Actualizar texto: "Mostrando X-Y de Z clientes"
+        if (cliShowingCount) {
+            cliShowingCount.innerText = `${start + 1}-${end}`;
+        }
+
+        // 3. Renderizar botones de paginación
+        if (clientePaginationContainer) {
+            clientePaginationContainer.innerHTML = '';
+
+            // Botón Primero «
+            const btnFirst = document.createElement('span');
+            btnFirst.innerHTML = '&laquo;';
+            if (cliCurrentPage === 1) {
+                btnFirst.classList.add('disabled');
+            } else {
+                btnFirst.addEventListener('click', () => { cliCurrentPage = 1; filterAndPaginateClientes(); });
+            }
+            clientePaginationContainer.appendChild(btnFirst);
+
+            // Botón Anterior <
+            const btnPrev = document.createElement('span');
+            btnPrev.innerHTML = '&lt;';
+            if (cliCurrentPage === 1) {
+                btnPrev.classList.add('disabled');
+            } else {
+                btnPrev.addEventListener('click', () => { cliCurrentPage--; filterAndPaginateClientes(); });
+            }
+            clientePaginationContainer.appendChild(btnPrev);
+
+            // Páginas numéricas
+            const maxPageButtons = 5;
+            let startPage = Math.max(1, cliCurrentPage - Math.floor(maxPageButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+
+            if (endPage - startPage + 1 < maxPageButtons) {
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                const btnPage = document.createElement('span');
+                btnPage.innerText = p;
+                if (p === cliCurrentPage) {
+                    btnPage.classList.add('active');
+                } else {
+                    btnPage.addEventListener('click', () => { cliCurrentPage = p; filterAndPaginateClientes(); });
+                }
+                clientePaginationContainer.appendChild(btnPage);
+            }
+
+            // Botón Siguiente >
+            const btnNext = document.createElement('span');
+            btnNext.innerHTML = '&gt;';
+            if (cliCurrentPage === totalPages) {
+                btnNext.classList.add('disabled');
+            } else {
+                btnNext.addEventListener('click', () => { cliCurrentPage++; filterAndPaginateClientes(); });
+            }
+            clientePaginationContainer.appendChild(btnNext);
+
+            // Botón Último »
+            const btnLast = document.createElement('span');
+            btnLast.innerHTML = '&raquo;';
+            if (cliCurrentPage === totalPages) {
+                btnLast.classList.add('disabled');
+            } else {
+                btnLast.addEventListener('click', () => { cliCurrentPage = totalPages; filterAndPaginateClientes(); });
+            }
+            clientePaginationContainer.appendChild(btnLast);
+        }
+    }
+
+    // Registrar listeners para cambios reactivos en filtros y paginación
+    if (clienteSearchInput) {
+        clienteSearchInput.addEventListener('input', () => {
+            cliCurrentPage = 1;
+            filterAndPaginateClientes();
+        });
+    }
+
+    if (clienteTipoSelect) {
+        clienteTipoSelect.addEventListener('change', () => {
+            cliCurrentPage = 1;
+            filterAndPaginateClientes();
+        });
+    }
+
+    if (clientePageSizeSelect) {
+        clientePageSizeSelect.addEventListener('change', () => {
+            cliPageSize = parseInt(clientePageSizeSelect.value) || 10;
+            cliCurrentPage = 1;
+            filterAndPaginateClientes();
+        });
+    }
+
+    // Inicializar filtros y paginación de clientes al cargar la página
+    if (document.querySelector('.cli-table')) {
+        filterAndPaginateClientes();
+    }
+
+    // =========================================
+    // EXPORTACIÓN DEL HISTORIAL DEL CLIENTE A EXCEL
+    // =========================================
+    function exportTableToExcel(tableId, filename = '') {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        // Clonar la tabla para no alterar la visualización en la interfaz
+        const clone = table.cloneNode(true);
+        const rows = clone.querySelectorAll('tr');
+
+        // Eliminar la última columna (que contiene el enlace de "Ver detalle")
+        rows.forEach(row => {
+            if (row.cells.length > 0) {
+                row.deleteCell(row.cells.length - 1);
+            }
+        });
+
+        const cleanHtml = clone.outerHTML;
+
+        // Plantilla de Excel con estilos básicos
+        const excelTemplate = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <!--[if gte mso 9]>
+                <xml>
+                    <x:ExcelWorkbook>
+                        <x:ExcelWorksheets>
+                            <x:ExcelWorksheet>
+                                <x:Name>Historial de Compras</x:Name>
+                                <x:WorksheetOptions>
+                                    <x:DisplayGridlines/>
+                                </x:WorksheetOptions>
+                            </x:ExcelWorksheet>
+                        </x:ExcelWorksheets>
+                    </x:ExcelWorkbook>
+                </xml>
+                <![endif]-->
+                <style>
+                    table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; }
+                    th { background-color: #8a1529; color: #ffffff; font-weight: bold; padding: 8px; border: 1px solid #dddddd; text-align: left; }
+                    td { padding: 8px; border: 1px solid #dddddd; }
+                    tr:nth-child(even) { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body>
+                ${cleanHtml}
+            </body>
+            </html>
+        `;
+
+        const blob = new Blob([excelTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename ? filename + '.xls' : 'historial_compras.xls';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    const btnExportarHistorialCliente = document.getElementById('btnExportarHistorialCliente');
+    if (btnExportarHistorialCliente) {
+        btnExportarHistorialCliente.addEventListener('click', (e) => {
+            e.preventDefault();
+            const name = btnExportarHistorialCliente.getAttribute('data-name') || 'Cliente';
+            const doc = btnExportarHistorialCliente.getAttribute('data-doc') || '00000000';
+            const filename = `Historial_Compras_${name.replace(/[^a-zA-Z0-9]/g, '_')}_${doc}`;
+            exportTableToExcel('cliTableHistory', filename);
+        });
+    }
     // =========================================
     // LÓGICA VISTA: REPORTES (rep-)
     // =========================================
 
     // 1. Interacción de Pestañas (Tabs)
-    const repTabs = document.querySelectorAll('.rep-tab');
-    if (repTabs.length > 0) {
-        repTabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                // Quita la clase active de todas
-                repTabs.forEach(t => t.classList.remove('active'));
-                // Añade active a la clickeada
-                e.currentTarget.classList.add('active');
-                
-                // NOTA: Para este prototipo, todas las tablas están visibles.
-                // En un desarrollo completo, aquí ocultarías/mostrarías los section correspondientes.
-            });
+    const repBlockVentas = document.getElementById('repBlockVentas');
+    const repBlockMermas = document.getElementById('repBlockMermas');
+    const repBlockInventario = document.getElementById('repBlockInventario');
+
+    const tabVentas = document.getElementById('tabVentas');
+    const tabMermas = document.getElementById('tabMermas');
+    const tabInventario = document.getElementById('tabInventario');
+
+    const repFilterFechaInicio = document.getElementById('repFilterFechaInicio');
+    const repFilterFechaFin = document.getElementById('repFilterFechaFin');
+    const repFilterCaja = document.getElementById('repFilterCaja');
+    const repFilterVendedor = document.getElementById('repFilterVendedor');
+    const repFilterCategoria = document.getElementById('repFilterCategoria');
+
+    const repFilterBtnApply = document.getElementById('repFilterBtnApply');
+    const repFilterBtnClean = document.getElementById('repFilterBtnClean');
+
+    // Chart.js global reference
+    let repChart = null;
+
+    // Tabs toggle logic
+    function switchTab(activeTab, blockToShow) {
+        [tabVentas, tabMermas, tabInventario].forEach(tab => {
+            if (tab) tab.classList.remove('active');
         });
+        if (activeTab) activeTab.classList.add('active');
+
+        [repBlockVentas, repBlockMermas, repBlockInventario].forEach(block => {
+            if (block) block.style.display = 'none';
+        });
+        if (blockToShow) {
+            blockToShow.style.display = 'block';
+        }
     }
 
-    // 2. Gráfico "Ventas vs Mermas"
+    if (tabVentas && repBlockVentas) {
+        tabVentas.addEventListener('click', () => switchTab(tabVentas, repBlockVentas));
+    }
+    if (tabMermas && repBlockMermas) {
+        tabMermas.addEventListener('click', () => {
+            switchTab(tabMermas, repBlockMermas);
+            if (repChart) repChart.resize();
+        });
+    }
+    if (tabInventario && repBlockInventario) {
+        tabInventario.addEventListener('click', () => switchTab(tabInventario, repBlockInventario));
+    }
+
+
+
+    // Main Filter logic
+    function applyGlobalFilters() {
+        const dateStartStr = repFilterFechaInicio ? repFilterFechaInicio.value : '';
+        const dateEndStr = repFilterFechaFin ? repFilterFechaFin.value : '';
+        const sellerVal = repFilterVendedor ? repFilterVendedor.value.toLowerCase().trim() : '';
+        const catVal = repFilterCategoria ? repFilterCategoria.value : '';
+
+        // 1. FILTER VENTAS
+        let ventasSubtotalSum = 0;
+        let ventasIgvSum = 0;
+        let ventasTotalSum = 0;
+        let visibleVentasCount = 0;
+
+        const ventaRows = document.querySelectorAll('.rep-venta-row');
+        ventaRows.forEach(row => {
+            const rowFecha = row.getAttribute('data-fecha') || '';
+            const rowVendedor = (row.getAttribute('data-vendedor') || '').toLowerCase().trim();
+
+            const total = parseFloat(row.getAttribute('data-total') || '0');
+            const applyIgv = row.getAttribute('data-apply-igv') === 'true';
+            let subtotal = total;
+            let igv = 0;
+            if (applyIgv) {
+                subtotal = total / 1.18;
+                igv = total - subtotal;
+            }
+
+            const matchesStart = dateStartStr === '' || rowFecha >= dateStartStr;
+            const matchesEnd = dateEndStr === '' || rowFecha <= dateEndStr;
+            const matchesSeller = sellerVal === '' || rowVendedor === sellerVal;
+
+            if (matchesStart && matchesEnd && matchesSeller) {
+                row.style.display = '';
+                ventasSubtotalSum += subtotal;
+                ventasIgvSum += igv;
+                ventasTotalSum += total;
+                visibleVentasCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const repSumVentasSubtotal = document.getElementById('repSumVentasSubtotal');
+        const repSumVentasIgv = document.getElementById('repSumVentasIgv');
+        const repSumVentasTotal = document.getElementById('repSumVentasTotal');
+        const repVentasCount = document.getElementById('repVentasCount');
+        const repVentasEmptyRow = document.getElementById('repVentasEmptyRow');
+
+        if (repSumVentasSubtotal) repSumVentasSubtotal.innerText = ventasSubtotalSum.toFixed(2);
+        if (repSumVentasIgv) repSumVentasIgv.innerText = ventasIgvSum.toFixed(2);
+        if (repSumVentasTotal) repSumVentasTotal.innerText = ventasTotalSum.toFixed(2);
+        if (repVentasCount) repVentasCount.innerText = `Mostrando ${visibleVentasCount} de ${ventaRows.length} ventas`;
+        if (repVentasEmptyRow) {
+            repVentasEmptyRow.style.display = (visibleVentasCount === 0) ? '' : 'none';
+        }
+
+        // 2. FILTER MERMAS
+        let mermasCantidadSum = 0;
+        let mermasValorSum = 0;
+        let visibleMermasCount = 0;
+
+        const mermaRows = document.querySelectorAll('.rep-merma-row');
+        mermaRows.forEach(row => {
+            const rowFecha = row.getAttribute('data-fecha') || '';
+            const rowCat = row.getAttribute('data-categoria') || '';
+            const cant = parseFloat(row.getAttribute('data-cantidad') || '0');
+            const valor = parseFloat(row.getAttribute('data-valor') || '0');
+
+            const matchesStart = dateStartStr === '' || rowFecha >= dateStartStr;
+            const matchesEnd = dateEndStr === '' || rowFecha <= dateEndStr;
+            const matchesCat = catVal === '' || rowCat === catVal;
+
+            if (matchesStart && matchesEnd && matchesCat) {
+                row.style.display = '';
+                mermasCantidadSum += cant;
+                mermasValorSum += valor;
+                visibleMermasCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const repTotalMermaCant = document.getElementById('repTotalMermaCant');
+        const repTotalMermaValor = document.getElementById('repTotalMermaValor');
+        const repMermasEmptyRow = document.getElementById('repMermasEmptyRow');
+
+        if (repTotalMermaCant) repTotalMermaCant.innerText = mermasCantidadSum.toFixed(2);
+        if (repTotalMermaValor) repTotalMermaValor.innerText = mermasValorSum.toFixed(2);
+        if (repMermasEmptyRow) {
+            repMermasEmptyRow.style.display = (visibleMermasCount === 0) ? '' : 'none';
+        }
+
+        const repMermaPercentage = document.getElementById('repMermaPercentage');
+        if (repMermaPercentage) {
+            const pct = (ventasTotalSum > 0) ? (mermasValorSum / ventasTotalSum) * 100 : 0;
+            repMermaPercentage.innerText = pct.toFixed(2);
+        }
+
+        // 3. FILTER INVENTARIOS
+        let inventarioStockSum = 0;
+        let inventarioValorSum = 0;
+        let visibleInventariosCount = 0;
+
+        const inventarioRows = document.querySelectorAll('.rep-inventario-row');
+        inventarioRows.forEach(row => {
+            const rowCat = row.getAttribute('data-categoria') || '';
+            const stock = parseFloat(row.getAttribute('data-stock') || '0');
+            const valor = parseFloat(row.getAttribute('data-valor') || '0');
+
+            const matchesCat = catVal === '' || rowCat === catVal;
+
+            if (matchesCat) {
+                row.style.display = '';
+                inventarioStockSum += stock;
+                inventarioValorSum += valor;
+                visibleInventariosCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        const repTotalInventarioStock = document.getElementById('repTotalInventarioStock');
+        const repTotalInventarioValor = document.getElementById('repTotalInventarioValor');
+        const repInventarioEmptyRow = document.getElementById('repInventarioEmptyRow');
+
+        if (repTotalInventarioStock) repTotalInventarioStock.innerText = inventarioStockSum.toFixed(2);
+        if (repTotalInventarioValor) repTotalInventarioValor.innerText = inventarioValorSum.toFixed(2);
+        if (repInventarioEmptyRow) {
+            repInventarioEmptyRow.style.display = (visibleInventariosCount === 0) ? '' : 'none';
+        }
+
+        // 4. UPDATE CHART
+        if (repChart) {
+            repChart.data.datasets[0].data = [ventasTotalSum, mermasValorSum];
+            repChart.update();
+        }
+    }
+
+    // Initialize Chart
     const repCanvas = document.getElementById('repBarChart');
     if (repCanvas) {
         const ctxRep = repCanvas.getContext('2d');
-        new Chart(ctxRep, {
+        repChart = new Chart(ctxRep, {
             type: 'bar',
             data: {
-                labels: ['Ventas', 'Mermas'],
+                labels: ['Ventas Totales', 'Pérdidas por Mermas'],
                 datasets: [{
-                    label: 'Monto (S/)',
-                    data: [8524.70, 61.40], // Datos simulados basados en la imagen
+                    label: 'Monto en Soles (S/)',
+                    data: [0, 0],
                     backgroundColor: [
-                        '#218838', // Verde para ventas
-                        '#c62828'  // Rojo para mermas
+                        '#2e7d32',
+                        '#c62828'
                     ],
-                    borderRadius: 4,
-                    barPercentage: 0.5 // Hace las barras más delgadas
+                    borderColor: [
+                        '#1b5e20',
+                        '#b71c1c'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barThickness: 35
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }, // Oculta la leyenda superior
+                    legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 return 'S/ ' + context.raw.toFixed(2);
                             }
                         }
@@ -483,16 +1326,197 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: { color: '#eaeaea' },
                         ticks: {
-                            callback: function(value) {
-                                return (value / 1000) + 'K'; // Formato "10K", "8K"
+                            callback: function (value) {
+                                return 'S/ ' + value;
                             }
                         }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 }
             }
         });
     }
+
+    if (repFilterBtnApply) {
+        repFilterBtnApply.addEventListener('click', applyGlobalFilters);
+    }
+
+    if (repFilterBtnClean) {
+        repFilterBtnClean.addEventListener('click', () => {
+            if (repFilterFechaInicio) repFilterFechaInicio.value = repFilterFechaInicio.getAttribute('value') || '';
+            if (repFilterFechaFin) repFilterFechaFin.value = repFilterFechaFin.getAttribute('value') || '';
+            if (repFilterCaja) repFilterCaja.value = '';
+            if (repFilterVendedor) repFilterVendedor.value = '';
+            if (repFilterCategoria) repFilterCategoria.value = '';
+            applyGlobalFilters();
+        });
+    }
+
+    // =========================================
+    // EXPORTS: EXCEL & PDF
+    // =========================================
+    function getVisibleTableHTML(tableId, title) {
+        const table = document.getElementById(tableId);
+        if (!table) return '';
+
+        let html = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="UTF-8">
+            <!--[if gte mso 9]>
+            <xml>
+                <x:ExcelWorkbook>
+                    <x:ExcelWorksheets>
+                        <x:ExcelWorksheet>
+                            <x:Name>${title}</x:Name>
+                            <x:WorksheetOptions>
+                                <x:DisplayGridlines/>
+                            </x:WorksheetOptions>
+                        </x:ExcelWorksheet>
+                    </x:ExcelWorksheets>
+                </x:ExcelWorkbook>
+            </xml>
+            <![endif]-->
+            <style>
+                body { font-family: Arial, sans-serif; }
+                h2 { color: #e65100; margin-bottom: 5px; }
+                p { color: #555; margin-bottom: 20px; font-size: 13px; }
+                table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+                th { background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold; }
+                td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                .total-row { font-weight: bold; background-color: #eaeaea; }
+            </style>
+        </head>
+        <body>
+            <h2>${title}</h2>
+            <p>Generado automáticamente el ${new Date().toLocaleString()}</p>
+            <table>
+                <thead>
+        `;
+
+        const headers = table.querySelectorAll('thead tr th');
+        html += '<tr>';
+        headers.forEach(th => {
+            html += `<th>${th.innerText}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (row.style.display !== 'none' && row.id !== 'repVentasEmptyRow' && row.id !== 'repMermasEmptyRow' && row.id !== 'repInventarioEmptyRow') {
+                html += '<tr>';
+                row.querySelectorAll('td').forEach(td => {
+                    html += `<td>${td.innerText}</td>`;
+                });
+                html += '</tr>';
+            }
+        });
+
+        html += '</tbody>';
+
+        const footers = table.querySelectorAll('tfoot tr');
+        if (footers.length > 0) {
+            html += '<tfoot>';
+            footers.forEach(footRow => {
+                html += '<tr class="total-row">';
+                footRow.querySelectorAll('td').forEach(td => {
+                    html += `<td colspan="${td.getAttribute('colspan') || 1}">${td.innerText}</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tfoot>';
+        }
+
+        html += '</table></body></html>';
+        return html;
+    }
+
+    function exportToExcelBlob(tableId, title, filename) {
+        const tableHTML = getVisibleTableHTML(tableId, title);
+        if (!tableHTML) return;
+
+        const blob = new Blob([tableHTML], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function generatePDFReport(elementId, title) {
+        const element = document.getElementById(elementId);
+        if (!element || typeof html2pdf === 'undefined') {
+            alert('Librería de PDF no cargada o contenedor no encontrado.');
+            return;
+        }
+
+        const exportActions = element.querySelector('.rep-export-actions');
+        if (exportActions) exportActions.style.display = 'none';
+
+        const opt = {
+            margin: 10,
+            filename: `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().slice(0, 10)}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            if (exportActions) exportActions.style.display = 'flex';
+        }).catch(err => {
+            console.error(err);
+            if (exportActions) exportActions.style.display = 'flex';
+        });
+    }
+
+    const btnExportVentasExcel = document.getElementById('btnExportVentasExcel');
+    const btnExportVentasPdf = document.getElementById('btnExportVentasPdf');
+    if (btnExportVentasExcel) {
+        btnExportVentasExcel.addEventListener('click', () => {
+            exportToExcelBlob('tableVentas', 'Reporte de Ventas Detallado', 'reporte_ventas_detallado.xls');
+        });
+    }
+    if (btnExportVentasPdf) {
+        btnExportVentasPdf.addEventListener('click', () => {
+            generatePDFReport('repBlockVentas', 'Reporte de Ventas Detallado');
+        });
+    }
+
+    const btnExportMermasExcel = document.getElementById('btnExportMermasExcel');
+    const btnExportMermasPdf = document.getElementById('btnExportMermasPdf');
+    if (btnExportMermasExcel) {
+        btnExportMermasExcel.addEventListener('click', () => {
+            exportToExcelBlob('tableMermas', 'Reporte de Mermas y Pérdidas', 'reporte_mermas.xls');
+        });
+    }
+    if (btnExportMermasPdf) {
+        btnExportMermasPdf.addEventListener('click', () => {
+            generatePDFReport('repBlockMermas', 'Reporte de Mermas y Pérdidas');
+        });
+    }
+
+    const btnExportInventarioExcel = document.getElementById('btnExportInventarioExcel');
+    const btnExportInventarioPdf = document.getElementById('btnExportInventarioPdf');
+    if (btnExportInventarioExcel) {
+        btnExportInventarioExcel.addEventListener('click', () => {
+            exportToExcelBlob('tableInventario', 'Reporte de Inventario y Valorización', 'reporte_inventario.xls');
+        });
+    }
+    if (btnExportInventarioPdf) {
+        btnExportInventarioPdf.addEventListener('click', () => {
+            generatePDFReport('repBlockInventario', 'Reporte de Inventario y Valorización');
+        });
+    }
+
+
+    applyGlobalFilters();
     // =========================================
     // LÓGICA VISTA: CONFIGURACIÓN (conf-)
     // =========================================
@@ -506,7 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (panelUsuario && btnNuevoUsuario) {
         // Abrir panel
         btnNuevoUsuario.addEventListener('click', () => panelUsuario.classList.add('active'));
-        
+
         // Cerrar panel
         if (closeNuevoUsuario) closeNuevoUsuario.addEventListener('click', () => panelUsuario.classList.remove('active'));
         if (cancelNuevoUsuario) cancelNuevoUsuario.addEventListener('click', () => panelUsuario.classList.remove('active'));
@@ -521,7 +1545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Cambia el tipo de input
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             // Cambia el icono
             togglePassword.classList.toggle('fa-eye');
             togglePassword.classList.toggle('fa-eye-slash');
@@ -541,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Cálculo dinámico de cuadre de caja
     if (inputMontoReal && valMontoEsperadoSpan && boxDiferencia && valDiferencia) {
         const montoEsperado = parseFloat(valMontoEsperadoSpan.getAttribute('data-esperado') || '0');
-        
+
         inputMontoReal.addEventListener('input', () => {
             const montoRealVal = inputMontoReal.value.trim();
             if (montoRealVal === '') {
@@ -604,19 +1628,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(res => {
-                if (!res.ok) {
-                    return res.text().then(text => { throw new Error(text || 'Error al abrir caja') });
-                }
-                return res.json();
-            })
-            .then(() => {
-                window.location.reload();
-            })
-            .catch(err => {
-                alert('Error al abrir la caja: ' + err.message);
-                console.error(err);
-            });
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al abrir caja') });
+                    }
+                    return res.json();
+                })
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert('Error al abrir la caja: ' + err.message);
+                    console.error(err);
+                });
         });
     }
 
@@ -627,7 +1651,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const panelCierre = document.getElementById('panelCierreCaja');
             const idmovimiento = panelCierre.getAttribute('data-id');
             const montofinalVal = document.getElementById('inputMontoReal').value.trim();
-            
+
             if (montofinalVal === '') {
                 alert('Debe ingresar el monto real contado en efectivo.');
                 return;
@@ -650,26 +1674,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(res => {
-                if (!res.ok) {
-                    return res.text().then(text => { throw new Error(text || 'Error al cerrar caja') });
-                }
-                return res.json();
-            })
-            .then(() => {
-                window.location.reload();
-            })
-            .catch(err => {
-                alert('Error al cerrar la caja: ' + err.message);
-                console.error(err);
-            });
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al cerrar caja') });
+                    }
+                    return res.json();
+                })
+                .then(() => {
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert('Error al cerrar la caja: ' + err.message);
+                    console.error(err);
+                });
         });
     }
 
     // =========================================================
     // LÓGICA COMPLETA DE NUEVA VENTA Y CONFIRMAR VENTA
     // =========================================================
-    
+
     // --- ESTADO GLOBAL POS ---
     let carrito = JSON.parse(localStorage.getItem('pos_cart')) || [];
     let selectedPayMethod = JSON.parse(localStorage.getItem('pos_pay_method')) || null;
@@ -747,18 +1771,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         cartTableBody.innerHTML = html;
 
-        // Cálculos estándar en Perú (Total incluye IGV)
-        const subtotal = total / 1.18;
-        const igv = total - subtotal;
+        // Los precios de los productos son precios NETOS (sin IGV).
+        // Cuando se activa el IGV, se suma 18% encima del subtotal neto.
+        const applyIgv = localStorage.getItem('pos_apply_igv') !== 'false';
+        const cartApplyIgv = document.getElementById('cartApplyIgv');
+        if (cartApplyIgv) {
+            cartApplyIgv.checked = applyIgv;
+        }
+
+        // 'total' aquí es la suma de precios netos de los items
+        const subtotal = total;
+        const igv = applyIgv ? subtotal * 0.18 : 0.00;
+        const totalFinal = subtotal + igv;
 
         if (cartSubtotal) cartSubtotal.innerText = `S/ ${subtotal.toFixed(2)}`;
         if (cartIgv) cartIgv.innerText = `S/ ${igv.toFixed(2)}`;
-        if (cartTotal) cartTotal.innerText = `S/ ${total.toFixed(2)}`;
+        if (cartTotal) cartTotal.innerText = `S/ ${totalFinal.toFixed(2)}`;
     }
 
     // inicializar carrito si estamos en POS
     if (cartTableBody) {
         renderCart();
+
+        const cartApplyIgv = document.getElementById('cartApplyIgv');
+        if (cartApplyIgv) {
+            cartApplyIgv.addEventListener('change', (e) => {
+                localStorage.setItem('pos_apply_igv', e.target.checked);
+                renderCart();
+            });
+        }
 
         // Controladores del Carrito (Delegación de eventos)
         cartTableBody.addEventListener('click', (e) => {
@@ -932,6 +1973,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmTableBody = document.getElementById('confirmTableBody');
     const confirmClienteSelect = document.getElementById('confirmClienteSelect');
     const confirmNroDocumento = document.getElementById('confirmNroDocumento');
+    const confirmTipoClienteDisplay = document.getElementById('confirmTipoClienteDisplay');
     const confirmDireccion = document.getElementById('confirmDireccion');
     const confirmCorreo = document.getElementById('confirmCorreo');
     const confirmTelefono = document.getElementById('confirmTelefono');
@@ -952,7 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (occasional) {
                 return occasional;
             }
-            
+
             // Si no existe, lo creamos
             const newClientResponse = await fetch('/api/clientes', {
                 method: 'POST',
@@ -1001,12 +2043,38 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmTableBody.innerHTML = tableHtml;
 
         // Cálculos e impresión de totalizadores
-        const subtotal = total / 1.18;
-        const igv = total - subtotal;
+        const toggleIgvCheckbox = document.getElementById('toggleIgvCheckbox');
 
-        document.getElementById('confirmSubtotal').innerText = `S/ ${subtotal.toFixed(2)}`;
-        document.getElementById('confirmIgv').innerText = `S/ ${igv.toFixed(2)}`;
-        document.getElementById('confirmTotal').innerText = `S/ ${total.toFixed(2)}`;
+        // 'total' aquí es la suma de precios netos de los items del carrito.
+        // La función recalcula sumando IGV encima cuando está activo.
+        function recalcularTotalesConfirmar(subtotalNeto) {
+            const applyIgv = localStorage.getItem('pos_apply_igv') !== 'false';
+
+            if (toggleIgvCheckbox) {
+                toggleIgvCheckbox.checked = applyIgv;
+            }
+
+            const tax = applyIgv ? subtotalNeto * 0.18 : 0.00;
+            const totalFinal = subtotalNeto + tax;
+
+            document.getElementById('confirmSubtotal').innerText = `S/ ${subtotalNeto.toFixed(2)}`;
+            document.getElementById('confirmIgv').innerText = `S/ ${tax.toFixed(2)}`;
+            document.getElementById('confirmTotal').innerText = `S/ ${totalFinal.toFixed(2)}`;
+
+            const badgeAmount = document.getElementById('confirmPaymentAmountBadge');
+            if (badgeAmount) {
+                badgeAmount.innerText = `S/ ${totalFinal.toFixed(2)}`;
+            }
+        }
+
+        if (toggleIgvCheckbox) {
+            toggleIgvCheckbox.addEventListener('change', (e) => {
+                localStorage.setItem('pos_apply_igv', e.target.checked);
+                recalcularTotalesConfirmar(total);
+            });
+        }
+
+        recalcularTotalesConfirmar(total);
 
         // Inicializar Método de Pago de acuerdo al POS
         let initialPayMethod = JSON.parse(localStorage.getItem('pos_pay_method'));
@@ -1034,11 +2102,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const groupCodigo = document.getElementById('groupCodigoComprobacion');
             const lblCodigo = document.getElementById('lblCodigoComprobacion');
             const inputCodigo = document.getElementById('confirmCodigoComprobacion');
-            
+
             if (!groupCodigo || !lblCodigo || !inputCodigo) return;
-            
+
             const nameLower = metodoNombre.toLowerCase();
-            
+
             // 1. EFECTIVO
             if (metodoId === 1 || nameLower.includes('efectivo')) {
                 groupCodigo.style.display = 'none';
@@ -1182,6 +2250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const clientId = confirmClienteSelect.value;
                 if (!clientId) {
                     if (confirmNroDocumento) confirmNroDocumento.value = '';
+                    if (confirmTipoClienteDisplay) confirmTipoClienteDisplay.value = '';
                     if (confirmDireccion) confirmDireccion.value = '';
                     if (confirmCorreo) confirmCorreo.value = '';
                     if (confirmTelefono) confirmTelefono.value = '';
@@ -1196,14 +2265,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(cliente => {
                         const doc = cliente.nroDocumento || '';
                         const name = cliente.nombre || cliente.razonsocial || '';
-                        
+
                         if (confirmNroDocumento) confirmNroDocumento.value = doc;
-                        
+                        if (confirmTipoClienteDisplay) confirmTipoClienteDisplay.value = cliente.tipoClienteNombre || 'Sin tipo';
+
                         // Simulamos datos de contacto de forma consistente
                         const tel = "9" + (doc && doc.length >= 8 ? doc.slice(-8) : "87654321");
                         const email = name.toLowerCase().trim().replace(/\s+/g, ".") + "@gmail.com";
                         const address = "Jr. Charapita " + (doc || "");
-                        
+
                         if (confirmDireccion) confirmDireccion.value = address;
                         if (confirmCorreo) confirmCorreo.value = email;
                         if (confirmTelefono) confirmTelefono.value = tel;
@@ -1224,7 +2294,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         value: opt.value,
                         text: opt.text,
                         doc: opt.getAttribute('data-doc') || '',
-                        nombre: opt.getAttribute('data-nombre') || ''
+                        nombre: opt.getAttribute('data-nombre') || '',
+                        tipo: opt.getAttribute('data-tipo') || ''
                     });
                 }
             }
@@ -1235,22 +2306,23 @@ document.addEventListener('DOMContentLoaded', () => {
             buscarClienteInput.addEventListener('input', () => {
                 const query = buscarClienteInput.value.toLowerCase().trim();
                 confirmClienteSelect.innerHTML = '<option value="">-- Seleccionar Cliente --</option>';
-                
+
                 clientesOriginales.forEach(c => {
                     const matchesDoc = c.doc.toLowerCase().includes(query);
                     const matchesNombre = c.nombre.toLowerCase().includes(query);
                     const matchesText = c.text.toLowerCase().includes(query);
-                    
+
                     if (query === '' || matchesDoc || matchesNombre || matchesText) {
                         const opt = document.createElement('option');
                         opt.value = c.value;
                         opt.text = c.text;
                         opt.setAttribute('data-doc', c.doc);
                         opt.setAttribute('data-nombre', c.nombre);
+                        opt.setAttribute('data-tipo', c.tipo);
                         confirmClienteSelect.appendChild(opt);
                     }
                 });
-                
+
                 confirmClienteSelect.value = '';
                 confirmClienteSelect.dispatchEvent(new Event('change'));
             });
@@ -1268,7 +2340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 const searchVal = buscarClienteInput ? buscarClienteInput.value.trim() : '';
                 const modalNroDoc = document.getElementById('modalNroDocumento');
-                
+
                 if (searchVal !== '') {
                     if (modalNroDoc) {
                         modalNroDoc.value = searchVal;
@@ -1309,16 +2381,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnGuardarModalCliente) {
             btnGuardarModalCliente.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 const tipoClienteId = document.getElementById('modalTipoCliente').value;
                 const nroDoc = document.getElementById('modalNroDocumento').value.trim();
                 const name = document.getElementById('modalNombre').value.trim();
-                
+
                 if (!nroDoc || !name || !tipoClienteId) {
                     alert('Por favor, complete los campos obligatorios: Tipo de Cliente, DNI/RUC y Nombre.');
                     return;
                 }
-                
+
                 const payload = {
                     nombre: name,
                     razonsocial: name,
@@ -1335,55 +2407,57 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text || 'Error al guardar cliente') });
-                    }
-                    return res.json();
-                })
-                .then(newClient => {
-                    btnGuardarModalCliente.disabled = false;
-                    btnGuardarModalCliente.innerText = 'Guardar Cliente';
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.text().then(text => { throw new Error(text || 'Error al guardar cliente') });
+                        }
+                        return res.json();
+                    })
+                    .then(newClient => {
+                        btnGuardarModalCliente.disabled = false;
+                        btnGuardarModalCliente.innerText = 'Guardar Cliente';
 
-                    // 1. Add to select options dynamically
-                    const opt = document.createElement('option');
-                    opt.value = newClient.idcliente;
-                    opt.text = `${newClient.nombre || newClient.razonsocial} - Doc: ${newClient.nroDocumento}`;
-                    opt.setAttribute('data-doc', newClient.nroDocumento);
-                    opt.setAttribute('data-nombre', newClient.nombre || newClient.razonsocial);
-                    confirmClienteSelect.appendChild(opt);
+                        // 1. Add to select options dynamically
+                        const opt = document.createElement('option');
+                        opt.value = newClient.idcliente;
+                        opt.text = `${newClient.nombre || newClient.razonsocial} - Doc: ${newClient.nroDocumento}`;
+                        opt.setAttribute('data-doc', newClient.nroDocumento);
+                        opt.setAttribute('data-nombre', newClient.nombre || newClient.razonsocial);
+                        opt.setAttribute('data-tipo', newClient.tipoClienteNombre || '');
+                        confirmClienteSelect.appendChild(opt);
 
-                    // 2. Add to cached searchable array
-                    clientesOriginales.push({
-                        value: String(newClient.idcliente),
-                        text: opt.text,
-                        doc: newClient.nroDocumento,
-                        nombre: newClient.nombre || newClient.razonsocial
+                        // 2. Add to cached searchable array
+                        clientesOriginales.push({
+                            value: String(newClient.idcliente),
+                            text: opt.text,
+                            doc: newClient.nroDocumento,
+                            nombre: newClient.nombre || newClient.razonsocial,
+                            tipo: newClient.tipoClienteNombre || ''
+                        });
+
+                        // 3. Auto select newly registered client and trigger detail loading
+                        confirmClienteSelect.value = newClient.idcliente;
+                        confirmClienteSelect.dispatchEvent(new Event('change'));
+
+                        // 4. Clear search bar so the newly selected option is visible
+                        if (buscarClienteInput) buscarClienteInput.value = '';
+
+                        // 5. Hide modal and clear modal fields
+                        modalNuevoCliente.classList.remove('active');
+                        document.getElementById('modalNroDocumento').value = '';
+                        document.getElementById('modalNombre').value = '';
+                        document.getElementById('modalTelefono').value = '';
+                        document.getElementById('modalCorreo').value = '';
+                        document.getElementById('modalDireccion').value = '';
+
+                        alert('Cliente registrado y seleccionado con éxito.');
+                    })
+                    .catch(err => {
+                        btnGuardarModalCliente.disabled = false;
+                        btnGuardarModalCliente.innerText = 'Guardar Cliente';
+                        alert('Error al registrar cliente: ' + err.message);
+                        console.error(err);
                     });
-
-                    // 3. Auto select newly registered client and trigger detail loading
-                    confirmClienteSelect.value = newClient.idcliente;
-                    confirmClienteSelect.dispatchEvent(new Event('change'));
-
-                    // 4. Clear search bar so the newly selected option is visible
-                    if (buscarClienteInput) buscarClienteInput.value = '';
-
-                    // 5. Hide modal and clear modal fields
-                    modalNuevoCliente.classList.remove('active');
-                    document.getElementById('modalNroDocumento').value = '';
-                    document.getElementById('modalNombre').value = '';
-                    document.getElementById('modalTelefono').value = '';
-                    document.getElementById('modalCorreo').value = '';
-                    document.getElementById('modalDireccion').value = '';
-
-                    alert('Cliente registrado y seleccionado con éxito.');
-                })
-                .catch(err => {
-                    btnGuardarModalCliente.disabled = false;
-                    btnGuardarModalCliente.innerText = 'Guardar Cliente';
-                    alert('Error al registrar cliente: ' + err.message);
-                    console.error(err);
-                });
             });
         }
 
@@ -1395,6 +2469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (action.includes('ocasional')) {
                         if (groupClienteSelect) groupClienteSelect.style.display = 'none';
                         if (confirmNroDocumento) confirmNroDocumento.value = '00000000';
+                        if (confirmTipoClienteDisplay) confirmTipoClienteDisplay.value = 'Persona Natural';
                         if (confirmDireccion) confirmDireccion.value = 'Sin dirección';
                         if (confirmCorreo) confirmCorreo.value = 'ocasional@charapita.com';
                         if (confirmTelefono) confirmTelefono.value = '999999999';
@@ -1402,6 +2477,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         if (groupClienteSelect) groupClienteSelect.style.display = 'block';
                         if (confirmNroDocumento) confirmNroDocumento.value = '';
+                        if (confirmTipoClienteDisplay) confirmTipoClienteDisplay.value = '';
                         if (confirmDireccion) confirmDireccion.value = '';
                         if (confirmCorreo) confirmCorreo.value = '';
                         if (confirmTelefono) confirmTelefono.value = '';
@@ -1457,7 +2533,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (docId === '2') {
                     serieDefault = 'F001';
                 }
-                
+
                 if (confirmComprobanteSerie) {
                     confirmComprobanteSerie.value = serieDefault;
                     actualizarCorrelativo();
@@ -1526,7 +2602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isOcasional) {
                     btnConfirmarFinal.disabled = true;
                     btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registrando...';
-                    
+
                     const occasional = await getOrCreateOccasionalClient();
                     if (!occasional) {
                         alert('No se pudo establecer el cliente ocasional en el sistema.');
@@ -1664,6 +2740,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     importe: item.precio * item.cantidad
                 }));
 
+                const toggleIgvCheckbox = document.getElementById('toggleIgvCheckbox');
+                const applyIgvVal = toggleIgvCheckbox ? toggleIgvCheckbox.checked : true;
+
                 const payload = {
                     idcliente: idcliente,
                     idusuario: idusuario,
@@ -1671,6 +2750,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     idmetodopago: idmetodopago,
                     nroOperacion: codigoVal, // Enviar el código de comprobación en el campo nroOperacion
                     nroPedido: nroPedidoCompleto, // Enviar el número de comprobante completo
+                    applyIgv: applyIgvVal,
                     detalles: detalles
                 };
 
@@ -1684,25 +2764,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify(payload)
                 })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text || 'Error al guardar la venta') });
-                    }
-                    return res.json();
-                })
-                .then(() => {
-                    alert('¡Venta confirmada y registrada en el sistema con éxito!');
-                    // Vaciar carrito local
-                    localStorage.removeItem('pos_cart');
-                    // Redirigir al historial de ventas
-                    window.location.href = '/historial';
-                })
-                .catch(err => {
-                    alert('Error al registrar la venta: ' + err.message);
-                    console.error(err);
-                    btnConfirmarFinal.disabled = false;
-                    btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
-                });
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.text().then(text => { throw new Error(text || 'Error al guardar la venta') });
+                        }
+                        return res.json();
+                    })
+                    .then(() => {
+                        alert('¡Venta confirmada y registrada en el sistema con éxito!');
+                        // Vaciar carrito local
+                        localStorage.removeItem('pos_cart');
+                        // Redirigir al historial de ventas
+                        window.location.href = '/historial';
+                    })
+                    .catch(err => {
+                        alert('Error al registrar la venta: ' + err.message);
+                        console.error(err);
+                        btnConfirmarFinal.disabled = false;
+                        btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                    });
             });
         }
     }
@@ -1751,10 +2831,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const cellComprobante = row.cells[1] ? row.cells[1].innerText.toLowerCase() : '';
             const cellCliente = row.cells[2] ? row.cells[2].innerText.toLowerCase() : '';
 
-            let matchesSearch = (query === '' || 
-                                 rowSearch.includes(query) || 
-                                 cellComprobante.includes(query) || 
-                                 cellCliente.includes(query));
+            let matchesSearch = (query === '' ||
+                rowSearch.includes(query) ||
+                cellComprobante.includes(query) ||
+                cellCliente.includes(query));
 
             if (matchesFecha && matchesTipo && matchesEstado && matchesSearch) {
                 row.style.display = '';
@@ -1806,7 +2886,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnLimpiarHistorial) {
         btnLimpiarHistorial.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             // Establecer fechas por defecto: desde hace un mes hasta hoy
             const now = new Date();
             const yyyy = now.getFullYear();
@@ -1832,14 +2912,145 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // LÓGICA DE DETALLE Y ANULACIÓN (AJAX)
+    let currentViewedSale = null;
     const detailPanel = document.getElementById('histDetailPanel');
     const closeDetailBtn = document.getElementById('btnCloseDetail');
     const btnAnularVenta = document.getElementById('btnAnularVenta');
+
+
+    // Función reutilizable: abre el drawer de detalle para una venta por su ID.
+    // Usada tanto por el click handler de la tabla como por la detección de URL (?ventaId=).
+    function abrirDetalleVentaPorId(id) {
+        if (!detailPanel) return;
+
+        const comprobEl = document.getElementById('detailComprobante');
+        if (comprobEl) comprobEl.innerText = 'Cargando...';
+        const detailTBody = document.getElementById('detailTableBody');
+        if (detailTBody) detailTBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px;">Cargando productos...</td></tr>';
+        detailPanel.classList.add('active');
+
+        fetch(`/api/ventas/${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Error al cargar la venta');
+                return res.json();
+            })
+            .then(venta => {
+                currentViewedSale = venta;
+                detailPanel.setAttribute('data-id', venta.idventa);
+
+                // Nro de operación
+                const nroOperContainer = document.getElementById('detailNroOperacionContainer');
+                const nroOperSpan = document.getElementById('detailNroOperacion');
+                if (nroOperContainer && nroOperSpan) {
+                    if (venta.nroOperacion && venta.nroOperacion.trim() !== '') {
+                        nroOperSpan.innerText = venta.nroOperacion;
+                        nroOperContainer.style.display = 'block';
+                    } else {
+                        nroOperSpan.innerText = '---';
+                        nroOperContainer.style.display = 'none';
+                    }
+                }
+
+                // Cabecera del drawer
+                document.getElementById('detailComprobante').innerText = `${venta.tipoComprobanteDescripcion} ${venta.nroPedido}`;
+
+                const dt = new Date(venta.fecha);
+                const fStr = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+                const hStr = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+                document.getElementById('detailFecha').innerText = `${fStr} ${hStr}`;
+
+                document.getElementById('detailVendedor').innerText = venta.usuarioNombre || 'Sistema';
+                document.getElementById('detailCliente').innerText = venta.clienteNombre || 'Cliente Ocasional';
+
+                const row = document.querySelector(`#historialTableBody tr[data-id="${id}"]`);
+                let dniText = venta.clienteDni || '00000000';
+                if (row) {
+                    const searchAttr = row.getAttribute('data-search') || '';
+                    const parts = searchAttr.split(' ');
+                    if (parts.length >= 3) dniText = parts[2];
+                }
+                document.getElementById('detailDniRuc').innerText = dniText;
+
+                // Método de pago badge
+                const payName = venta.metodoPagoDescripcion || 'Efectivo';
+                const badgePago = document.getElementById('detailPagoBadge');
+                const textPago = document.getElementById('detailPago');
+                if (textPago) textPago.innerText = payName;
+                if (badgePago) {
+                    badgePago.className = 'hist-badge';
+                    const payLower = payName.toLowerCase();
+                    if (payLower.includes('efectivo')) badgePago.classList.add('hist-bg-efectivo');
+                    else if (payLower.includes('yape')) badgePago.classList.add('hist-bg-yape');
+                    else badgePago.classList.add('hist-bg-plin');
+                }
+
+                // Tabla de productos
+                let tableHtml = '';
+                let total = 0;
+                if (venta.detalles && venta.detalles.length > 0) {
+                    venta.detalles.forEach(d => {
+                        const sub = parseFloat(d.importe || '0');
+                        total += sub;
+                        const code = 'PROD' + String(d.idproducto).padStart(3, '0');
+                        tableHtml += `
+                            <tr>
+                                <td>
+                                    <div class="hist-prod-cell">
+                                        <img src="/img/placeholder-prod.png" alt="img">
+                                        <div>
+                                             <span>${d.nombreProducto}</span><br>
+                                             <small>(${code})</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${d.cantidad} kg/und</td>
+                                <td>S/ ${parseFloat(d.precioU || '0').toFixed(2)}</td>
+                                <td>S/ ${sub.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tableHtml = '<tr><td colspan="4" style="text-align: center; color: #888;">No hay productos detallados.</td></tr>';
+                }
+                document.getElementById('detailTableBody').innerHTML = tableHtml;
+
+                // Totales
+                const applyIgv = (venta.applyIgv !== false);
+                const subtotal = total;
+                const igv = applyIgv ? subtotal * 0.18 : 0.00;
+                const totalFinal = subtotal + igv;
+
+                const label = document.getElementById('detailIgvLabel');
+                if (label) label.innerText = applyIgv ? 'IGV (18%)' : 'IGV (0%) EXONERADO';
+
+                document.getElementById('detailSubtotal').innerText = `S/ ${subtotal.toFixed(2)}`;
+                document.getElementById('detailIgv').innerText = `S/ ${igv.toFixed(2)}`;
+                document.getElementById('detailTotal').innerText = `S/ ${totalFinal.toFixed(2)}`;
+
+                // Zona de anulación
+                const dangerZone = document.getElementById('detailDangerZone');
+                if (dangerZone) {
+                    if (venta.estado === true) {
+                        dangerZone.style.display = 'block';
+                        document.getElementById('anularMotivo').value = '';
+                        document.getElementById('anularObs').value = '';
+                    } else {
+                        dangerZone.style.display = 'none';
+                    }
+                }
+            })
+            .catch(err => {
+                console.error('Error cargando detalle de venta:', err);
+                if (comprobEl) comprobEl.innerText = 'Error al cargar';
+                if (detailTBody) detailTBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#d32f2f;padding:15px;">No se pudo cargar el detalle.</td></tr>';
+            });
+    }
 
     if (histTableBody && detailPanel && closeDetailBtn) {
         // Cerrar panel de detalle
         closeDetailBtn.addEventListener('click', () => {
             detailPanel.classList.remove('active');
+            currentViewedSale = null;
         });
 
         // Delegar clic en los botones de la tabla
@@ -1848,12 +3059,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnView) {
                 e.preventDefault();
                 const id = btnView.getAttribute('data-id');
+                if (id) {
+                    abrirDetalleVentaPorId(id);
+                }
+                return;
+            }
+
+            const btnPrint = e.target.closest('.hist-btn-print');
+            if (btnPrint) {
+                e.preventDefault();
+                const id = btnPrint.getAttribute('data-id');
                 if (!id) return;
 
-                // Valores temporales de carga
-                document.getElementById('detailComprobante').innerText = 'Cargando...';
-                document.getElementById('detailTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 15px;">Cargando productos...</td></tr>';
-                detailPanel.classList.add('active');
+                btnPrint.disabled = true;
+                const originalHtml = btnPrint.innerHTML;
+                btnPrint.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
                 fetch(`/api/ventas/${id}`)
                     .then(res => {
@@ -1861,107 +3081,186 @@ document.addEventListener('DOMContentLoaded', () => {
                         return res.json();
                     })
                     .then(venta => {
-                        detailPanel.setAttribute('data-id', venta.idventa);
-
-                        // Llenar campos de cabecera
-                        document.getElementById('detailComprobante').innerText = `${venta.tipoComprobanteDescripcion} ${venta.nroPedido}`;
-                        
-                        const dt = new Date(venta.fecha);
-                        const fStr = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
-                        const hStr = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
-                        document.getElementById('detailFecha').innerText = `${fStr} ${hStr}`;
-                        
-                        document.getElementById('detailVendedor').innerText = venta.usuarioNombre || 'Sistema';
-                        document.getElementById('detailCliente').innerText = venta.clienteNombre || 'Cliente Ocasional';
-                        
-                        // Extraer DNI/RUC de la fila correspondiente de la tabla principal
-                        const row = document.querySelector(`#historialTableBody tr[data-id="${id}"]`);
-                        let dniText = '00000000';
-                        if (row) {
-                            const searchAttr = row.getAttribute('data-search') || '';
-                            const parts = searchAttr.split(' ');
-                            if (parts.length >= 3) {
-                                dniText = parts[2];
-                            }
-                        }
-                        document.getElementById('detailDniRuc').innerText = dniText;
-
-                        // Método de Pago Badge
-                        const payName = venta.metodoPagoDescripcion || 'Efectivo';
-                        const badgePago = document.getElementById('detailPagoBadge');
-                        const textPago = document.getElementById('detailPago');
-                        if (textPago) textPago.innerText = payName;
-
-                        if (badgePago) {
-                            badgePago.className = 'hist-badge';
-                            const payLower = payName.toLowerCase();
-                            if (payLower.includes('efectivo')) {
-                                badgePago.classList.add('hist-bg-efectivo');
-                            } else if (payLower.includes('yape')) {
-                                badgePago.classList.add('hist-bg-yape');
-                            } else {
-                                badgePago.classList.add('hist-bg-plin');
-                            }
-                        }
-
-                        // Llenar tabla de detalles
-                        let tableHtml = '';
-                        let total = 0;
-                        if (venta.detalles && venta.detalles.length > 0) {
-                            venta.detalles.forEach(d => {
-                                const sub = parseFloat(d.importe || '0');
-                                total += sub;
-                                const code = 'PROD' + String(d.idproducto).padStart(3, '0');
-
-                                tableHtml += `
-                                    <tr>
-                                        <td>
-                                            <div class="hist-prod-cell">
-                                                <img src="/img/placeholder-prod.png" alt="img">
-                                                <div>
-                                                     <span>${d.nombreProducto}</span><br>
-                                                     <small>(${code})</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>${d.cantidad} kg/und</td>
-                                        <td>S/ ${parseFloat(d.precioU || '0').toFixed(2)}</td>
-                                        <td>S/ ${sub.toFixed(2)}</td>
-                                    </tr>
-                                `;
-                            });
-                        } else {
-                            tableHtml = '<tr><td colspan="4" style="text-align: center; color: #888;">No hay productos detallados.</td></tr>';
-                        }
-                        document.getElementById('detailTableBody').innerHTML = tableHtml;
-
-                        // Totales del detalle
-                        const subtotal = total / 1.18;
-                        const igv = total - subtotal;
-
-                        document.getElementById('detailSubtotal').innerText = `S/ ${subtotal.toFixed(2)}`;
-                        document.getElementById('detailIgv').innerText = `S/ ${igv.toFixed(2)}`;
-                        document.getElementById('detailTotal').innerText = `S/ ${total.toFixed(2)}`;
-
-                        // Gestión de la Zona de Peligro (Anulación)
-                        const dangerZone = document.getElementById('detailDangerZone');
-                        if (dangerZone) {
-                            if (venta.estado === true) {
-                                dangerZone.style.display = 'block';
-                                document.getElementById('anularMotivo').value = '';
-                                document.getElementById('anularObs').value = '';
-                            } else {
-                                dangerZone.style.display = 'none';
-                            }
-                        }
+                        imprimirTicket(venta);
                     })
                     .catch(err => {
-                        alert('No se pudo cargar la información de la venta: ' + err.message);
+                        alert('No se pudo imprimir el comprobante: ' + err.message);
                         console.error(err);
-                        detailPanel.classList.remove('active');
+                    })
+                    .finally(() => {
+                        btnPrint.disabled = false;
+                        btnPrint.innerHTML = originalHtml;
                     });
+                return;
+            }
+
+            const btnOptions = e.target.closest('.hist-btn-options');
+            if (btnOptions) {
+                e.preventDefault();
+                const id = btnOptions.getAttribute('data-id');
+                const estado = btnOptions.getAttribute('data-estado');
+                if (id) {
+                    mostrarMenuOpciones(btnOptions, id, estado);
+                }
+                return;
             }
         });
+
+        // --- GESTIÓN DE MENÚ DE OPCIONES DROPDOWN ---
+        const dropdownMenu = document.getElementById('historialDropdownMenu');
+
+        function mostrarMenuOpciones(btn, id, estado) {
+            if (!dropdownMenu) return;
+
+            dropdownMenu.setAttribute('data-id', id);
+            dropdownMenu.setAttribute('data-estado', estado);
+
+            // Deshabilitar/Habilitar opción de anulación si ya está anulada
+            const optAnular = document.getElementById('optAnularVenta');
+            if (optAnular) {
+                if (estado === 'Anulada') {
+                    optAnular.classList.add('disabled');
+                    optAnular.title = 'Esta venta ya se encuentra anulada';
+                } else {
+                    optAnular.classList.remove('disabled');
+                    optAnular.title = '';
+                }
+            }
+
+            // Mostrar el menú para calcular sus dimensiones correctas
+            dropdownMenu.style.display = 'flex';
+            dropdownMenu.offsetHeight; // Forzar reflow
+            dropdownMenu.classList.add('active');
+
+            // Posicionar usando getBoundingClientRect (fixed relative to viewport)
+            const rect = btn.getBoundingClientRect();
+            let dropdownTop = rect.bottom;
+            let dropdownLeft = rect.right - dropdownMenu.offsetWidth;
+
+            // Evitar que se salga por abajo
+            if (dropdownTop + dropdownMenu.offsetHeight > window.innerHeight) {
+                dropdownTop = rect.top - dropdownMenu.offsetHeight;
+            }
+            // Evitar que se salga por la izquierda
+            if (dropdownLeft < 0) {
+                dropdownLeft = rect.left;
+            }
+
+            dropdownMenu.style.top = `${dropdownTop}px`;
+            dropdownMenu.style.left = `${dropdownLeft}px`;
+        }
+
+        // Event listener global para cerrar el dropdown al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (dropdownMenu && dropdownMenu.classList.contains('active')) {
+                const isClickInside = dropdownMenu.contains(e.target) || e.target.closest('.hist-btn-options');
+                if (!isClickInside) {
+                    dropdownMenu.classList.remove('active');
+                    setTimeout(() => {
+                        dropdownMenu.style.display = 'none';
+                    }, 150);
+                }
+            }
+        });
+
+        // Configurar los listeners para las opciones del dropdown
+        if (dropdownMenu) {
+            const optVerDetalle = document.getElementById('optVerDetalle');
+            const optImprimir = document.getElementById('optImprimir');
+            const optDescargarPdf = document.getElementById('optDescargarPdf');
+            const optEnviarWhatsapp = document.getElementById('optEnviarWhatsapp');
+            const optAnularVenta = document.getElementById('optAnularVenta');
+
+            const cerrarDropdown = () => {
+                dropdownMenu.classList.remove('active');
+                setTimeout(() => {
+                    dropdownMenu.style.display = 'none';
+                }, 150);
+            };
+
+            const obtenerVentaParaDropdown = (id, callback) => {
+                fetch(`/api/ventas/${id}`)
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error al cargar la venta');
+                        return res.json();
+                    })
+                    .then(venta => callback(venta))
+                    .catch(err => {
+                        alert('No se pudo obtener la información de la venta: ' + err.message);
+                        console.error(err);
+                    });
+            };
+
+            if (optVerDetalle) {
+                optVerDetalle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = dropdownMenu.getAttribute('data-id');
+                    if (!id) return;
+                    cerrarDropdown();
+                    abrirDetalleVentaPorId(id);
+                });
+            }
+
+            if (optImprimir) {
+                optImprimir.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = dropdownMenu.getAttribute('data-id');
+                    if (!id) return;
+                    cerrarDropdown();
+                    obtenerVentaParaDropdown(id, (venta) => {
+                        imprimirTicket(venta);
+                    });
+                });
+            }
+
+            if (optDescargarPdf) {
+                optDescargarPdf.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = dropdownMenu.getAttribute('data-id');
+                    if (!id) return;
+                    cerrarDropdown();
+                    obtenerVentaParaDropdown(id, (venta) => {
+                        generarPDFComprobante(venta, true);
+                    });
+                });
+            }
+
+            if (optEnviarWhatsapp) {
+                optEnviarWhatsapp.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = dropdownMenu.getAttribute('data-id');
+                    if (!id) return;
+                    cerrarDropdown();
+                    obtenerVentaParaDropdown(id, (venta) => {
+                        iniciarEnvioWhatsapp(venta);
+                    });
+                });
+            }
+
+            if (optAnularVenta) {
+                optAnularVenta.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = dropdownMenu.getAttribute('data-id');
+                    const estado = dropdownMenu.getAttribute('data-estado');
+                    if (!id || estado === 'Anulada') return;
+                    cerrarDropdown();
+
+                    // Abrir el detalle e ir a la sección de anulación
+                    abrirDetalleVentaPorId(id);
+
+                    setTimeout(() => {
+                        const dangerZone = document.getElementById('detailDangerZone');
+                        if (dangerZone) {
+                            dangerZone.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            const anularMotivo = document.getElementById('anularMotivo');
+                            if (anularMotivo) {
+                                setTimeout(() => anularMotivo.focus(), 400);
+                            }
+                        }
+                    }, 500);
+                });
+            }
+        }
     }
 
     // Acción de Anular Venta
@@ -1990,22 +3289,707 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json'
                 }
             })
-            .then(res => {
-                if (!res.ok) {
-                    return res.text().then(text => { throw new Error(text || 'Error al anular la venta') });
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al anular la venta') });
+                    }
+                    return res.text();
+                })
+                .then(() => {
+                    alert('La venta ha sido anulada con éxito y el stock de los productos se ha actualizado.');
+                    window.location.reload();
+                })
+                .catch(err => {
+                    alert('Error al anular la venta: ' + err.message);
+                    console.error(err);
+                    btnAnularVenta.disabled = false;
+                    btnAnularVenta.innerHTML = '<i class="fa-solid fa-ban"></i> Anular Venta';
+                });
+        });
+    }
+
+    // Funciones y Listeners de Acciones de Detalle de Historial
+    function imprimirTicket(venta) {
+        if (!venta) return;
+
+        const printWindow = window.open('', '_blank', 'width=600,height=800');
+        if (!printWindow) {
+            alert('Por favor permita las ventanas emergentes (popups) para poder imprimir el comprobante.');
+            return;
+        }
+
+        const dt = new Date(venta.fecha);
+        const fStr = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+        const hStr = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+
+        let tableRows = '';
+        let total = 0;
+        if (venta.detalles && venta.detalles.length > 0) {
+            venta.detalles.forEach(d => {
+                const sub = parseFloat(d.importe || '0');
+                total += sub;
+                const code = 'PROD' + String(d.idproducto).padStart(3, '0');
+                tableRows += `
+                    <tr>
+                        <td style="padding: 6px 0; font-size: 13px;">${d.nombreProducto}<br><small style="color: #666;">(${code})</small></td>
+                        <td style="padding: 6px 0; text-align: center; font-size: 13px;">${d.cantidad}</td>
+                        <td style="padding: 6px 0; text-align: right; font-size: 13px;">S/ ${parseFloat(d.precioU || '0').toFixed(2)}</td>
+                        <td style="padding: 6px 0; text-align: right; font-size: 13px;">S/ ${sub.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        const applyIgv = (venta.applyIgv !== false);
+        const subtotal = total;                          // precios netos
+        const igv = applyIgv ? subtotal * 0.18 : 0;
+        const totalFinalTicket = subtotal + igv;
+        const igvLabel = applyIgv ? 'IGV (18%)' : 'IGV (0%) EXONERADO';
+
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Comprobante ${venta.nroPedido}</title>
+                <style>
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        color: #000;
+                        padding: 20px;
+                        margin: 0;
+                        max-width: 400px;
+                        background: #fff;
+                    }
+                    .text-center { text-align: center; }
+                    .header { margin-bottom: 20px; line-height: 1.4; }
+                    .header h2 { margin: 0 0 5px 0; font-size: 18px; }
+                    .header p { margin: 0; font-size: 12px; }
+                    .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                    .info-table, .items-table { width: 100%; border-collapse: collapse; }
+                    .info-table td { font-size: 12px; padding: 2px 0; }
+                    .items-table th { border-bottom: 1px dashed #000; padding: 5px 0; font-size: 12px; text-align: left; }
+                    .totals-table { width: 100%; margin-top: 15px; }
+                    .totals-table td { padding: 3px 0; font-size: 13px; }
+                    .footer { text-align: center; margin-top: 30px; font-size: 11px; }
+                    .qr-code {
+                        border: 1px solid #000;
+                        width: 100px;
+                        height: 100px;
+                        margin: 15px auto;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 10px;
+                        font-family: sans-serif;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header text-center">
+                    <h2>CARNES Y AHUMADOS CHARAPITA S.A.C.</h2>
+                    <p>RUC: 20785641239</p>
+                    <p>Av. Los Próceres 123, Lima - Perú</p>
+                </div>
+                <div class="divider"></div>
+                <div class="text-center" style="font-weight: bold; font-size: 15px; margin: 10px 0;">
+                    ${venta.tipoComprobanteDescripcion.toUpperCase()}<br>
+                    ${venta.nroPedido}
+                </div>
+                <div class="divider"></div>
+                <table class="info-table">
+                    <tr>
+                        <td><strong>FECHA:</strong> ${fStr} ${hStr}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLIENTE:</strong> ${venta.clienteNombre || 'Cliente Ocasional'}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>VENDEDOR:</strong> ${venta.usuarioNombre || 'Sistema'}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>METODO PAGO:</strong> ${venta.metodoPagoDescripcion || 'Efectivo'}</td>
+                    </tr>
+                    \${venta.nroOperacion ? \`<tr><td><strong>Nº OPERACION:</strong> \${venta.nroOperacion}</td></tr>\` : ''}
+                </table>
+                <div class="divider"></div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>PRODUCTO</th>
+                            <th style="text-align: center;">CANT</th>
+                            <th style="text-align: right;">P.U.</th>
+                            <th style="text-align: right;">SUB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <div class="divider"></div>
+                <table class="totals-table">
+                    <tr>
+                        <td>OP. GRAVADA</td>
+                        <td style="text-align: right;">S/ ${subtotal.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>${igvLabel}</td>
+                        <td style="text-align: right;">S/ ${igv.toFixed(2)}</td>
+                    </tr>
+                    <tr style="font-weight: bold; font-size: 15px;">
+                        <td>TOTAL A PAGAR</td>
+                        <td style="text-align: right;">S/ ${totalFinalTicket.toFixed(2)}</td>
+                    </tr>
+                </table>
+                <div class="divider"></div>
+                <div class="qr-code">
+                    [ QR COMPROBANTE ]
+                </div>
+                <div class="footer">
+                    <p>¡Gracias por su compra!</p>
+                    <p>Representación impresa de la Boleta de Venta Electrónica.</p>
+                </div>
+                <script>
+                    window.onload = function() {
+                        window.print();
+                    }
+                </script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+    // Detectar parámetro ?ventaId= en la URL (navegación desde la página de clientes)
+    // Si viene con ?ventaId=X, abre automáticamente el drawer de detalle de esa venta
+    if (detailPanel) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ventaIdParam = urlParams.get('ventaId');
+        if (ventaIdParam) {
+            // Limpiar la URL del parámetro sin recargar la página
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // Pequeño delay para asegurar que el DOM y las variables están inicializadas
+            setTimeout(() => abrirDetalleVentaPorId(ventaIdParam), 350);
+        }
+    }
+
+    // Acción de Imprimir
+    const btnDetailPrint = document.getElementById('btnDetailPrint');
+    if (btnDetailPrint) {
+        btnDetailPrint.addEventListener('click', (e) => {
+            e.preventDefault();
+            imprimirTicket(currentViewedSale);
+        });
+    }
+
+    // Acción de Ver PDF (Descargar Boleta/Factura A4)
+    const btnDetailPdf = document.getElementById('btnDetailPdf');
+    if (btnDetailPdf) {
+        btnDetailPdf.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!currentViewedSale) return;
+
+            btnDetailPdf.disabled = true;
+            const originalText = btnDetailPdf.innerHTML;
+            btnDetailPdf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando PDF...';
+
+            generarPDFComprobante(currentViewedSale, true)
+                .finally(() => {
+                    btnDetailPdf.disabled = false;
+                    btnDetailPdf.innerHTML = originalText;
+                });
+        });
+    }
+
+    // Acción de Enviar a WhatsApp
+    const btnDetailWhatsapp = document.getElementById('btnDetailWhatsapp');
+
+    if (btnDetailWhatsapp) {
+        btnDetailWhatsapp.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentViewedSale) {
+                iniciarEnvioWhatsapp(currentViewedSale);
+            }
+        });
+    }
+
+    function iniciarEnvioWhatsapp(venta) {
+        if (!venta) return;
+        const customPhoneModal = document.getElementById('customPhoneModal');
+        const customPhoneInput = document.getElementById('customPhoneInput');
+        const btnCancelPhoneModal = document.getElementById('btnCancelPhoneModal');
+        const btnRejectPhoneModal = document.getElementById('btnRejectPhoneModal');
+        const btnSubmitPhoneModal = document.getElementById('btnSubmitPhoneModal');
+
+        let telefono = venta.clienteTelefono;
+        const clienteId = venta.clienteId;
+
+        // Si no hay teléfono registrado o es un cliente ocasional sin número
+        if (!telefono || telefono.trim() === '' || telefono === 'null') {
+            if (!customPhoneModal || !customPhoneInput) {
+                alert('No se pudo abrir el formulario de registro de teléfono.');
+                return;
+            }
+
+            // Limpiar y mostrar modal
+            customPhoneInput.value = '';
+            customPhoneModal.style.display = 'flex';
+            customPhoneModal.offsetHeight;
+            customPhoneModal.classList.add('active');
+            customPhoneInput.focus();
+
+            // Definir manejadores de eventos
+            const hideModal = () => {
+                customPhoneModal.classList.remove('active');
+                setTimeout(() => {
+                    customPhoneModal.style.display = 'none';
+                }, 250);
+            };
+
+            const handleCancel = (ev) => {
+                ev.preventDefault();
+                hideModal();
+                removeListeners();
+            };
+
+            const handleSubmit = async (ev) => {
+                ev.preventDefault();
+                const nuevoTel = customPhoneInput.value.trim();
+
+                if (!nuevoTel || !/^\d{9}$/.test(nuevoTel)) {
+                    alert('Número de teléfono inválido. Debe ingresar exactamente 9 dígitos numéricos.');
+                    customPhoneInput.focus();
+                    return;
                 }
-                return res.text();
-            })
-            .then(() => {
-                alert('La venta ha sido anulada con éxito y el stock de los productos se ha actualizado.');
-                window.location.reload();
+
+                btnSubmitPhoneModal.disabled = true;
+                btnSubmitPhoneModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+                try {
+                    const resGet = await fetch(`/api/clientes/${clienteId}`);
+                    if (!resGet.ok) throw new Error('Error al obtener datos del cliente');
+                    const clienteData = await resGet.json();
+
+                    clienteData.telefono = nuevoTel;
+
+                    const resPut = await fetch('/api/clientes', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(clienteData)
+                    });
+                    if (!resPut.ok) throw new Error('Error al guardar el teléfono del cliente');
+
+                    alert('Teléfono del cliente registrado exitosamente.');
+                    telefono = nuevoTel;
+                    venta.clienteTelefono = telefono; // Guardar localmente
+                    if (currentViewedSale && currentViewedSale.idventa === venta.idventa) {
+                        currentViewedSale.clienteTelefono = telefono;
+                    }
+
+                    hideModal();
+                    removeListeners();
+
+                    enviarWhatsappConVenta(venta, telefono);
+
+                } catch (err) {
+                    alert('Error al guardar teléfono: ' + err.message);
+                } finally {
+                    btnSubmitPhoneModal.disabled = false;
+                    btnSubmitPhoneModal.innerHTML = 'Guardar y Enviar';
+                }
+            };
+
+            const removeListeners = () => {
+                btnCancelPhoneModal.removeEventListener('click', handleCancel);
+                btnRejectPhoneModal.removeEventListener('click', handleCancel);
+                btnSubmitPhoneModal.removeEventListener('click', handleSubmit);
+            };
+
+            btnCancelPhoneModal.addEventListener('click', handleCancel);
+            btnRejectPhoneModal.addEventListener('click', handleCancel);
+            btnSubmitPhoneModal.addEventListener('click', handleSubmit);
+
+            return;
+        }
+
+        enviarWhatsappConVenta(venta, telefono);
+    }
+
+    function enviarWhatsappConVenta(venta, telefono) {
+        if (!venta) return;
+
+        const btnDetailWhatsapp = document.getElementById('btnDetailWhatsapp');
+        let originalText = '';
+        if (btnDetailWhatsapp) {
+            btnDetailWhatsapp.disabled = true;
+            originalText = btnDetailWhatsapp.innerHTML;
+            btnDetailWhatsapp.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparando WhatsApp...';
+        }
+
+        // 1. Descargar el comprobante PDF A4 automáticamente
+        generarPDFComprobante(venta, true)
+            .then((docName) => {
+                // 2. Redirigir a WhatsApp Web adjuntando el mensaje predefinido e informando de la descarga
+                const totalVentaStr = venta.detalles.reduce((acc, d) => acc + parseFloat(d.importe || '0'), 0).toFixed(2);
+                const isFactura = venta.tipoComprobanteDescripcion.toLowerCase().includes('factura');
+                const tipoDesc = isFactura ? 'Factura' : 'Boleta';
+
+                const encodedMsg = encodeURIComponent(
+                    `¡Hola ${venta.clienteNombre || 'Cliente'}! Te adjuntamos los detalles de tu compra en Carnes y Ahumados Charapita SAC.\n\n` +
+                    `📄 Comprobante: ${venta.tipoComprobanteDescripcion} ${venta.nroPedido}\n` +
+                    `💰 Importe Total: S/ ${totalVentaStr}\n` +
+                    `💳 Método de Pago: ${venta.metodoPagoDescripcion}\n\n` +
+                    `*(Le hemos descargado el archivo PDF de su ${tipoDesc} en su dispositivo [${docName}] para que pueda adjuntarlo en este chat)*\n\n` +
+                    `¡Muchas gracias por tu preferencia! 🥩🔥`
+                );
+
+                window.open(`https://api.whatsapp.com/send?phone=51${telefono}&text=${encodedMsg}`, '_blank');
             })
             .catch(err => {
-                alert('Error al anular la venta: ' + err.message);
-                console.error(err);
-                btnAnularVenta.disabled = false;
-                btnAnularVenta.innerHTML = '<i class="fa-solid fa-ban"></i> Anular Venta';
+                console.error('Error al generar PDF para WhatsApp:', err);
+                alert('No se pudo descargar el PDF del comprobante automáticamente. Se procederá a enviar solo el mensaje.');
+
+                // Fallback: enviar solo mensaje de texto si falla html2pdf
+                const totalVentaStr = venta.detalles.reduce((acc, d) => acc + parseFloat(d.importe || '0'), 0).toFixed(2);
+                const encodedMsg = encodeURIComponent(
+                    `¡Hola ${venta.clienteNombre || 'Cliente'}! Te adjuntamos los detalles de tu compra en Carnes y Ahumados Charapita SAC.\n\n` +
+                    `📄 Comprobante: ${venta.tipoComprobanteDescripcion} ${venta.nroPedido}\n` +
+                    `💰 Importe Total: S/ ${totalVentaStr}\n` +
+                    `💳 Método de Pago: ${venta.metodoPagoDescripcion}\n\n` +
+                    `¡Muchas gracias por tu preferencia! 🥩🔥`
+                );
+                window.open(`https://api.whatsapp.com/send?phone=51${telefono}&text=${encodedMsg}`, '_blank');
+            })
+            .finally(() => {
+                if (btnDetailWhatsapp) {
+                    btnDetailWhatsapp.disabled = false;
+                    btnDetailWhatsapp.innerHTML = originalText;
+                }
             });
+    }
+
+    // Convertidor de número a letras en Español para boletas y facturas
+    function numeroALetras(num) {
+        const dec = Math.round((num - Math.floor(num)) * 100);
+        const centavos = String(dec).padStart(2, '0') + '/100 SOLES';
+        const entero = Math.floor(num);
+        if (entero === 0) return 'SON: CERO CON ' + centavos;
+
+        const unidades = ['', 'UN', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
+        const decenas = ['', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
+        const especiales = {
+            11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE',
+            16: 'DIECISEIS', 17: 'DIECISIETE', 18: 'DIECIOCHO', 19: 'DIECINUEVE',
+            21: 'VEINTIUNO', 22: 'VEINTIDOS', 23: 'VEINTITRES', 24: 'VEINTICUATRO',
+            25: 'VEINTICINCO', 26: 'VEINTISEIS', 27: 'VEINTISIETE', 28: 'VEINTIOCHO', 29: 'VEINTINUEVE'
+        };
+        const cientos = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+
+        function convertirGrupo(n) {
+            let res = '';
+            const c = Math.floor(n / 100);
+            const d = Math.floor((n % 100) / 10);
+            const u = n % 10;
+
+            if (c > 0) {
+                if (c === 1 && d === 0 && u === 0) {
+                    res += 'CIEN ';
+                } else {
+                    res += cientos[c] + ' ';
+                }
+            }
+
+            const resto = n % 100;
+            if (resto > 0) {
+                if (especiales[resto]) {
+                    res += especiales[resto] + ' ';
+                } else {
+                    if (d > 0) {
+                        res += decenas[d];
+                        if (u > 0) res += ' Y ' + unidades[u];
+                        res += ' ';
+                    } else if (u > 0) {
+                        res += unidades[u] + ' ';
+                    }
+                }
+            }
+            return res;
+        }
+
+        let texto = '';
+        const millones = Math.floor(entero / 1000000);
+        const miles = Math.floor((entero % 1000000) / 1000);
+        const restoEntero = entero % 1000;
+
+        if (millones > 0) {
+            if (millones === 1) texto += 'UN MILLON ';
+            else texto += convertirGrupo(millones) + 'MILLONES ';
+        }
+
+        if (miles > 0) {
+            if (miles === 1) texto += 'MIL ';
+            else texto += convertirGrupo(miles) + 'MIL ';
+        }
+
+        if (restoEntero > 0) {
+            texto += convertirGrupo(restoEntero);
+        }
+
+        return 'SON: ' + texto.trim() + ' CON ' + centavos;
+    }
+
+    // Generador de PDF A4 Boleta / Factura Electrónica
+    function generarPDFComprobante(venta, autoDownload = true) {
+        return new Promise((resolve, reject) => {
+            if (!venta) {
+                reject(new Error('Venta vacía'));
+                return;
+            }
+
+            // Crear un contenedor temporal oculto en el DOM
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '-9999px';
+            container.style.width = '800px';
+            container.style.backgroundColor = '#fff';
+            document.body.appendChild(container);
+
+            const dt = new Date(venta.fecha);
+            const fStr = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+            const hStr = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+
+            let tableRows = '';
+            let total = 0;
+            if (venta.detalles && venta.detalles.length > 0) {
+                venta.detalles.forEach(d => {
+                    const sub = parseFloat(d.importe || '0');
+                    total += sub;
+                    const code = 'PROD' + String(d.idproducto).padStart(3, '0');
+                    tableRows += `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 10px; font-size: 13px;">${code}</td>
+                            <td style="padding: 10px; font-size: 13px; font-weight: 500;">${d.nombreProducto}</td>
+                            <td style="padding: 10px; font-size: 13px; text-align: center;">${d.cantidad}</td>
+                            <td style="padding: 10px; font-size: 13px; text-align: center;">kg</td>
+                            <td style="padding: 10px; font-size: 13px; text-align: right;">S/ ${parseFloat(d.precioU || '0').toFixed(2)}</td>
+                            <td style="padding: 10px; font-size: 13px; text-align: right; font-weight: 500;">S/ ${sub.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const applyIgv = (venta.applyIgv !== false);
+            const subtotal = total;                             // precios netos
+            const igv = applyIgv ? subtotal * 0.18 : 0;
+            const totalFinalPdf = subtotal + igv;
+            const igvLabel = applyIgv ? 'I.G.V. 18%' : 'I.G.V. 0% (EXONERADO)';
+            const textTotalLetras = numeroALetras(totalFinalPdf);
+
+            const isFactura = venta.tipoComprobanteDescripcion.toLowerCase().includes('factura');
+            const tituloComprobante = isFactura ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA';
+
+            // Generar HTML del Comprobante A4
+            container.innerHTML = `
+                <div style="padding: 40px; font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.5; background: #fff;">
+                    <!-- Cabecera -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <tr>
+                            <td style="width: 60%; vertical-align: top;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                                    <div style="background-color: #8a1529; color: #fff; width: 50px; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 24px;">C</div>
+                                    <div>
+                                        <h1 style="margin: 0; font-size: 20px; color: #8a1529; font-weight: 700; letter-spacing: 0.5px;">CARNES Y AHUMADOS CHARAPITA S.A.C.</h1>
+                                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #666; font-weight: 500;">Venta de carnes y ahumados de alta calidad</p>
+                                    </div>
+                                </div>
+                                <div style="font-size: 12px; color: #555; line-height: 1.6;">
+                                    <strong>Dirección:</strong> Av. Los Próceres 123, Lima - Perú<br>
+                                    <strong>Teléfono:</strong> (01) 456-7890 | <strong>Email:</strong> contacto@charapita.pe<br>
+                                    <strong>Web:</strong> www.charapita.pe
+                                </div>
+                            </td>
+                            <td style="width: 40%; vertical-align: top; text-align: right;">
+                                <div style="border: 2px solid #8a1529; border-radius: 8px; padding: 20px; text-align: center; background-color: #fbf6f6;">
+                                    <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #333; font-weight: bold; letter-spacing: 1px;">R.U.C. 20785641239</h2>
+                                    <div style="background-color: #8a1529; color: white; padding: 8px; font-size: 13px; font-weight: bold; letter-spacing: 0.5px; border-radius: 4px; margin-bottom: 10px;">
+                                        ${tituloComprobante}
+                                    </div>
+                                    <span style="font-size: 18px; font-weight: bold; color: #333; font-family: monospace;">${venta.nroPedido}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr style="border: none; border-top: 1px solid #e1e1e1; margin-bottom: 25px;">
+
+                    <!-- Datos del Cliente / Comprobante -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 13px;">
+                        <tr>
+                            <td style="width: 50%; vertical-align: top; padding-right: 20px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777; width: 30%;"><strong>SEÑOR(ES):</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: 500;">${venta.clienteNombre || 'Cliente Ocasional'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777;"><strong>DNI / RUC:</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: 500;" id="pdfDniRuc">00000000</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777;"><strong>DIRECCIÓN:</strong></td>
+                                        <td style="padding: 4px 0; color: #333;" id="pdfDireccion">Lima, Perú</td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td style="width: 50%; vertical-align: top; padding-left: 20px; border-left: 1px solid #f0f0f0;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777; width: 40%;"><strong>FECHA EMISIÓN:</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: 500;">${fStr} ${hStr}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777;"><strong>MONEDA:</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: 500;">SOLES (S/)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777;"><strong>MÉTODO PAGO:</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: 500;">${venta.metodoPagoDescripcion || 'Efectivo'}</td>
+                                    </tr>
+                                    ${venta.nroOperacion ? `
+                                    <tr>
+                                        <td style="padding: 4px 0; color: #777;"><strong>NRO. OPERACIÓN:</strong></td>
+                                        <td style="padding: 4px 0; color: #333; font-weight: bold; color: #8a1529;">${venta.nroOperacion}</td>
+                                    </tr>` : ''}
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Tabla de Detalle -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                        <thead>
+                            <tr style="background-color: #8a1529; color: white;">
+                                <th style="padding: 10px; font-size: 12px; text-align: left; font-weight: bold; border-top-left-radius: 4px; border-bottom-left-radius: 4px;">CÓDIGO</th>
+                                <th style="padding: 10px; font-size: 12px; text-align: left; font-weight: bold; width: 45%;">DESCRIPCIÓN</th>
+                                <th style="padding: 10px; font-size: 12px; text-align: center; font-weight: bold;">CANTIDAD</th>
+                                <th style="padding: 10px; font-size: 12px; text-align: center; font-weight: bold;">U.M.</th>
+                                <th style="padding: 10px; font-size: 12px; text-align: right; font-weight: bold;">P. UNITARIO</th>
+                                <th style="padding: 10px; font-size: 12px; text-align: right; font-weight: bold; border-top-right-radius: 4px; border-bottom-right-radius: 4px;">IMPORTE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+
+                    <!-- Totales y Letras -->
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 13px;">
+                        <tr>
+                            <td style="width: 60%; vertical-align: top; padding-right: 20px;">
+                                <div style="border: 1px solid #e1e1e1; border-radius: 6px; padding: 12px 15px; margin-bottom: 20px; background-color: #fafafa; font-size: 12px; font-weight: 500; color: #555;">
+                                    ${textTotalLetras}
+                                </div>
+                                <div style="display: flex; gap: 15px; align-items: center;">
+                                    <div style="border: 1px solid #ccc; padding: 6px; background: #fff; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                        <svg width="80" height="80" viewBox="0 0 100 100" style="display: block;">
+                                            <rect x="0" y="0" width="25" height="25" fill="#333"/>
+                                            <rect x="5" y="5" width="15" height="15" fill="#fff"/>
+                                            <rect x="8" y="8" width="9" height="9" fill="#333"/>
+                                            
+                                            <rect x="75" y="0" width="25" height="25" fill="#333"/>
+                                            <rect x="80" y="5" width="15" height="15" fill="#fff"/>
+                                            <rect x="83" y="8" width="9" height="9" fill="#333"/>
+                                            
+                                            <rect x="0" y="75" width="25" height="25" fill="#333"/>
+                                            <rect x="5" y="80" width="15" height="15" fill="#fff"/>
+                                            <rect x="83" y="83" width="9" height="9" fill="#333"/>
+                                            
+                                            <rect x="35" y="10" width="10" height="10" fill="#333"/>
+                                            <rect x="55" y="5" width="10" height="15" fill="#333"/>
+                                            <rect x="30" y="35" width="15" height="10" fill="#333"/>
+                                            <rect x="50" y="30" width="20" height="10" fill="#333"/>
+                                            <rect x="10" y="45" width="10" height="20" fill="#333"/>
+                                            <rect x="35" y="55" width="15" height="15" fill="#333"/>
+                                            <rect x="60" y="50" width="15" height="10" fill="#333"/>
+                                            <rect x="80" y="35" width="10" height="25" fill="#333"/>
+                                            <rect x="50" y="75" width="15" height="15" fill="#333"/>
+                                            <rect x="75" y="70" width="20" height="20" fill="#333"/>
+                                        </svg>
+                                    </div>
+                                    <div style="font-size: 11px; color: #777; line-height: 1.5;">
+                                        Representación impresa de la ${isFactura ? 'Factura' : 'Boleta de Venta'} Electrónica.<br>
+                                        Autorizado mediante Resolución de SUNAT.<br>
+                                        Consulte su validez en: <strong>www.sunat.gob.pe</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="width: 40%; vertical-align: top;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                                        <td style="padding: 8px 0; color: #666;">OP. GRAVADA</td>
+                                        <td style="padding: 8px 0; text-align: right; font-weight: 500; color: #333;">S/ ${subtotal.toFixed(2)}</td>
+                                    </tr>
+                                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                                        <td style="padding: 8px 0; color: #666;">${igvLabel}</td>
+                                        <td style="padding: 8px 0; text-align: right; font-weight: 500; color: #333;">S/ ${igv.toFixed(2)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px 0; font-size: 15px; font-weight: bold; color: #8a1529;">TOTAL NETO</td>
+                                        <td style="padding: 10px 0; font-size: 15px; font-weight: bold; text-align: right; color: #8a1529;">S/ ${totalFinalPdf.toFixed(2)}</td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="text-align: center; font-size: 11px; color: #999; margin-top: 50px; border-top: 1px solid #eee; padding-top: 20px;">
+                        ¡Muchas gracias por su preferencia! Carnes y Ahumados Charapita S.A.C.
+                    </div>
+                </div>
+            `;
+
+            // Extraer DNI y dirección de la interfaz
+            const dniText = document.getElementById('detailDniRuc').innerText;
+            const pdfDniRuc = container.querySelector('#pdfDniRuc');
+            if (pdfDniRuc && dniText) pdfDniRuc.innerText = dniText;
+
+            const pdfDireccion = container.querySelector('#pdfDireccion');
+            if (pdfDireccion && isFactura) {
+                pdfDireccion.innerText = 'Av. República de Panamá 345, San Isidro - Lima';
+            }
+
+            const docName = `${isFactura ? 'Factura' : 'Boleta'}_${venta.nroPedido}.pdf`;
+
+            const opt = {
+                margin: 0,
+                filename: docName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Ejecutar html2pdf
+            if (autoDownload) {
+                html2pdf().set(opt).from(container).save()
+                    .then(() => {
+                        document.body.removeChild(container);
+                        resolve(docName);
+                    })
+                    .catch(err => {
+                        document.body.removeChild(container);
+                        reject(err);
+                    });
+            } else {
+                html2pdf().set(opt).from(container).outputPdf('blob')
+                    .then(blob => {
+                        document.body.removeChild(container);
+                        resolve({ blob, filename: docName });
+                    })
+                    .catch(err => {
+                        document.body.removeChild(container);
+                        reject(err);
+                    });
+            }
         });
     }
 });

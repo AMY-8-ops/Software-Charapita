@@ -10,7 +10,16 @@ public class VentaRequestDTO {
     private String nroOperacion;
     private String nroPedido;
 
+    private Boolean applyIgv;
     private List<DetalleVentaRequestDTO> detalles;
+
+    public Boolean getApplyIgv() {
+        return applyIgv;
+    }
+
+    public void setApplyIgv(Boolean applyIgv) {
+        this.applyIgv = applyIgv;
+    }
 
     public String getNroPedido() {
         return nroPedido;
