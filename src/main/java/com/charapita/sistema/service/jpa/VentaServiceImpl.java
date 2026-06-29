@@ -50,6 +50,25 @@ public class VentaServiceImpl implements IVentaService {
         // 1. Buscar las relaciones de la cabecera
         Cliente cliente = clienteRepository.findById(dto.getIdcliente())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente no existe"));
+
+        // Validar regla de SUNAT (Ventas mayores a S/ 700.00 requieren identificar al cliente, no se permite Cliente Ocasional / ID 8)
+        java.math.BigDecimal totalVenta = java.math.BigDecimal.ZERO;
+        if (dto.getDetalles() != null) {
+            for (DetalleVentaRequestDTO det : dto.getDetalles()) {
+                if (det.getImporte() != null) {
+                    totalVenta = totalVenta.add(det.getImporte());
+                }
+            }
+        }
+        if (totalVenta.compareTo(new java.math.BigDecimal("700")) > 0) {
+            if (cliente.getIdcliente() == 8 || 
+                "Cliente Ocasional".equalsIgnoreCase(cliente.getNombre()) || 
+                "Cliente Ocasional".equalsIgnoreCase(cliente.getRazonsocial()) || 
+                "00000000".equals(cliente.getNroDocumento())) {
+                throw new IllegalArgumentException("Por regulación de la SUNAT, las ventas que superan los S/ 700.00 requieren obligatoria e inexcusablemente la identificación del cliente (no se permite Cliente Ocasional).");
+            }
+        }
+
         Usuario usuario = usuarioRepository.findById(dto.getIdusuario())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no existe"));
         TipoComprobante comprobante = tipoComprobanteRepository.findById(dto.getIdtipocomprobante())
@@ -57,16 +76,84 @@ public class VentaServiceImpl implements IVentaService {
         MetodoPago metodoPago = metodoPagoRepository.findById(dto.getIdmetodopago())
                 .orElseThrow(() -> new IllegalArgumentException("Método de pago inválido"));
 
+        // Validar código de verificación según el método de pago en el backend
+        if (metodoPago.getIdmetodo() != 1 && !metodoPago.getNombre().toLowerCase().contains("efectivo")) {
+            String codigo = dto.getNroOperacion();
+            if (codigo == null || codigo.trim().isEmpty()) {
+                throw new IllegalArgumentException("Debe ingresar el código de comprobación / operación bancaria.");
+            }
+            codigo = codigo.trim();
+            String nameLower = metodoPago.getNombre().toLowerCase();
+            
+            if (metodoPago.getIdmetodo() == 2 || (nameLower.contains("yape") && nameLower.contains("plin")) || nameLower.contains("presencial")) {
+                if (!codigo.matches("^\\d{3}$")) {
+                    throw new IllegalArgumentException("El Código de Verificación Dinámico debe ser un número de exactamente 3 dígitos.");
+                }
+            } else if (metodoPago.getIdmetodo() == 5 || nameLower.contains("e-commerce") || nameLower.contains("pasarela")) {
+                if (!codigo.matches("^\\d{6}$")) {
+                    throw new IllegalArgumentException("El Código de Aprobación de Compra debe ser un número de exactamente 6 dígitos.");
+                }
+            } else if (metodoPago.getIdmetodo() == 4 || nameLower.contains("tarjeta") || nameLower.contains("pos") || nameLower.contains("niubiz") || nameLower.contains("izipay")) {
+                if (!codigo.matches("^[a-zA-Z0-9]{4,8}$")) {
+                    throw new IllegalArgumentException("El Número de Operación / Autorización debe ser alfanumérico y tener entre 4 y 8 caracteres.");
+                }
+            } else if (metodoPago.getIdmetodo() == 3 || nameLower.contains("transferencia") || nameLower.contains("depósito") || nameLower.contains("deposito")) {
+                if (!codigo.matches("^[a-zA-Z0-9]+$")) {
+                    throw new IllegalArgumentException("El Número de Operación Bancaria debe ser alfanumérico.");
+                }
+            }
+        }
+
         // 2. Crear y guardar la Venta (Cabecera)
         Venta venta = new Venta();
-        // Generamos un nro de pedido aleatorio de 6 caracteres
-        venta.setNroPedido(UUID.randomUUID().toString().substring(0, 6).toUpperCase());
+        
+        // Generar nroPedido correlativo basado en la serie y tipo de comprobante
+        String serie = dto.getNroPedido();
+        if (serie == null || !serie.contains("-")) {
+            String prefix = (comprobante.getIdtipo() == 1) ? "B001" : "F001";
+            serie = prefix + "-AUTO";
+        }
+        
+        String[] parts = serie.split("-");
+        String prefix = parts[0].toUpperCase().trim();
+        
+        // Validación de formato de Serie (exactamente 4 caracteres, empezando con B o F)
+        if (prefix.length() != 4) {
+            throw new IllegalArgumentException("La serie del comprobante debe tener exactamente 4 caracteres.");
+        }
+        if (comprobante.getIdtipo() == 1 && !prefix.startsWith("B")) {
+            throw new IllegalArgumentException("Para Boleta, la serie debe comenzar con la letra B.");
+        }
+        if (comprobante.getIdtipo() == 2 && !prefix.startsWith("F")) {
+            throw new IllegalArgumentException("Para Factura, la serie debe comenzar con la letra F.");
+        }
+
+        // Buscar en la BD la venta con el correlativo máximo para este prefijo
+        List<Venta> todas = ventaRepository.findAll();
+        int maxCorrelativo = 0;
+        for (Venta v : todas) {
+            if (v.getNroPedido() != null && v.getNroPedido().startsWith(prefix + "-")) {
+                String[] p = v.getNroPedido().split("-");
+                if (p.length == 2) {
+                    try {
+                        int num = Integer.parseInt(p[1]);
+                        if (num > maxCorrelativo) {
+                            maxCorrelativo = num;
+                        }
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+        }
+        
+        String nroPedidoFinal = prefix + "-" + String.format("%06d", maxCorrelativo + 1);
+        venta.setNroPedido(nroPedidoFinal);
         venta.setFecha(LocalDateTime.now());
         venta.setEstado(true);
         venta.setCliente(cliente);
         venta.setUsuario(usuario);
         venta.setTipoComprobante(comprobante);
         venta.setMetodoPago(metodoPago);
+        venta.setNroOperacion(dto.getNroOperacion() != null ? dto.getNroOperacion().trim() : null);
 
         // Al hacer save, la venta ya tiene su 'idventa' autogenerado
         Venta ventaGuardada = ventaRepository.save(venta);
@@ -161,6 +248,7 @@ public class VentaServiceImpl implements IVentaService {
         dto.setIdventa(venta.getIdventa());
         dto.setNroPedido(venta.getNroPedido());
         dto.setDireccion(venta.getDireccion());
+        dto.setNroOperacion(venta.getNroOperacion());
         dto.setFecha(venta.getFecha());
         dto.setEstado(venta.getEstado());
         dto.setClienteNombre(venta.getCliente() != null ? venta.getCliente().getNombre() : null);

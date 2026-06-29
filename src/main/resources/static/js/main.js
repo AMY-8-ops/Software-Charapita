@@ -677,16 +677,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializar método de pago por defecto si no existe o no tiene estructura
     if (!selectedPayMethod || typeof selectedPayMethod !== 'object' || !selectedPayMethod.id) {
         const posPaymentSelect = document.getElementById('posPaymentSelect');
-        if (posPaymentSelect && posPaymentSelect.value) {
-            const selectedOption = posPaymentSelect.options[posPaymentSelect.selectedIndex];
+        if (posPaymentSelect && posPaymentSelect.options.length > 0) {
+            const selectedOption = posPaymentSelect.options[posPaymentSelect.selectedIndex >= 0 ? posPaymentSelect.selectedIndex : 0];
             selectedPayMethod = {
-                id: parseInt(posPaymentSelect.value),
+                id: parseInt(selectedOption.value),
                 nombre: selectedOption.getAttribute('data-nombre')
             };
         } else {
-            selectedPayMethod = { id: 1, nombre: 'Efectivo' };
+            selectedPayMethod = null;
         }
-        localStorage.setItem('pos_pay_method', JSON.stringify(selectedPayMethod));
+        if (selectedPayMethod) {
+            localStorage.setItem('pos_pay_method', JSON.stringify(selectedPayMethod));
+        }
     }
 
     const cartTableBody = document.getElementById('cartTableBody');
@@ -897,47 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
         posSearchInput.addEventListener('input', filterProducts);
     }
 
-    // AGREGAR PRODUCTO POR CÓDIGO MANUALMENTE
-    const posCodeInput = document.getElementById('posCodeInput');
-    const btnAgregarPorCodigo = document.getElementById('btnAgregarPorCodigo');
 
-    function addProductByCode() {
-        if (!posCodeInput) return;
-        const code = posCodeInput.value.trim().toLowerCase();
-        if (code === '') return;
-
-        let foundCard = null;
-        productCards.forEach(card => {
-            const cardCodigo = card.getAttribute('data-codigo').toLowerCase();
-            if (cardCodigo === code) {
-                foundCard = card;
-            }
-        });
-
-        if (foundCard) {
-            foundCard.click();
-            posCodeInput.value = '';
-            posCodeInput.focus();
-        } else {
-            alert(`No se encontró ningún producto con el código: ${posCodeInput.value}`);
-        }
-    }
-
-    if (posCodeInput) {
-        posCodeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addProductByCode();
-            }
-        });
-    }
-
-    if (btnAgregarPorCodigo) {
-        btnAgregarPorCodigo.addEventListener('click', (e) => {
-            e.preventDefault();
-            addProductByCode();
-        });
-    }
 
     // SELECCIÓN DE MÉTODO DE PAGO EN EL COMBOBOX DE POS
     const posPaymentSelect = document.getElementById('posPaymentSelect');
@@ -1047,24 +1009,159 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('confirmTotal').innerText = `S/ ${total.toFixed(2)}`;
 
         // Inicializar Método de Pago de acuerdo al POS
-        const initialPayMethod = JSON.parse(localStorage.getItem('pos_pay_method')) || { id: 1, nombre: 'Efectivo' };
-        if (confirmMetodoSelect) {
+        let initialPayMethod = JSON.parse(localStorage.getItem('pos_pay_method'));
+        if (!initialPayMethod || !initialPayMethod.id) {
+            initialPayMethod = {
+                id: 1,
+                nombre: 'Efectivo'
+            };
+        }
+        if (confirmMetodoSelect && initialPayMethod) {
             confirmMetodoSelect.value = initialPayMethod.id;
+        }
+        const confirmMetodoNombre = document.getElementById('confirmMetodoNombre');
+        if (confirmMetodoNombre && initialPayMethod) {
+            confirmMetodoNombre.value = initialPayMethod.nombre;
         }
 
         const badgeMethod = document.getElementById('confirmPaymentMethodBadge');
         const badgeAmount = document.getElementById('confirmPaymentAmountBadge');
-        if (badgeMethod) badgeMethod.innerText = `Metodo: ${initialPayMethod.nombre}`;
+        if (badgeMethod && initialPayMethod) badgeMethod.innerText = `Metodo: ${initialPayMethod.nombre}`;
         if (badgeAmount) badgeAmount.innerText = `S/ ${total.toFixed(2)}`;
 
-        // Sincronizar el badge de pago recibido si cambia el select
-        if (confirmMetodoSelect) {
-            confirmMetodoSelect.addEventListener('change', () => {
-                const selectedOpt = confirmMetodoSelect.options[confirmMetodoSelect.selectedIndex];
-                if (badgeMethod && selectedOpt) {
-                    badgeMethod.innerText = `Metodo: ${selectedOpt.text}`;
+        // Configuración y visualización dinámica del Código de Comprobación
+        function setupCodigoComprobacion(metodoId, metodoNombre) {
+            const groupCodigo = document.getElementById('groupCodigoComprobacion');
+            const lblCodigo = document.getElementById('lblCodigoComprobacion');
+            const inputCodigo = document.getElementById('confirmCodigoComprobacion');
+            
+            if (!groupCodigo || !lblCodigo || !inputCodigo) return;
+            
+            const nameLower = metodoNombre.toLowerCase();
+            
+            // 1. EFECTIVO
+            if (metodoId === 1 || nameLower.includes('efectivo')) {
+                groupCodigo.style.display = 'none';
+                inputCodigo.value = '';
+                inputCodigo.required = false;
+            }
+            // 2. YAPE / PLIN (Presencial)
+            else if (metodoId === 2 || (nameLower.includes('yape') && nameLower.includes('plin')) || nameLower.includes('presencial')) {
+                groupCodigo.style.display = 'block';
+                lblCodigo.innerHTML = 'Código de Verificación Dinámico <span class="cv-text-red">*</span>';
+                inputCodigo.placeholder = 'Ingresar 3 dígitos visibles en la app del cliente';
+                inputCodigo.maxLength = 3;
+                inputCodigo.required = true;
+            }
+            // 3. YAPE (E-commerce / Pasarela Web)
+            else if (metodoId === 5 || nameLower.includes('e-commerce') || nameLower.includes('pasarela')) {
+                groupCodigo.style.display = 'block';
+                lblCodigo.innerHTML = 'Código de Aprobación de Compra <span class="cv-text-red">*</span>';
+                inputCodigo.placeholder = 'Ingresar 6 dígitos de aprobación';
+                inputCodigo.maxLength = 6;
+                inputCodigo.required = true;
+            }
+            // 4. TARJETA DE CRÉDITO / DÉBITO (POS Físico)
+            else if (metodoId === 4 || nameLower.includes('tarjeta') || nameLower.includes('pos') || nameLower.includes('niubiz') || nameLower.includes('izipay')) {
+                groupCodigo.style.display = 'block';
+                lblCodigo.innerHTML = 'Número de Operación / Autorización <span class="cv-text-red">*</span>';
+                inputCodigo.placeholder = 'Ingresar entre 4 y 8 caracteres del váucher';
+                inputCodigo.removeAttribute('maxLength');
+                inputCodigo.required = true;
+            }
+            // 5. TRANSFERENCIA BANCARIA / DEPÓSITO
+            else if (metodoId === 3 || nameLower.includes('transferencia') || nameLower.includes('depósito') || nameLower.includes('deposito')) {
+                groupCodigo.style.display = 'block';
+                lblCodigo.innerHTML = 'Número de Operación Bancaria <span class="cv-text-red">*</span>';
+                inputCodigo.placeholder = 'Ingresar número de operación bancaria';
+                inputCodigo.removeAttribute('maxLength');
+                inputCodigo.required = true;
+            }
+            else {
+                groupCodigo.style.display = 'block';
+                lblCodigo.innerHTML = 'Código de Verificación / Operación <span class="cv-text-red">*</span>';
+                inputCodigo.placeholder = 'Ingresar código de operación';
+                inputCodigo.removeAttribute('maxLength');
+                inputCodigo.required = true;
+            }
+        }
+
+        function actualizarEstadoPagoBadge() {
+            const badge = document.getElementById('confirmPaymentBadge');
+            const icon = document.getElementById('confirmPaymentIcon');
+            const title = document.getElementById('confirmPaymentTitle');
+            const subtext = document.getElementById('confirmPaymentMethodBadge');
+            const confirmCodigoComprobacion = document.getElementById('confirmCodigoComprobacion');
+
+            if (!badge || !icon || !title) return;
+
+            const metodoId = initialPayMethod.id;
+            const metodoNombre = initialPayMethod.nombre;
+            const nameLower = metodoNombre.toLowerCase();
+            const codigoVal = confirmCodigoComprobacion ? confirmCodigoComprobacion.value.trim() : '';
+
+            // 1. EFECTIVO -> Siempre recibido
+            if (metodoId === 1 || nameLower.includes('efectivo')) {
+                badge.className = 'cv-success-alert';
+                icon.className = 'fa-solid fa-shield-check cv-success-icon';
+                title.innerText = 'Pago recibido';
+                if (subtext) subtext.innerText = `Metodo: ${metodoNombre}`;
+                return;
+            }
+
+            // 2. Otros métodos -> Depende de si se ingresó un código válido
+            let esValido = false;
+
+            if (codigoVal !== '') {
+                // 2. YAPE / PLIN (Presencial) -> Numérico de exactamente 3 dígitos
+                if (metodoId === 2 || (nameLower.includes('yape') && nameLower.includes('plin')) || nameLower.includes('presencial')) {
+                    esValido = /^\d{3}$/.test(codigoVal);
                 }
+                // 3. YAPE (E-commerce / Pasarela Web) -> Numérico de exactamente 6 dígitos
+                else if (metodoId === 5 || nameLower.includes('e-commerce') || nameLower.includes('pasarela')) {
+                    esValido = /^\d{6}$/.test(codigoVal);
+                }
+                // 4. TARJETA DE CRÉDITO / DÉBITO (POS Físico) -> Alfanumérico, entre 4 y 8 caracteres
+                else if (metodoId === 4 || nameLower.includes('tarjeta') || nameLower.includes('pos') || nameLower.includes('niubiz') || nameLower.includes('izipay')) {
+                    esValido = /^[a-zA-Z0-9]{4,8}$/.test(codigoVal);
+                }
+                // 5. TRANSFERENCIA BANCARIA / DEPÓSITO -> Alfanumérico
+                else if (metodoId === 3 || nameLower.includes('transferencia') || nameLower.includes('depósito') || nameLower.includes('deposito')) {
+                    esValido = /^[a-zA-Z0-9]+$/.test(codigoVal);
+                } else {
+                    esValido = true;
+                }
+            }
+
+            if (esValido) {
+                badge.className = 'cv-success-alert';
+                icon.className = 'fa-solid fa-shield-check cv-success-icon';
+                title.innerText = 'Pago recibido';
+                if (subtext) subtext.innerText = `Metodo: ${metodoNombre} (Cod: ${codigoVal})`;
+            } else {
+                badge.className = 'cv-pending-alert';
+                icon.className = 'fa-solid fa-circle-exclamation cv-pending-icon';
+                title.innerText = 'Pago Pendiente de Verificación';
+                if (subtext) {
+                    if (codigoVal === '') {
+                        subtext.innerText = `Metodo: ${metodoNombre} (Esperando código...)`;
+                    } else {
+                        subtext.innerText = `Metodo: ${metodoNombre} (Código inválido)`;
+                    }
+                }
+            }
+        }
+
+        const confirmCodigoComprobacion = document.getElementById('confirmCodigoComprobacion');
+        if (confirmCodigoComprobacion) {
+            confirmCodigoComprobacion.addEventListener('input', () => {
+                actualizarEstadoPagoBadge();
             });
+        }
+
+        if (initialPayMethod) {
+            setupCodigoComprobacion(initialPayMethod.id, initialPayMethod.nombre);
+            actualizarEstadoPagoBadge();
         }
 
         // Fecha de Emisión automática en el input
@@ -1117,6 +1214,179 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // --- BÚSQUEDA Y FILTRADO DE CLIENTES ---
+        let clientesOriginales = [];
+        if (confirmClienteSelect) {
+            for (let i = 0; i < confirmClienteSelect.options.length; i++) {
+                const opt = confirmClienteSelect.options[i];
+                if (opt.value !== "") {
+                    clientesOriginales.push({
+                        value: opt.value,
+                        text: opt.text,
+                        doc: opt.getAttribute('data-doc') || '',
+                        nombre: opt.getAttribute('data-nombre') || ''
+                    });
+                }
+            }
+        }
+
+        const buscarClienteInput = document.getElementById('buscarClienteInput');
+        if (buscarClienteInput && confirmClienteSelect) {
+            buscarClienteInput.addEventListener('input', () => {
+                const query = buscarClienteInput.value.toLowerCase().trim();
+                confirmClienteSelect.innerHTML = '<option value="">-- Seleccionar Cliente --</option>';
+                
+                clientesOriginales.forEach(c => {
+                    const matchesDoc = c.doc.toLowerCase().includes(query);
+                    const matchesNombre = c.nombre.toLowerCase().includes(query);
+                    const matchesText = c.text.toLowerCase().includes(query);
+                    
+                    if (query === '' || matchesDoc || matchesNombre || matchesText) {
+                        const opt = document.createElement('option');
+                        opt.value = c.value;
+                        opt.text = c.text;
+                        opt.setAttribute('data-doc', c.doc);
+                        opt.setAttribute('data-nombre', c.nombre);
+                        confirmClienteSelect.appendChild(opt);
+                    }
+                });
+                
+                confirmClienteSelect.value = '';
+                confirmClienteSelect.dispatchEvent(new Event('change'));
+            });
+        }
+
+        // --- MODAL DE REGISTRO RÁPIDO DE CLIENTE ---
+        const btnNuevoCliente = document.getElementById('btnNuevoCliente');
+        const modalNuevoCliente = document.getElementById('modalNuevoCliente');
+        const btnCerrarModalCliente = document.getElementById('btnCerrarModalCliente');
+        const btnCancelarModalCliente = document.getElementById('btnCancelarModalCliente');
+        const btnGuardarModalCliente = document.getElementById('btnGuardarModalCliente');
+
+        if (btnNuevoCliente && modalNuevoCliente) {
+            btnNuevoCliente.addEventListener('click', (e) => {
+                e.preventDefault();
+                const searchVal = buscarClienteInput ? buscarClienteInput.value.trim() : '';
+                const modalNroDoc = document.getElementById('modalNroDocumento');
+                
+                if (searchVal !== '') {
+                    if (modalNroDoc) {
+                        modalNroDoc.value = searchVal;
+                        modalNroDoc.readOnly = true;
+                    }
+                    const modalTipoCliente = document.getElementById('modalTipoCliente');
+                    if (modalTipoCliente) {
+                        if (searchVal.length === 8) {
+                            modalTipoCliente.value = "1"; // Persona Natural
+                        } else if (searchVal.length === 11) {
+                            modalTipoCliente.value = "2"; // Persona Jurídica
+                        }
+                    }
+                } else {
+                    if (modalNroDoc) {
+                        modalNroDoc.value = '';
+                        modalNroDoc.readOnly = false;
+                    }
+                }
+                modalNuevoCliente.classList.add('active');
+            });
+        }
+
+        if (modalNuevoCliente) {
+            const cerrarModal = (e) => {
+                if (e) e.preventDefault();
+                modalNuevoCliente.classList.remove('active');
+                const modalNroDoc = document.getElementById('modalNroDocumento');
+                if (modalNroDoc) {
+                    modalNroDoc.value = '';
+                    modalNroDoc.readOnly = false;
+                }
+            };
+            if (btnCerrarModalCliente) btnCerrarModalCliente.addEventListener('click', cerrarModal);
+            if (btnCancelarModalCliente) btnCancelarModalCliente.addEventListener('click', cerrarModal);
+        }
+
+        if (btnGuardarModalCliente) {
+            btnGuardarModalCliente.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                const tipoClienteId = document.getElementById('modalTipoCliente').value;
+                const nroDoc = document.getElementById('modalNroDocumento').value.trim();
+                const name = document.getElementById('modalNombre').value.trim();
+                
+                if (!nroDoc || !name || !tipoClienteId) {
+                    alert('Por favor, complete los campos obligatorios: Tipo de Cliente, DNI/RUC y Nombre.');
+                    return;
+                }
+                
+                const payload = {
+                    nombre: name,
+                    razonsocial: name,
+                    nroDocumento: nroDoc,
+                    idtipocliente: parseInt(tipoClienteId),
+                    estado: true
+                };
+
+                btnGuardarModalCliente.disabled = true;
+                btnGuardarModalCliente.innerText = 'Guardando...';
+
+                fetch('/api/clientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        return res.text().then(text => { throw new Error(text || 'Error al guardar cliente') });
+                    }
+                    return res.json();
+                })
+                .then(newClient => {
+                    btnGuardarModalCliente.disabled = false;
+                    btnGuardarModalCliente.innerText = 'Guardar Cliente';
+
+                    // 1. Add to select options dynamically
+                    const opt = document.createElement('option');
+                    opt.value = newClient.idcliente;
+                    opt.text = `${newClient.nombre || newClient.razonsocial} - Doc: ${newClient.nroDocumento}`;
+                    opt.setAttribute('data-doc', newClient.nroDocumento);
+                    opt.setAttribute('data-nombre', newClient.nombre || newClient.razonsocial);
+                    confirmClienteSelect.appendChild(opt);
+
+                    // 2. Add to cached searchable array
+                    clientesOriginales.push({
+                        value: String(newClient.idcliente),
+                        text: opt.text,
+                        doc: newClient.nroDocumento,
+                        nombre: newClient.nombre || newClient.razonsocial
+                    });
+
+                    // 3. Auto select newly registered client and trigger detail loading
+                    confirmClienteSelect.value = newClient.idcliente;
+                    confirmClienteSelect.dispatchEvent(new Event('change'));
+
+                    // 4. Clear search bar so the newly selected option is visible
+                    if (buscarClienteInput) buscarClienteInput.value = '';
+
+                    // 5. Hide modal and clear modal fields
+                    modalNuevoCliente.classList.remove('active');
+                    document.getElementById('modalNroDocumento').value = '';
+                    document.getElementById('modalNombre').value = '';
+                    document.getElementById('modalTelefono').value = '';
+                    document.getElementById('modalCorreo').value = '';
+                    document.getElementById('modalDireccion').value = '';
+
+                    alert('Cliente registrado y seleccionado con éxito.');
+                })
+                .catch(err => {
+                    btnGuardarModalCliente.disabled = false;
+                    btnGuardarModalCliente.innerText = 'Guardar Cliente';
+                    alert('Error al registrar cliente: ' + err.message);
+                    console.error(err);
+                });
+            });
+        }
+
         // Toggles Cliente Ocasional / Cliente Registrado
         if (clientToggleBtnsCustom.length > 0) {
             clientToggleBtnsCustom.forEach(btn => {
@@ -1141,15 +1411,75 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Función para cargar automáticamente correlativo sumando +1 al último emitido
+        async function actualizarCorrelativo() {
+            if (!confirmComprobanteSerie) return;
+            const numeroInput = document.getElementById('confirmComprobanteNumero');
+            if (!numeroInput) return;
+
+            const serieVal = confirmComprobanteSerie.value.toUpperCase().trim();
+            if (serieVal.length !== 4) {
+                numeroInput.value = '----';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/ventas');
+                if (!response.ok) throw new Error('Error al listar ventas');
+                const ventas = await response.json();
+
+                let maxCorrelativo = 0;
+                ventas.forEach(v => {
+                    if (v.nroPedido && v.nroPedido.toUpperCase().startsWith(serieVal + '-')) {
+                        const parts = v.nroPedido.split('-');
+                        if (parts.length === 2) {
+                            const num = parseInt(parts[1], 10);
+                            if (!isNaN(num) && num > maxCorrelativo) {
+                                maxCorrelativo = num;
+                            }
+                        }
+                    }
+                });
+
+                const nextCorrelativo = maxCorrelativo + 1;
+                numeroInput.value = String(nextCorrelativo).padStart(6, '0');
+            } catch (err) {
+                console.error('Error al obtener correlativo:', err);
+                numeroInput.value = '000001';
+            }
+        }
+
         // Sincronizar el select de series con la caja de tipo de comprobante
         document.querySelectorAll('.cv-doc-box[data-target="comprobante"]').forEach(box => {
             box.addEventListener('click', () => {
-                const serie = box.getAttribute('data-serie') || (box.getAttribute('data-id') === '1' ? 'B001' : 'F001');
+                const docId = box.getAttribute('data-id'); // '1' = Boleta, '2' = Factura
+                let serieDefault = 'B001';
+                if (docId === '2') {
+                    serieDefault = 'F001';
+                }
+                
                 if (confirmComprobanteSerie) {
-                    confirmComprobanteSerie.value = serie;
+                    confirmComprobanteSerie.value = serieDefault;
+                    actualizarCorrelativo();
                 }
             });
         });
+
+        // Detectar cambios manuales en la Serie para recalcular el correlativo
+        if (confirmComprobanteSerie) {
+            confirmComprobanteSerie.addEventListener('input', () => {
+                confirmComprobanteSerie.value = confirmComprobanteSerie.value.toUpperCase();
+                actualizarCorrelativo();
+            });
+        }
+
+        // Inicializar por defecto (por ejemplo, con Boleta B001)
+        if (confirmComprobanteSerie) {
+            const activeComprobante = document.querySelector('.cv-doc-box[data-target="comprobante"].active');
+            const docId = activeComprobante ? activeComprobante.getAttribute('data-id') : '1';
+            confirmComprobanteSerie.value = (docId === '2') ? 'F001' : 'B001';
+            actualizarCorrelativo();
+        }
 
         // ENVÍO/CONFIRMACIÓN FINAL DE VENTA
         if (btnConfirmarFinal) {
@@ -1162,10 +1492,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Determinamos cliente
-                let idcliente = null;
+                // Validar SUNAT: Ventas > S/ 700.00 requieren identificación (no ocasional)
+                let totalVenta = 0;
+                confirmCart.forEach(item => {
+                    totalVenta += item.precio * item.cantidad;
+                });
+
                 const activeToggleBtn = document.querySelector('.cv-toggle-btn[data-target="cliente"].active');
                 const isOcasional = activeToggleBtn && activeToggleBtn.innerText.toLowerCase().includes('ocasional');
+
+                let isSelectedOcasional = false;
+                if (confirmClienteSelect && confirmClienteSelect.value) {
+                    const selectedOpt = confirmClienteSelect.options[confirmClienteSelect.selectedIndex];
+                    if (selectedOpt) {
+                        const doc = selectedOpt.getAttribute('data-doc') || '';
+                        const nombre = selectedOpt.getAttribute('data-nombre') || '';
+                        if (confirmClienteSelect.value === '8' || doc === '00000000' || nombre.toLowerCase().includes('ocasional')) {
+                            isSelectedOcasional = true;
+                        }
+                    }
+                }
+
+                if (totalVenta > 700) {
+                    if (isOcasional || isSelectedOcasional || !confirmClienteSelect || !confirmClienteSelect.value) {
+                        alert('Por regulación de la SUNAT, las ventas que superan los S/ 700.00 requieren obligatoriamente la identificación del cliente (no se permite Cliente Ocasional). Por favor, seleccione o registre un cliente con su DNI o RUC.');
+                        return;
+                    }
+                }
+
+                // Determinamos cliente
+                let idcliente = null;
 
                 if (isOcasional) {
                     btnConfirmarFinal.disabled = true;
@@ -1207,6 +1563,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const idmetodopago = parseInt(metodoVal);
 
+                // Validar Código de Comprobación según el método de pago
+                const confirmCodigoComprobacion = document.getElementById('confirmCodigoComprobacion');
+                const codigoVal = confirmCodigoComprobacion ? confirmCodigoComprobacion.value.trim() : '';
+                const metodoNombreLower = initialPayMethod.nombre.toLowerCase();
+
+                if (idmetodopago !== 1 && !metodoNombreLower.includes('efectivo')) {
+                    if (codigoVal === '') {
+                        alert('Debe ingresar el código de comprobación / operación bancaria.');
+                        btnConfirmarFinal.disabled = false;
+                        btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                        return;
+                    }
+
+                    // 2. YAPE / PLIN (Presencial) -> Numérico de exactamente 3 dígitos
+                    if (idmetodopago === 2 || (metodoNombreLower.includes('yape') && metodoNombreLower.includes('plin')) || metodoNombreLower.includes('presencial')) {
+                        if (!/^\d{3}$/.test(codigoVal)) {
+                            alert('El Código de Verificación Dinámico debe ser un número de exactamente 3 dígitos.');
+                            btnConfirmarFinal.disabled = false;
+                            btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                            return;
+                        }
+                    }
+                    // 3. YAPE (E-commerce / Pasarela Web) -> Numérico de exactamente 6 dígitos
+                    else if (idmetodopago === 5 || metodoNombreLower.includes('e-commerce') || metodoNombreLower.includes('pasarela')) {
+                        if (!/^\d{6}$/.test(codigoVal)) {
+                            alert('El Código de Aprobación de Compra debe ser un número de exactamente 6 dígitos.');
+                            btnConfirmarFinal.disabled = false;
+                            btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                            return;
+                        }
+                    }
+                    // 4. TARJETA DE CRÉDITO / DÉBITO (POS Físico) -> Alfanumérico, entre 4 y 8 caracteres
+                    else if (idmetodopago === 4 || metodoNombreLower.includes('tarjeta') || metodoNombreLower.includes('pos') || metodoNombreLower.includes('niubiz') || metodoNombreLower.includes('izipay')) {
+                        if (!/^[a-zA-Z0-9]{4,8}$/.test(codigoVal)) {
+                            alert('El Número de Operación / Autorización debe ser alfanumérico y tener entre 4 y 8 caracteres.');
+                            btnConfirmarFinal.disabled = false;
+                            btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                            return;
+                        }
+                    }
+                    // 5. TRANSFERENCIA BANCARIA / DEPÓSITO -> Alfanumérico
+                    else if (idmetodopago === 3 || metodoNombreLower.includes('transferencia') || metodoNombreLower.includes('depósito') || metodoNombreLower.includes('deposito')) {
+                        if (!/^[a-zA-Z0-9]+$/.test(codigoVal)) {
+                            alert('El Número de Operación Bancaria debe ser alfanumérico.');
+                            btnConfirmarFinal.disabled = false;
+                            btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                            return;
+                        }
+                    }
+                }
+
                 // Obtener tipo comprobante
                 const activeDocBox = document.querySelector('.cv-doc-box[data-target="comprobante"].active');
                 if (!activeDocBox) {
@@ -1216,6 +1623,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 const idtipocomprobante = parseInt(activeDocBox.getAttribute('data-id'));
+
+                // Validar Serie y Correlativo de Comprobante
+                const serieVal = confirmComprobanteSerie ? confirmComprobanteSerie.value.toUpperCase().trim() : '';
+                const numeroInput = document.getElementById('confirmComprobanteNumero');
+                const numeroVal = numeroInput ? numeroInput.value.trim() : '';
+
+                if (serieVal.length !== 4) {
+                    alert('La serie de comprobante debe tener exactamente 4 caracteres (ej. B001 o F001).');
+                    btnConfirmarFinal.disabled = false;
+                    btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                    return;
+                }
+                if (idtipocomprobante === 1 && !serieVal.startsWith('B')) {
+                    alert('Para Boletas, la serie debe comenzar obligatoriamente con la letra "B".');
+                    btnConfirmarFinal.disabled = false;
+                    btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                    return;
+                }
+                if (idtipocomprobante === 2 && !serieVal.startsWith('F')) {
+                    alert('Para Facturas, la serie debe comenzar obligatoriamente con la letra "F".');
+                    btnConfirmarFinal.disabled = false;
+                    btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                    return;
+                }
+                if (numeroVal === '' || numeroVal === '----' || numeroVal === 'Automatico') {
+                    alert('No se pudo generar un número correlativo válido para la serie ingresada.');
+                    btnConfirmarFinal.disabled = false;
+                    btnConfirmarFinal.innerHTML = '<i class="fa-solid fa-file-invoice"></i> Generar Comprobante';
+                    return;
+                }
+
+                const nroPedidoCompleto = `${serieVal}-${numeroVal}`;
 
                 // Armamos detalles
                 const detalles = confirmCart.map(item => ({
@@ -1230,6 +1669,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     idusuario: idusuario,
                     idtipocomprobante: idtipocomprobante,
                     idmetodopago: idmetodopago,
+                    nroOperacion: codigoVal, // Enviar el código de comprobación en el campo nroOperacion
+                    nroPedido: nroPedidoCompleto, // Enviar el número de comprobante completo
                     detalles: detalles
                 };
 
@@ -1295,7 +1736,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const rowFecha = row.getAttribute('data-fecha'); // YYYY-MM-DD
             const rowComp = row.getAttribute('data-comprobante'); // Boleta / Factura
             const rowEst = row.getAttribute('data-estado'); // Completada / Anulada
-            const rowSearch = row.getAttribute('data-search') || '';
+            const rowSearch = (row.getAttribute('data-search') || '').toLowerCase();
 
             let matchesFecha = true;
             if (rowFecha) {
@@ -1305,7 +1746,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let matchesTipo = (tipoVal === 'Todos' || rowComp === tipoVal);
             let matchesEstado = (estadoVal === 'Todas' || rowEst === estadoVal);
-            let matchesSearch = (query === '' || rowSearch.includes(query));
+
+            // Buscar robustamente tanto en data-search como en el texto de las celdas directamente
+            const cellComprobante = row.cells[1] ? row.cells[1].innerText.toLowerCase() : '';
+            const cellCliente = row.cells[2] ? row.cells[2].innerText.toLowerCase() : '';
+
+            let matchesSearch = (query === '' || 
+                                 rowSearch.includes(query) || 
+                                 cellComprobante.includes(query) || 
+                                 cellCliente.includes(query));
 
             if (matchesFecha && matchesTipo && matchesEstado && matchesSearch) {
                 row.style.display = '';
@@ -1323,6 +1772,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (infoSpan) {
             infoSpan.innerText = `Mostrando ${visibleCount} de ${rows.length} ventas`;
         }
+    }
+
+    // Registrar listeners para filtrado reactivo al instante
+    const searchInputCustom = document.getElementById('filterSearchInput');
+    if (searchInputCustom) {
+        searchInputCustom.addEventListener('input', filterSales);
+    }
+    const tipoSelectCustom = document.getElementById('filterTipoComprobante');
+    if (tipoSelectCustom) {
+        tipoSelectCustom.addEventListener('change', filterSales);
+    }
+    const estadoSelectCustom = document.getElementById('filterEstado');
+    if (estadoSelectCustom) {
+        estadoSelectCustom.addEventListener('change', filterSales);
+    }
+    const desdeInputCustom = document.getElementById('filterFechaDesde');
+    if (desdeInputCustom) {
+        desdeInputCustom.addEventListener('change', filterSales);
+    }
+    const hastaInputCustom = document.getElementById('filterFechaHasta');
+    if (hastaInputCustom) {
+        hastaInputCustom.addEventListener('change', filterSales);
     }
 
     if (btnBuscarHistorial) {
@@ -1350,11 +1821,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const pdd = String(prevMonthDate.getDate()).padStart(2, '0');
             const inicioStr = `${pyyyy}-${pmm}-${pdd}`;
 
-            document.getElementById('filterFechaDesde').value = inicioStr;
-            document.getElementById('filterFechaHasta').value = finStr;
-            document.getElementById('filterTipoComprobante').value = 'Todos';
-            document.getElementById('filterEstado').value = 'Todas';
-            document.getElementById('filterSearchInput').value = '';
+            if (document.getElementById('filterFechaDesde')) document.getElementById('filterFechaDesde').value = inicioStr;
+            if (document.getElementById('filterFechaHasta')) document.getElementById('filterFechaHasta').value = finStr;
+            if (document.getElementById('filterTipoComprobante')) document.getElementById('filterTipoComprobante').value = 'Todos';
+            if (document.getElementById('filterEstado')) document.getElementById('filterEstado').value = 'Todas';
+            if (document.getElementById('filterSearchInput')) document.getElementById('filterSearchInput').value = '';
 
             filterSales();
         });

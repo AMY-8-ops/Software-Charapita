@@ -8,6 +8,52 @@
 
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .modal-drawer {
+            position: fixed;
+            right: -380px;
+            top: 80px;
+            height: calc(100vh - 80px);
+            width: 350px;
+            z-index: 1001;
+            background: #ffffff;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.15);
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--color-borde);
+        }
+        .modal-drawer.active {
+            right: 0;
+        }
+        .cv-pending-alert {
+            background: #fff3e0;
+            border-radius: 4px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            border: 1px solid #ffe0b2;
+        }
+        .cv-pending-icon {
+            color: #e65100;
+            font-size: 1.5rem;
+        }
+        .cv-pending-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .cv-pending-info strong {
+            font-size: 0.9rem;
+            color: #e65100;
+        }
+        .cv-pending-info small {
+            font-size: 0.8rem;
+            color: #ef6c00;
+        }
+    </style>
 </head>
 
 <body>
@@ -49,14 +95,25 @@
 
                     <div class="cv-form-group" id="groupClienteSelect">
                         <label class="cv-label">Cliente</label>
-                        <div class="cv-input-with-btn">
-                            <div class="cv-select-wrapper">
-                                <i class="fa-regular fa-user cv-input-icon"></i>
-                                <select class="cv-select" id="confirmClienteSelect">
-                                    <option value="">-- Seleccionar Cliente --</option>
-                                    <option th:each="c : ${clientes}" th:value="${c.idcliente}" th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
-                                </select>
+                        <div class="cv-input-with-btn" style="margin-bottom: 10px;">
+                            <div class="cv-input-icon-left" style="flex: 1; position: relative;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                                <input type="text" class="cv-input" id="buscarClienteInput" placeholder="Buscar por DNI/RUC o nombre..." style="padding-left: 35px;">
                             </div>
+                            <button type="button" class="cv-btn-add" id="btnNuevoCliente" title="Registrar Cliente Nuevo" style="flex: 0 0 auto;">
+                                <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
+                        <div class="cv-select-wrapper">
+                            <i class="fa-regular fa-user cv-input-icon"></i>
+                            <select class="cv-select" id="confirmClienteSelect">
+                                <option value="">-- Seleccionar Cliente --</option>
+                                <option th:each="c : ${clientes}" 
+                                        th:value="${c.idcliente}" 
+                                        th:data-doc="${c.nroDocumento}" 
+                                        th:data-nombre="${c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial}" 
+                                        th:text="${(c.nombre != null && !c.nombre.isEmpty() ? c.nombre : c.razonsocial) + ' - Doc: ' + c.nroDocumento}">Juan Perez - DNI:77777777</option>
+                            </select>
                         </div>
                     </div>
 
@@ -103,15 +160,12 @@
                     <div class="cv-row-2">
                         <div class="cv-form-group">
                             <label class="cv-label">Serie<span class="cv-text-red">*</span></label>
-                            <select class="cv-select" id="confirmComprobanteSerie">
-                                <option value="B001">B001</option>
-                                <option value="F001">F001</option>
-                            </select>
+                            <input type="text" class="cv-input" id="confirmComprobanteSerie" placeholder="Ej. B001" maxlength="4" style="text-transform: uppercase;">
                         </div>
                         <div class="cv-form-group">
                             <label class="cv-label">Numero<span class="cv-text-red">*</span></label>
                             <div class="cv-input-locked">
-                                <input type="text" value="Automatico" readonly>
+                                <input type="text" id="confirmComprobanteNumero" value="Automatico" readonly>
                                 <i class="fa-solid fa-lock"></i>
                             </div>
                         </div>
@@ -130,13 +184,23 @@
                         </div>
                     </div>
 
+                    <!-- Método de Pago Seleccionado (Solo Lectura) -->
                     <div class="cv-form-group" style="margin-top: 15px;">
-                        <label class="cv-label">Método de Pago<span class="cv-text-red">*</span></label>
-                        <div class="cv-select-wrapper">
-                            <i class="fa-solid fa-credit-card cv-input-icon"></i>
-                            <select class="cv-select" id="confirmMetodoSelect">
-                                <option th:each="m : ${metodos}" th:value="${m.idmetodo}" th:text="${m.nombre}">Efectivo</option>
-                            </select>
+                        <label class="cv-label">Método de Pago Seleccionado</label>
+                        <div class="cv-input-locked">
+                            <input type="text" id="confirmMetodoNombre" class="cv-input" value="" readonly style="background-color: #f5f5f5; color: #555;">
+                            <i class="fa-solid fa-credit-card"></i>
+                        </div>
+                        <!-- Campo oculto para conservar el valor del idmetodo -->
+                        <input type="hidden" id="confirmMetodoSelect" value="">
+                    </div>
+
+                    <!-- Código de Comprobación Dinámico -->
+                    <div class="cv-form-group" id="groupCodigoComprobacion" style="margin-top: 15px; display: none;">
+                        <label class="cv-label" id="lblCodigoComprobacion">Código de Comprobación</label>
+                        <div class="cv-input-icon-left" style="position: relative;">
+                            <i class="fa-solid fa-key cv-input-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                            <input type="text" class="cv-input" id="confirmCodigoComprobacion" placeholder="Ingresar código..." style="padding-left: 35px;">
                         </div>
                     </div>
                 </section>
@@ -179,10 +243,11 @@
                         </div>
                     </div>
 
-                    <div class="cv-success-alert">
-                        <i class="fa-solid fa-shield-check cv-success-icon"></i>
-                        <div class="cv-success-info">
-                            <strong>Pago recibido</strong>
+                    <!-- Alerta de Estado del Pago (Éxito o Pendiente) -->
+                    <div class="cv-success-alert" id="confirmPaymentBadge">
+                        <i class="fa-solid fa-shield-check cv-success-icon" id="confirmPaymentIcon"></i>
+                        <div class="cv-success-info" id="confirmPaymentInfoContainer">
+                            <strong id="confirmPaymentTitle">Pago recibido</strong>
                             <small id="confirmPaymentMethodBadge">Metodo: Efectivo</small>
                         </div>
                         <strong class="cv-success-amount" id="confirmPaymentAmountBadge">S/ 0.00</strong>
@@ -219,6 +284,54 @@
 
         </div>
     </main>
+
+    <!-- PANEL REGISTRAR CLIENTE DESDE CONFIRMACIÓN -->
+    <aside class="modal-drawer" id="modalNuevoCliente">
+        <div class="cli-panel-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--color-borde);">
+            <h3 style="font-size: 1rem; font-weight: 500; color: var(--color-texto-oscuro);">Registrar Cliente</h3>
+            <button class="cli-btn-close" id="btnCerrarModalCliente" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #888;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="cli-panel-body" style="padding: 15px; flex: 1; overflow-y: auto;">
+            
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">Tipo de Cliente*</label>
+                <select class="cli-select" style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;" id="modalTipoCliente">
+                    <option th:each="t : ${tipos}" th:value="${t.idtipocliente}" th:text="${t.nombre}">Tipo</option>
+                </select>
+            </div>
+
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">DNI/RUC*</label>
+                <input type="text" class="cli-input" id="modalNroDocumento" placeholder="Ej. 12345678" required style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;">
+                <small style="display: block; text-align: right; font-size: 0.7rem; color: #aaa; margin-top: 3px;">8 o 11 dígitos</small>
+            </div>
+
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">Nombre Completo / Razón Social*</label>
+                <input type="text" class="cli-input" id="modalNombre" placeholder="Ej. Juan Pérez Garcia" required style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;">
+            </div>
+
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">Teléfono (Simulado)*</label>
+                <input type="text" class="cli-input" id="modalTelefono" placeholder="Ej. 987 654 321" style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;">
+            </div>
+
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">Correo Electrónico (Simulado)</label>
+                <input type="email" class="cli-input" id="modalCorreo" placeholder="Ej. correo@ejemplo.com" style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;">
+            </div>
+
+            <div class="cli-form-group" style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 0.85rem; color: #555; margin-bottom: 6px;">Dirección (Simulado)</label>
+                <input type="text" class="cli-input" id="modalDireccion" placeholder="Ej. Av. Los Próceres 123 - Lima" style="width: 100%; padding: 10px; border: 1px solid var(--color-borde); border-radius: 4px;">
+            </div>
+
+        </div>
+        <div class="cli-panel-footer" style="padding: 15px; border-top: 1px solid var(--color-borde); display: flex; justify-content: flex-end; gap: 10px; background: #fafafa;">
+            <button class="cli-btn-outline" id="btnCancelarModalCliente" style="padding: 8px 15px; border: 1px solid var(--color-borde); background: white; cursor: pointer; border-radius: 4px;">Cancelar</button>
+            <button class="cli-btn-primary" id="btnGuardarModalCliente" style="padding: 8px 15px; background: var(--color-primario); color: white; border: none; cursor: pointer; border-radius: 4px;">Guardar Cliente</button>
+        </div>
+    </aside>
 
     <script th:src="@{/js/main.js}" src="/js/main.js"></script>
 </body>

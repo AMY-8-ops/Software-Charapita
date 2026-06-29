@@ -7,6 +7,7 @@ public class VentaResponseDTO {
     private Integer idventa;
     private String nroPedido;
     private String direccion;
+    private String nroOperacion;
     private LocalDateTime fecha;
     private Boolean estado;
     private String clienteNombre;
@@ -37,6 +38,14 @@ public class VentaResponseDTO {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public String getNroOperacion() {
+        return nroOperacion;
+    }
+
+    public void setNroOperacion(String nroOperacion) {
+        this.nroOperacion = nroOperacion;
     }
 
     public LocalDateTime getFecha() {

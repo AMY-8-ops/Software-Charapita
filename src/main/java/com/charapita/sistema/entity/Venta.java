@@ -23,6 +23,10 @@ public class Venta {
     @Column(name = "nro_pedido")
     private String nroPedido;
     private String direccion;
+    
+    @Column(name = "nro_operacion")
+    private String nroOperacion;
+    
     private LocalDateTime fecha;
     private Boolean estado;
 
@@ -116,6 +120,14 @@ public class Venta {
 
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
+    }
+
+    public String getNroOperacion() {
+        return nroOperacion;
+    }
+
+    public void setNroOperacion(String nroOperacion) {
+        this.nroOperacion = nroOperacion;
     }
 
     @Override

@@ -7,8 +7,26 @@ public class VentaRequestDTO {
     private Integer idusuario;
     private Integer idtipocomprobante;
     private Integer idmetodopago;
+    private String nroOperacion;
+    private String nroPedido;
 
     private List<DetalleVentaRequestDTO> detalles;
+
+    public String getNroPedido() {
+        return nroPedido;
+    }
+
+    public void setNroPedido(String nroPedido) {
+        this.nroPedido = nroPedido;
+    }
+
+    public String getNroOperacion() {
+        return nroOperacion;
+    }
+
+    public void setNroOperacion(String nroOperacion) {
+        this.nroOperacion = nroOperacion;
+    }
 
     public Integer getIdcliente() {
         return idcliente;

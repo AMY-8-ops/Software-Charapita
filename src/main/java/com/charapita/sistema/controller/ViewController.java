@@ -477,10 +477,15 @@ public class ViewController {
                 .filter(mp -> Boolean.TRUE.equals(mp.getEstado()))
                 .toList();
 
+        List<TipoCliente> tipos = tipoClienteRepository.findAll().stream()
+                .filter(t -> Boolean.TRUE.equals(t.getEstado()))
+                .toList();
+
         model.addAttribute("clientes", clientes);
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("comprobantes", comprobantes);
         model.addAttribute("metodos", metodos);
+        model.addAttribute("tipos", tipos);
 
         return "nuevaventa/confirmar";
     }
