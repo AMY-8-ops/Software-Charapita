@@ -82,6 +82,10 @@ public class UsuarioServiceImpl implements IUsuarioService {
             existente.setDireccion(usuarioRecibido.getDireccion());
         if (usuarioRecibido.getCorreo() != null)
             existente.setCorreo(usuarioRecibido.getCorreo());
+        if (usuarioRecibido.getEstado() != null)
+            existente.setEstado(usuarioRecibido.getEstado());
+        if (usuarioRecibido.getContrasena() != null && !usuarioRecibido.getContrasena().trim().isEmpty())
+            existente.setContrasena(usuarioRecibido.getContrasena());
 
         // 3. Validación especial para el DNI: Si lo quiere cambiar, verificamos que no
         // lo tenga otro

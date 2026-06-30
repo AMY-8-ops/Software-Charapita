@@ -388,7 +388,7 @@ public class ViewController {
         model.addAttribute("usuarios_activos", usuariosActivos);
         model.addAttribute("total_usuarios", totalUsuarios);
         model.addAttribute("total_roles", totalRoles);
-        model.addAttribute("total_permisos", totalPermisos);
+        model.addAttribute("total_modulos", 7);
         model.addAttribute("ultimo_usuario", ultimoUsuario);
         model.addAttribute("fecha_ultimo_acceso", fechaUltimoAcceso);
         model.addAttribute("roles", listRoles);

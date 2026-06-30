@@ -1647,41 +1647,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyGlobalFilters();
     // =========================================
-    // LÓGICA VISTA: CONFIGURACIÓN (conf-)
-    // =========================================
-
-    // Panel Lateral (Nuevo Usuario)
-    const panelUsuario = document.getElementById('panelNuevoUsuario');
-    const btnNuevoUsuario = document.getElementById('btnNuevoUsuario');
-    const closeNuevoUsuario = document.getElementById('closeNuevoUsuario');
-    const cancelNuevoUsuario = document.getElementById('cancelNuevoUsuario');
-
-    if (panelUsuario && btnNuevoUsuario) {
-        // Abrir panel
-        btnNuevoUsuario.addEventListener('click', () => panelUsuario.classList.add('active'));
-
-        // Cerrar panel
-        if (closeNuevoUsuario) closeNuevoUsuario.addEventListener('click', () => panelUsuario.classList.remove('active'));
-        if (cancelNuevoUsuario) cancelNuevoUsuario.addEventListener('click', () => panelUsuario.classList.remove('active'));
-    }
-
-    // Toggle Mostrar/Ocultar Contraseña
-    const togglePassword = document.getElementById('confTogglePassword');
-    const passwordInput = document.getElementById('confPasswordInput');
-
-    if (togglePassword && passwordInput) {
-        togglePassword.addEventListener('click', () => {
-            // Cambia el tipo de input
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-
-            // Cambia el icono
-            togglePassword.classList.toggle('fa-eye');
-            togglePassword.classList.toggle('fa-eye-slash');
-        });
-    }
-
-    // =========================================
     // LÓGICA VISTA: CAJA Y MOVIMIENTOS
     // =========================================
     const btnConfirmarApertura = document.getElementById('btnConfirmarApertura');
@@ -4219,5 +4184,233 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`Se guardaron ${successCount} roles, pero hubo ${errorCount} errores.`);
             }
         });
+    }
+
+    // === GESTIÓN DE USUARIOS ===
+    const btnNuevoUsuario = document.getElementById('btnNuevoUsuario');
+    const panelNuevoUsuario = document.getElementById('panelNuevoUsuario');
+    const closeNuevoUsuario = document.getElementById('closeNuevoUsuario');
+    const cancelNuevoUsuario = document.getElementById('cancelNuevoUsuario');
+    const btnSubmitUser = document.getElementById('btnSubmitUser');
+
+    // Elementos del form
+    const formUserId = document.getElementById('formUserId');
+    const formUserNombres = document.getElementById('formUserNombres');
+    const formUserDni = document.getElementById('formUserDni');
+    const formUserCorreo = document.getElementById('formUserCorreo');
+    const formUserRol = document.getElementById('formUserRol');
+    const formUserPasswordGroup = document.getElementById('formUserPasswordGroup');
+    const confPasswordInput = document.getElementById('confPasswordInput');
+    const confTogglePassword = document.getElementById('confTogglePassword');
+    const panelNuevoUsuarioTitle = document.getElementById('panelNuevoUsuarioTitle');
+
+    if (btnNuevoUsuario && panelNuevoUsuario) {
+        // Abrir / Cerrar Panel
+        const openPanel = () => {
+            panelNuevoUsuario.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+        const closePanel = () => {
+            panelNuevoUsuario.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        btnNuevoUsuario.addEventListener('click', () => {
+            formUserId.value = '';
+            formUserNombres.value = '';
+            formUserDni.value = '';
+            formUserCorreo.value = '';
+            formUserRol.value = '';
+            confPasswordInput.value = '';
+            formUserPasswordGroup.style.display = 'block';
+            panelNuevoUsuarioTitle.innerText = 'Nuevo Usuario';
+            openPanel();
+        });
+
+        closeNuevoUsuario.addEventListener('click', closePanel);
+        cancelNuevoUsuario.addEventListener('click', closePanel);
+
+        // Toggle Password Visibility
+        if (confTogglePassword && confPasswordInput) {
+            confTogglePassword.addEventListener('click', function () {
+                const type = confPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                confPasswordInput.setAttribute('type', type);
+                this.classList.toggle('fa-eye-slash');
+                this.classList.toggle('fa-eye');
+            });
+        }
+
+        // Editar Usuario
+        document.querySelectorAll('.btn-editar-usuario').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const tr = this.closest('tr');
+                formUserId.value = tr.getAttribute('data-id');
+                const nombre = tr.getAttribute('data-nombre') || '';
+                const apellido = tr.getAttribute('data-apellido') || '';
+                formUserNombres.value = (nombre + ' ' + apellido).trim();
+                formUserDni.value = tr.getAttribute('data-dni');
+                formUserCorreo.value = tr.getAttribute('data-correo');
+                formUserRol.value = tr.getAttribute('data-idrol');
+
+                confPasswordInput.value = '';
+                formUserPasswordGroup.style.display = 'none'; // No se edita la clave por aquí
+                panelNuevoUsuarioTitle.innerText = 'Editar Usuario';
+                openPanel();
+            });
+        });
+
+        // Guardar Usuario (POST o PUT)
+        btnSubmitUser.addEventListener('click', async () => {
+            if (!formUserNombres.value || !formUserDni.value || !formUserCorreo.value || !formUserRol.value) {
+                Swal.fire('Error', 'Por favor complete todos los campos obligatorios.', 'warning');
+                return;
+            }
+
+            const isEdit = formUserId.value !== '';
+            if (!isEdit && !confPasswordInput.value) {
+                Swal.fire('Error', 'La contraseña inicial es obligatoria para nuevos usuarios.', 'warning');
+                return;
+            }
+
+            // Split nombre y apellido
+            const parts = formUserNombres.value.trim().split(' ');
+            const nombre = parts[0];
+            const apellido = parts.slice(1).join(' ');
+
+            const payload = {
+                nombre: nombre,
+                apellido: apellido,
+                dni: formUserDni.value,
+                correo: formUserCorreo.value,
+                rol: { idrol: parseInt(formUserRol.value) }
+            };
+
+            if (isEdit) {
+                payload.idusuario = parseInt(formUserId.value);
+            } else {
+                payload.contrasena = confPasswordInput.value;
+            }
+
+            try {
+                btnSubmitUser.disabled = true;
+                btnSubmitUser.innerText = 'Guardando...';
+
+                const res = await fetch('/api/usuarios', {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    await Swal.fire('Éxito', 'Usuario guardado correctamente.', 'success');
+                    window.location.reload();
+                } else {
+                    const text = await res.text();
+                    Swal.fire('Error', text, 'error');
+                    btnSubmitUser.disabled = false;
+                    btnSubmitUser.innerText = 'Guardar Usuario';
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Hubo un error de conexión.', 'error');
+                btnSubmitUser.disabled = false;
+                btnSubmitUser.innerText = 'Guardar Usuario';
+            }
+        });
+
+        // Cambiar Estado (Toggle)
+        document.querySelectorAll('.toggle-estado-usuario').forEach(toggle => {
+            toggle.addEventListener('change', async function () {
+                const tr = this.closest('tr');
+                const id = tr.getAttribute('data-id');
+                const nuevoEstado = this.checked ? 1 : 0;
+                
+                try {
+                    const res = await fetch('/api/usuarios', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idusuario: parseInt(id), estado: nuevoEstado })
+                    });
+                    
+                    if (!res.ok) {
+                        const text = await res.text();
+                        Swal.fire('Error', text, 'error');
+                        this.checked = !this.checked; // Revert
+                    } else {
+                        // Visual update
+                        if (nuevoEstado === 0) {
+                            tr.classList.add('conf-row-inactive');
+                            tr.querySelector('.conf-avatar').classList.add('conf-avatar-gray');
+                        } else {
+                            tr.classList.remove('conf-row-inactive');
+                            tr.querySelector('.conf-avatar').classList.remove('conf-avatar-gray');
+                        }
+                    }
+                } catch (e) {
+                    Swal.fire('Error', 'Hubo un error de conexión.', 'error');
+                    this.checked = !this.checked; // Revert
+                }
+            });
+        });
+
+        // Cambiar Contraseña
+        document.querySelectorAll('.btn-clave-usuario').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const tr = this.closest('tr');
+                const id = tr.getAttribute('data-id');
+                const nombreCompleto = tr.getAttribute('data-nombre') + ' ' + tr.getAttribute('data-apellido');
+
+                const { value: nuevaClave } = await Swal.fire({
+                    title: 'Cambiar Contraseña',
+                    text: `Ingrese la nueva contraseña para: ${nombreCompleto}`,
+                    input: 'password',
+                    inputPlaceholder: 'Mínimo 6 caracteres',
+                    showCancelButton: true,
+                    confirmButtonText: 'Cambiar',
+                    cancelButtonText: 'Cancelar',
+                    inputValidator: (value) => {
+                        if (!value || value.length < 6) {
+                            return 'La contraseña debe tener al menos 6 caracteres'
+                        }
+                    }
+                });
+
+                if (nuevaClave) {
+                    try {
+                        const res = await fetch('/api/usuarios', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ idusuario: parseInt(id), contrasena: nuevaClave })
+                        });
+                        
+                        if (res.ok) {
+                            Swal.fire('Éxito', 'Contraseña actualizada correctamente.', 'success');
+                        } else {
+                            const text = await res.text();
+                            Swal.fire('Error', text, 'error');
+                        }
+                    } catch (e) {
+                        Swal.fire('Error', 'Hubo un error de conexión.', 'error');
+                    }
+                }
+            });
+        });
+
+        // Búsqueda de Usuarios
+        const searchInputUsuarios = document.getElementById('searchInputUsuarios');
+        if (searchInputUsuarios) {
+            searchInputUsuarios.addEventListener('keyup', function() {
+                const filter = this.value.toLowerCase();
+                // Select only the rows in the user table, not the roles table
+                const rows = document.querySelectorAll('#tablaUsuarios tbody tr');
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    if (text.includes(filter)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
     }
 });

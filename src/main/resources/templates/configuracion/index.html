@@ -8,6 +8,9 @@
 
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -53,12 +56,12 @@
 
             <div class="conf-kpi-card">
                 <div class="conf-icon-box conf-bg-orange">
-                    <i class="fa-solid fa-lock"></i>
+                    <i class="fa-solid fa-cubes"></i>
                 </div>
                 <div class="conf-kpi-info">
-                    <span>PERMISOS CONFIGURADOS</span>
-                    <strong th:text="${total_permisos}">0</strong>
-                    <small>Recursos del sistema</small>
+                    <span>MÓDULOS DEL SISTEMA</span>
+                    <strong th:text="${total_modulos}">0</strong>
+                    <small>Gestión de Accesos</small>
                 </div>
             </div>
         </div>
@@ -73,7 +76,7 @@
                         <div class="conf-header-actions">
                             <div class="conf-search-box">
                                 <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="text" placeholder="Buscar por nombre, usuario o correo...">
+                                <input type="text" id="searchInputUsuarios" placeholder="Buscar por nombre, usuario o correo...">
                             </div>
                             <button class="conf-btn-primary" id="btnNuevoUsuario">
                                 <i class="fa-solid fa-plus"></i> Nuevo Usuario
@@ -82,7 +85,7 @@
                     </div>
 
                     <div class="conf-table-wrapper">
-                        <table class="conf-table">
+                        <table class="conf-table" id="tablaUsuarios">
                             <thead>
                                 <tr>
                                     <th>Usuario</th>
@@ -95,7 +98,13 @@
                             </thead>
                             <tbody>
                                 <tr th:each="user : ${usuarios}"
-                                    th:classappend="${user.estado != 1} ? 'conf-row-inactive'">
+                                    th:classappend="${user.estado != 1} ? 'conf-row-inactive'"
+                                    th:data-id="${user.idusuario}"
+                                    th:data-nombre="${user.nombre}"
+                                    th:data-apellido="${user.apellido}"
+                                    th:data-dni="${user.dni}"
+                                    th:data-correo="${user.correo}"
+                                    th:data-idrol="${user.rol.idrol}">
                                     <td>
                                         <div class="conf-user-cell">
                                             <div class="conf-avatar"
@@ -113,15 +122,15 @@
                                     <td th:text="${user.correo}">[correo]</td>
                                     <td>
                                         <label class="conf-switch">
-                                            <input type="checkbox" th:checked="${user.estado == 1}">
+                                            <input type="checkbox" class="toggle-estado-usuario" th:checked="${user.estado == 1}">
                                             <span class="conf-slider"></span>
                                         </label>
                                     </td>
                                     <td>
                                         <div class="conf-action-group">
-                                            <button class="conf-btn-icon conf-text-blue" title="Editar"><i
+                                            <button class="conf-btn-icon conf-text-blue btn-editar-usuario" title="Editar"><i
                                                     class="fa-solid fa-pen"></i></button>
-                                            <button class="conf-btn-icon conf-text-orange" title="Cambiar Contraseña"><i
+                                            <button class="conf-btn-icon conf-text-orange btn-clave-usuario" title="Cambiar Contraseña"><i
                                                     class="fa-solid fa-key"></i></button>
                                         </div>
                                     </td>
@@ -215,37 +224,37 @@
 
             <aside class="conf-side-panel" id="panelNuevoUsuario">
                 <div class="conf-panel-header">
-                    <h3>Nuevo Usuario</h3>
+                    <h3 id="panelNuevoUsuarioTitle">Nuevo Usuario</h3>
                     <button class="conf-btn-close" id="closeNuevoUsuario"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
                 <div class="conf-panel-body">
+                    <input type="hidden" id="formUserId">
                     <div class="conf-form-group">
                         <label>Nombres y Apellidos<span class="conf-req">*</span></label>
-                        <input type="text" class="conf-input" placeholder="Ej: Juan Carlos Pérez Garcia">
+                        <input type="text" class="conf-input" id="formUserNombres" placeholder="Ej: Juan Carlos Pérez Garcia">
                     </div>
 
                     <div class="conf-form-group">
                         <label>DNI<span class="conf-req">*</span></label>
-                        <input type="text" class="conf-input" placeholder="Ej. 12345678">
+                        <input type="text" class="conf-input" id="formUserDni" placeholder="Ej. 12345678">
                     </div>
 
                     <div class="conf-form-group">
                         <label>Correo Electrónico<span class="conf-req">*</span></label>
-                        <input type="email" class="conf-input" placeholder="Ej: juan.perez@gmail.com">
+                        <input type="email" class="conf-input" id="formUserCorreo" placeholder="Ej: juan.perez@gmail.com">
                     </div>
 
                     <div class="conf-form-group">
                         <label>Rol<span class="conf-req">*</span></label>
-                        <select class="conf-input">
-                            <option>Seleccionar rol</option>
-                            <option>Administrador</option>
-                            <option>Cajero</option>
+                        <select class="conf-input" id="formUserRol">
+                            <option value="">Seleccionar rol</option>
+                            <option th:each="r : ${roles}" th:value="${r.idrol}" th:text="${r.nombre}">Rol</option>
                         </select>
                     </div>
 
-                    <div class="conf-form-group">
-                        <label>Contraseña Inicial</label>
+                    <div class="conf-form-group" id="formUserPasswordGroup">
+                        <label>Contraseña Inicial<span class="conf-req">*</span></label>
                         <div class="conf-input-password">
                             <input type="password" class="conf-input" placeholder="Mínimo 6 caracteres"
                                 id="confPasswordInput">
@@ -256,7 +265,7 @@
 
                 <div class="conf-panel-footer">
                     <button class="conf-btn-outline" id="cancelNuevoUsuario">Cancelar</button>
-                    <button class="conf-btn-primary">Guardar Usuario</button>
+                    <button class="conf-btn-primary" id="btnSubmitUser">Guardar Usuario</button>
                 </div>
             </aside>
 
