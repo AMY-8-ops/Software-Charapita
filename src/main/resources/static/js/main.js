@@ -63,16 +63,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnLogout = document.getElementById('btn-logout');
         if (btnLogout) {
             btnLogout.addEventListener('click', () => {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user && user.idrol === 3 && window.cajaEstaAbierta) {
+                    alert('Error de seguridad: Eres un cajero y la caja se encuentra abierta. Cierra la caja antes de cerrar sesión.');
+                    return;
+                }
                 localStorage.removeItem('user');
                 window.location.href = '/login.html';
             });
         }
 
         // Estado de la Caja
+        window.cajaEstaAbierta = false; // Variable global para usar en logout
         fetch('/api/movimientoscaja')
             .then(res => res.json())
             .then(data => {
                 const isOpen = data.some(m => !m.fhCierre);
+                window.cajaEstaAbierta = isOpen; // Actualizamos el estado
+
                 const icon = document.getElementById('header-caja-icon');
                 const title = document.getElementById('header-caja-title');
                 const msg = document.getElementById('header-caja-msg');

@@ -5,6 +5,8 @@ public class UsuarioResponseDTO {
     private String nombreCompleto;
     private String correo;
     private String rol;
+    private Integer idrol;
+    
     public Integer getIdusuario() {
         return idusuario;
     }
@@ -28,5 +30,11 @@ public class UsuarioResponseDTO {
     }
     public void setRol(String rol) {
         this.rol = rol;
+    }
+    public Integer getIdrol() {
+        return idrol;
+    }
+    public void setIdrol(Integer idrol) {
+        this.idrol = idrol;
     }
 }
