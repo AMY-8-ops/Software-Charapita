@@ -43,57 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- LÓGICA DEL HEADER Y PERMISOS ---
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-
-            // Ocultar opciones de menú no autorizadas y verificar ruta actual
-            if (user.permisos) {
-                document.querySelectorAll('.menu-item').forEach(link => {
-                    const mod = link.getAttribute('data-module');
-                    if (mod && mod !== 'dashboard' && user.permisos[mod] === false) {
-                        link.parentElement.style.display = 'none'; // Ocultar el <li>
-                    }
-                });
-
-                // Protección de ruta (Frontend)
-                const currentMenu = document.querySelector(`.menu-item[href="${currentPath}"]`);
-                if (currentMenu) {
-                    const mod = currentMenu.getAttribute('data-module');
-                    if (mod && mod !== 'dashboard' && user.permisos[mod] === false) {
-                        alert('No tienes permiso para acceder a este módulo.');
-                        window.location.href = '/dashboard.html';
-                    }
-                }
-            }
-
-            const userNameEl = document.getElementById('header-user-name');
-            const userRoleEl = document.getElementById('header-user-role');
-            if (userNameEl) userNameEl.innerText = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
-            if (userRoleEl) userRoleEl.innerText = user.rol || 'Vendedor';
-        }
-
-        // Fecha actual
-        const now = new Date();
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const datetimeEl = document.getElementById('header-datetime');
-        if (datetimeEl) datetimeEl.innerText = now.toLocaleDateString('es-ES', dateOptions);
-
-        // Lógica de Logout
-        const btnLogout = document.getElementById('btn-logout');
-        if (btnLogout) {
-            btnLogout.addEventListener('click', () => {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                if (user && user.idrol === 3 && window.cajaEstaAbierta) {
-                    alert('Error de seguridad: Eres un cajero y la caja se encuentra abierta. Cierra la caja antes de cerrar sesión.');
-                    return;
-                }
-                localStorage.removeItem('user');
-                window.location.href = '/login.html';
-            });
-        }
-
         // Estado de la Caja
         window.cajaEstaAbierta = false; // Variable global para usar en logout
         fetch('/api/movimientoscaja')
@@ -101,6 +50,67 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 const isOpen = data.some(m => !m.fhCierre);
                 window.cajaEstaAbierta = isOpen; // Actualizamos el estado
+
+                // --- LÓGICA DE PERMISOS Y CAJA ---
+                const userStr = localStorage.getItem('user');
+                if (userStr) {
+                    const user = JSON.parse(userStr);
+
+                    if (user.permisos) {
+                        document.querySelectorAll('.menu-item').forEach(link => {
+                            const mod = link.getAttribute('data-module');
+                            
+                            // 1. Ocultar si no tiene permiso
+                            let hasPermission = mod === 'dashboard' || user.permisos[mod] !== false;
+                            
+                            // 2. Regla especial: Cajero (idrol 3) con caja cerrada
+                            if (user.idrol === 3 && !isOpen) {
+                                if (mod && mod !== 'dashboard' && mod !== 'modCaja') {
+                                    hasPermission = false;
+                                }
+                            }
+
+                            if (!hasPermission) {
+                                link.parentElement.style.display = 'none';
+                            }
+                        });
+
+                        // Protección de ruta (Frontend)
+                        const currentMenu = document.querySelector(`.menu-item[href="${currentPath}"]`);
+                        if (currentMenu) {
+                            const mod = currentMenu.getAttribute('data-module');
+                            let allowed = mod === 'dashboard' || user.permisos[mod] !== false;
+                            
+                            if (user.idrol === 3 && !isOpen && mod && mod !== 'dashboard' && mod !== 'modCaja') {
+                                allowed = false;
+                            }
+
+                            if (!allowed) {
+                                if (user.idrol === 3 && !isOpen) {
+                                    alert('Debes abrir la caja antes de realizar ventas u otras acciones.');
+                                    window.location.href = '/caja/index.html';
+                                } else {
+                                    alert('No tienes permiso para acceder a este módulo.');
+                                    window.location.href = '/dashboard.html';
+                                }
+                            }
+                        }
+                    }
+
+                    const userNameEl = document.getElementById('header-user-name');
+                    const userRoleEl = document.getElementById('header-user-role');
+                    if (userNameEl) userNameEl.innerText = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
+                    if (userRoleEl) userRoleEl.innerText = user.rol || 'Vendedor';
+                    
+                    // --- RELLENAR VENDEDOR EN NUEVA VENTA (CONFIRMACIÓN) ---
+                    const confirmVendedorDisplay = document.getElementById('confirmVendedorDisplay');
+                    const confirmVendedorSelect = document.getElementById('confirmVendedorSelect');
+                    if (confirmVendedorDisplay && confirmVendedorSelect) {
+                        confirmVendedorDisplay.value = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
+                        confirmVendedorSelect.value = user.idusuario;
+                    }
+                }
+                // ---------------------------------
 
                 const icon = document.getElementById('header-caja-icon');
                 const title = document.getElementById('header-caja-title');
@@ -121,6 +131,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         container.style.color = '#c62828';
                         icon.style.color = '#c62828';
                     }
+                }
+
+                // Fecha actual
+                const now = new Date();
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const datetimeEl = document.getElementById('header-datetime');
+                if (datetimeEl) datetimeEl.innerText = now.toLocaleDateString('es-ES', dateOptions);
+
+                // Lógica de Logout
+                const btnLogout = document.getElementById('btn-logout');
+                if (btnLogout) {
+                    btnLogout.addEventListener('click', () => {
+                        const userStr = localStorage.getItem('user');
+                        const user = JSON.parse(userStr || '{}');
+                        if (user && user.idrol === 3 && window.cajaEstaAbierta) {
+                            alert('Error de seguridad: Eres un cajero y la caja se encuentra abierta. Cierra la caja antes de cerrar sesión.');
+                            return;
+                        }
+                        localStorage.removeItem('user');
+                        window.location.href = '/login.html';
+                    });
                 }
             })
             .catch(err => {

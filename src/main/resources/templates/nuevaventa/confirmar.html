@@ -283,9 +283,8 @@
                         <label class="cv-label">Vendedor</label>
                         <div class="cv-select-wrapper">
                             <i class="fa-regular fa-user cv-input-icon"></i>
-                            <select class="cv-select" id="confirmVendedorSelect">
-                                <option th:each="u : ${usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + (u.apellido != null ? u.apellido : '')}">Vendedor</option>
-                            </select>
+                            <input type="text" class="cv-select" id="confirmVendedorDisplay" disabled style="background-color: #f5f5f5; cursor: not-allowed; color: #666;" value="Cargando...">
+                            <input type="hidden" id="confirmVendedorSelect" value="">
                         </div>
                     </div>
                 </div>

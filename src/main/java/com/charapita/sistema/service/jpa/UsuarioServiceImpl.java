@@ -150,7 +150,7 @@ public class UsuarioServiceImpl implements IUsuarioService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Cambia a @Transactional si decides actualizar el "ultimo_acceso"
+    @Transactional
     public UsuarioResponseDTO login(String correo, String contrasena) {
         // 1. Buscamos el usuario por su correo
         Usuario usuario = usuarioRepository.findByCorreo(correo)
@@ -162,14 +162,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
             throw new IllegalArgumentException("El usuario se encuentra inactivo o ha sido eliminado.");
         }
 
-        // 3. Comparamos las contraseñas en TEXTO PLANO (Como lo solicitaste por ahora)
-        // A futuro, aquí usarás: if(!passwordEncoder.matches(contrasena,
-        // usuario.getContrasena()))
+        // 3. Comparamos las contraseñas en TEXTO PLANO
         if (!usuario.getContrasena().equals(contrasena)) {
             throw new IllegalArgumentException("Correo o contraseña incorrectos.");
         }
 
-        // 4. Si todo es correcto, devolvemos el DTO (sin la contraseña)
+        // 4. Actualizamos la fecha de último acceso
+        usuario.setUltimoAcceso(java.time.LocalDateTime.now());
+        usuarioRepository.save(usuario);
+
+        // 5. Devolvemos el DTO
         return convertirADTO(usuario);
     }
 }
