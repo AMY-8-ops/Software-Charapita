@@ -40,6 +40,14 @@ public class RolServiceImpl implements IRolService {
             existente.setEstado(rolRecibido.getEstado());
         }
 
+        if (rolRecibido.getModNuevaVenta() != null) existente.setModNuevaVenta(rolRecibido.getModNuevaVenta());
+        if (rolRecibido.getModClientes() != null) existente.setModClientes(rolRecibido.getModClientes());
+        if (rolRecibido.getModProductos() != null) existente.setModProductos(rolRecibido.getModProductos());
+        if (rolRecibido.getModVentasHistorial() != null) existente.setModVentasHistorial(rolRecibido.getModVentasHistorial());
+        if (rolRecibido.getModReportes() != null) existente.setModReportes(rolRecibido.getModReportes());
+        if (rolRecibido.getModCaja() != null) existente.setModCaja(rolRecibido.getModCaja());
+        if (rolRecibido.getModConfiguracion() != null) existente.setModConfiguracion(rolRecibido.getModConfiguracion());
+
         return rolRepository.save(existente);
     }
 

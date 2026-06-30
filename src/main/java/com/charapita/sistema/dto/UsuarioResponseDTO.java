@@ -6,7 +6,15 @@ public class UsuarioResponseDTO {
     private String correo;
     private String rol;
     private Integer idrol;
+    private RolPermisosDTO permisos;
     
+    public RolPermisosDTO getPermisos() {
+        return permisos;
+    }
+    public void setPermisos(RolPermisosDTO permisos) {
+        this.permisos = permisos;
+    }
+
     public Integer getIdusuario() {
         return idusuario;
     }

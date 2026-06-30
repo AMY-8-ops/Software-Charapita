@@ -43,10 +43,31 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- LÓGICA DEL HEADER ---
+        // --- LÓGICA DEL HEADER Y PERMISOS ---
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
+
+            // Ocultar opciones de menú no autorizadas y verificar ruta actual
+            if (user.permisos) {
+                document.querySelectorAll('.menu-item').forEach(link => {
+                    const mod = link.getAttribute('data-module');
+                    if (mod && mod !== 'dashboard' && user.permisos[mod] === false) {
+                        link.parentElement.style.display = 'none'; // Ocultar el <li>
+                    }
+                });
+
+                // Protección de ruta (Frontend)
+                const currentMenu = document.querySelector(`.menu-item[href="${currentPath}"]`);
+                if (currentMenu) {
+                    const mod = currentMenu.getAttribute('data-module');
+                    if (mod && mod !== 'dashboard' && user.permisos[mod] === false) {
+                        alert('No tienes permiso para acceder a este módulo.');
+                        window.location.href = '/dashboard.html';
+                    }
+                }
+            }
+
             const userNameEl = document.getElementById('header-user-name');
             const userRoleEl = document.getElementById('header-user-role');
             if (userNameEl) userNameEl.innerText = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
@@ -4106,6 +4127,65 @@ document.addEventListener('DOMContentLoaded', () => {
                         document.body.removeChild(container);
                         reject(err);
                     });
+            }
+        });
+    }
+
+    // === LÓGICA DE ROLES Y PERMISOS (CONFIGURACIÓN) ===
+    const btnGuardarPermisos = document.getElementById('btnGuardarPermisos');
+    if (btnGuardarPermisos) {
+        // 1. Toggle visual
+        document.querySelectorAll('.permiso-toggle').forEach(icon => {
+            icon.addEventListener('click', function() {
+                if (this.classList.contains('fa-circle-check')) {
+                    this.classList.replace('fa-circle-check', 'fa-circle-xmark');
+                    this.classList.replace('conf-icon-check', 'conf-icon-cross');
+                } else {
+                    this.classList.replace('fa-circle-xmark', 'fa-circle-check');
+                    this.classList.replace('conf-icon-cross', 'conf-icon-check');
+                }
+            });
+        });
+
+        // 2. Guardar cambios
+        btnGuardarPermisos.addEventListener('click', async () => {
+            const rows = document.querySelectorAll('.rol-permiso-row');
+            let successCount = 0;
+            let errorCount = 0;
+
+            btnGuardarPermisos.disabled = true;
+            btnGuardarPermisos.innerText = 'Guardando...';
+
+            for (const row of rows) {
+                const idrol = row.getAttribute('data-idrol');
+                const payload = { idrol: parseInt(idrol) };
+                
+                row.querySelectorAll('.permiso-toggle').forEach(icon => {
+                    const fieldName = icon.getAttribute('data-field');
+                    const isChecked = icon.classList.contains('fa-circle-check');
+                    payload[fieldName] = isChecked;
+                });
+
+                try {
+                    const res = await fetch('/api/roles', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) successCount++;
+                    else errorCount++;
+                } catch (e) {
+                    errorCount++;
+                }
+            }
+
+            btnGuardarPermisos.disabled = false;
+            btnGuardarPermisos.innerText = 'Guardar Permisos';
+
+            if (errorCount === 0) {
+                alert('Todos los permisos se guardaron correctamente. Los usuarios verán los cambios en su próximo inicio de sesión o al recargar la página.');
+            } else {
+                alert(`Se guardaron ${successCount} roles, pero hubo ${errorCount} errores.`);
             }
         });
     }

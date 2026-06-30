@@ -19,6 +19,14 @@ public class Rol {
     private String nombre;
     private Boolean estado;
 
+    private Boolean modNuevaVenta = false;
+    private Boolean modClientes = false;
+    private Boolean modProductos = false;
+    private Boolean modVentasHistorial = false;
+    private Boolean modReportes = false;
+    private Boolean modCaja = false;
+    private Boolean modConfiguracion = false;
+
     public Integer getIdrol() {
         return idrol;
     }
@@ -43,32 +51,60 @@ public class Rol {
         this.estado = estado;
     }
 
-    public boolean hasNuevaVenta() {
-        return true;
+    public Boolean getModNuevaVenta() {
+        return modNuevaVenta;
     }
 
-    public boolean hasClientes() {
-        return true;
+    public void setModNuevaVenta(Boolean modNuevaVenta) {
+        this.modNuevaVenta = modNuevaVenta;
     }
 
-    public boolean hasProductos() {
-        return true;
+    public Boolean getModClientes() {
+        return modClientes;
     }
 
-    public boolean hasVentasHistorial() {
-        return true;
+    public void setModClientes(Boolean modClientes) {
+        this.modClientes = modClientes;
     }
 
-    public boolean hasReportes() {
-        return true;
+    public Boolean getModProductos() {
+        return modProductos;
     }
 
-    public boolean hasCaja() {
-        return true;
+    public void setModProductos(Boolean modProductos) {
+        this.modProductos = modProductos;
     }
 
-    public boolean hasConfiguracion() {
-        return true;
+    public Boolean getModVentasHistorial() {
+        return modVentasHistorial;
+    }
+
+    public void setModVentasHistorial(Boolean modVentasHistorial) {
+        this.modVentasHistorial = modVentasHistorial;
+    }
+
+    public Boolean getModReportes() {
+        return modReportes;
+    }
+
+    public void setModReportes(Boolean modReportes) {
+        this.modReportes = modReportes;
+    }
+
+    public Boolean getModCaja() {
+        return modCaja;
+    }
+
+    public void setModCaja(Boolean modCaja) {
+        this.modCaja = modCaja;
+    }
+
+    public Boolean getModConfiguracion() {
+        return modConfiguracion;
+    }
+
+    public void setModConfiguracion(Boolean modConfiguracion) {
+        this.modConfiguracion = modConfiguracion;
     }
 
     @Override

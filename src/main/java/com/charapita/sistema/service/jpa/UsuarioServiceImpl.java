@@ -128,6 +128,18 @@ public class UsuarioServiceImpl implements IUsuarioService {
         dto.setCorreo(u.getCorreo());
         dto.setRol(u.getRol().getNombre());
         dto.setIdrol(u.getRol().getIdrol());
+
+        com.charapita.sistema.dto.RolPermisosDTO permisos = new com.charapita.sistema.dto.RolPermisosDTO();
+        permisos.setModNuevaVenta(u.getRol().getModNuevaVenta() != null ? u.getRol().getModNuevaVenta() : false);
+        permisos.setModClientes(u.getRol().getModClientes() != null ? u.getRol().getModClientes() : false);
+        permisos.setModProductos(u.getRol().getModProductos() != null ? u.getRol().getModProductos() : false);
+        permisos.setModVentasHistorial(u.getRol().getModVentasHistorial() != null ? u.getRol().getModVentasHistorial() : false);
+        permisos.setModReportes(u.getRol().getModReportes() != null ? u.getRol().getModReportes() : false);
+        permisos.setModCaja(u.getRol().getModCaja() != null ? u.getRol().getModCaja() : false);
+        permisos.setModConfiguracion(u.getRol().getModConfiguracion() != null ? u.getRol().getModConfiguracion() : false);
+        
+        dto.setPermisos(permisos);
+
         return dto;
     }
 

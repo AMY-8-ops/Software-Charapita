@@ -1,49 +1,49 @@
 <aside class="main-sidebar" xmlns:th="http://www.thymeleaf.org">
     <ul class="menu-list">
         <li>
-            <a th:href="@{/dashboard}" href="/dashboard.html" class="menu-item">
+            <a th:href="@{/dashboard}" href="/dashboard.html" class="menu-item" data-module="dashboard">
                 <i class="fa-solid fa-house"></i>
                 <span class="menu-text">Dashboard<br><small>(Inicio)</small></span>
             </a>
         </li>
         <li>
-            <a th:href="@{/nuevaventa}" href="/nuevaventa/index.html" class="menu-item">
+            <a th:href="@{/nuevaventa}" href="/nuevaventa/index.html" class="menu-item" data-module="modNuevaVenta">
                 <i class="fa-solid fa-cart-shopping"></i>
                 <span class="menu-text">Nueva Venta<br><small>(Punto de Venta)</small></span>
             </a>
         </li>
         <li>
-            <a th:href="@{/historial}" href="/historial/index.html" class="menu-item">
+            <a th:href="@{/historial}" href="/historial/index.html" class="menu-item" data-module="modVentasHistorial">
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 <span class="menu-text">Ventas/Historial</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/cliente}" href="/cliente/index.html" class="menu-item">
+            <a th:href="@{/cliente}" href="/cliente/index.html" class="menu-item" data-module="modClientes">
                 <i class="fa-solid fa-users"></i>
                 <span class="menu-text">Clientes</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/producto}" href="/producto/index.html" class="menu-item">
+            <a th:href="@{/producto}" href="/producto/index.html" class="menu-item" data-module="modProductos">
                 <i class="fa-solid fa-store"></i>
                 <span class="menu-text">Productos/<br><small>Precios</small></span>
             </a>
         </li>
         <li>
-            <a th:href="@{/caja}" href="/caja/index.html" class="menu-item">
+            <a th:href="@{/caja}" href="/caja/index.html" class="menu-item" data-module="modCaja">
                 <i class="fa-solid fa-cash-register"></i>
                 <span class="menu-text">Caja<br><small>(Apertura / Cierre)</small></span>
             </a>
         </li>
         <li>
-            <a th:href="@{/reporte}" href="/reporte/index.html" class="menu-item">
+            <a th:href="@{/reporte}" href="/reporte/index.html" class="menu-item" data-module="modReportes">
                 <i class="fa-solid fa-chart-simple"></i>
                 <span class="menu-text">Reportes</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/configuracion}" href="/configuracion/index.html" class="menu-item">
+            <a th:href="@{/configuracion}" href="/configuracion/index.html" class="menu-item" data-module="modConfiguracion">
                 <i class="fa-solid fa-gear"></i>
                 <span class="menu-text">Configuración<br><small>(Usuarios y Perfiles)</small></span>
             </a>

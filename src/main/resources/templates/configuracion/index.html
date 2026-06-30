@@ -153,13 +153,13 @@
                     <div class="conf-section-header">
                         <div>
                             <h3 class="conf-section-title" style="margin-bottom: 5px;">Roles y Permisos</h3>
-                            <p class="conf-section-subtitle">Define qué puede hacer cada rol en el sistema.</p>
+                            <p class="conf-section-subtitle">Haz clic en los íconos para cambiar el estado y luego en Guardar Permisos.</p>
                         </div>
-                        <button class="conf-btn-outline">Editar Permisos</button>
+                        <button class="conf-btn-outline" id="btnGuardarPermisos" style="background-color: #28a745; color: white; border: none;">Guardar Permisos</button>
                     </div>
 
                     <div class="conf-table-wrapper">
-                        <table class="conf-table conf-table-center">
+                        <table class="conf-table conf-table-center" id="tablaRolesPermisos">
                             <thead>
                                 <tr>
                                     <th style="text-align: left;">Rol</th>
@@ -173,32 +173,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="r : ${roles}">
+                                <tr th:each="r : ${roles}" th:data-idrol="${r.idrol}" class="rol-permiso-row">
                                     <td style="text-align: left;">
                                         <span class="conf-badge"
                                             th:classappend="${r.nombre == 'ADMINISTRADOR'} ? 'conf-badge-admin' : 'conf-badge-cajero'"
                                             th:text="${r.nombre}">Rol</span>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasNuevaVenta()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modNuevaVenta"
+                                            th:classappend="${r.modNuevaVenta != null && r.modNuevaVenta} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasClientes()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modClientes"
+                                            th:classappend="${r.modClientes != null && r.modClientes} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasProductos()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modProductos"
+                                            th:classappend="${r.modProductos != null && r.modProductos} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasVentasHistorial()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modVentasHistorial"
+                                            th:classappend="${r.modVentasHistorial != null && r.modVentasHistorial} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasReportes()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modReportes"
+                                            th:classappend="${r.modReportes != null && r.modReportes} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasCaja()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modCaja"
+                                            th:classappend="${r.modCaja != null && r.modCaja} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
-                                    <td><i
-                                            th:class="${r.hasConfiguracion()} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'"></i>
+                                    <td><i class="permiso-toggle" data-field="modConfiguracion"
+                                            th:classappend="${r.modConfiguracion != null && r.modConfiguracion} ? 'fa-solid fa-circle-check conf-icon-check' : 'fa-solid fa-circle-xmark conf-icon-cross'" style="cursor: pointer; font-size: 1.2rem;"></i>
                                     </td>
                                 </tr>
                             </tbody>
