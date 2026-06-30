@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.charapita.sistema.dto.LoginRequestDTO;
 import com.charapita.sistema.dto.UsuarioResponseDTO;
 import com.charapita.sistema.entity.Usuario;
 import com.charapita.sistema.service.IUsuarioService;
@@ -48,7 +49,7 @@ public class UsuarioController {
         if (usuario.getIdusuario() == null) {
             return ResponseEntity.badRequest().body("Error: El ID del usuario es requerido para modificar.");
         }
-        
+
         try {
             Usuario actualizado = serviceUsuario.actualizar(usuario.getIdusuario(), usuario);
             return ResponseEntity.ok(actualizado);
@@ -57,7 +58,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable("id") Integer id) {
         try {
@@ -67,8 +68,22 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping
     public ResponseEntity<String> eliminarSinId() {
-        return ResponseEntity.badRequest().body("Error: El ID es obligatorio en la URL para poder eliminar un registro.");
+        return ResponseEntity.badRequest()
+                .body("Error: El ID es obligatorio en la URL para poder eliminar un registro.");
+    }
+
+    /* lOGIN UWU */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+        try {
+            UsuarioResponseDTO response = serviceUsuario.login(loginRequest.getCorreo(), loginRequest.getContrasena());
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // Devolvemos un 401 Unauthorized si las credenciales son incorrectas
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 }

@@ -14,18 +14,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+
 import com.charapita.sistema.dto.ProductoResponseDTO;
 import com.charapita.sistema.entity.Producto;
 import com.charapita.sistema.service.IProductoService;
+import com.charapita.sistema.service.CloudinaryService;
 
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
 
     private final IProductoService serviceProducto;
+    private final CloudinaryService cloudinaryService;
 
-    public ProductoController(IProductoService serviceProducto) {
+    public ProductoController(IProductoService serviceProducto, CloudinaryService cloudinaryService) {
         this.serviceProducto = serviceProducto;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping
@@ -33,34 +40,48 @@ public class ProductoController {
         return ResponseEntity.ok(serviceProducto.listarTodosActivos());
     }
 
-    @PostMapping
-    public ResponseEntity<?> guardar(@RequestBody Producto producto) {
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> guardar(
+            @RequestPart("producto") Producto producto,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
         try {
+            if (imagen != null && !imagen.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(imagen);
+                producto.setImagenUrl(imageUrl);
+            }
             Producto nuevoProducto = serviceProducto.guardar(producto);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoProducto);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | java.io.IOException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping
-    public ResponseEntity<?> modificar(@RequestBody Producto producto) {
+    @PutMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<?> modificar(
+            @RequestPart("producto") Producto producto,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
         // 1. Validamos que desde Postman nos envíen el ID sí o sí
         if (producto.getIdproducto() == null) {
             return ResponseEntity.badRequest().body("Error: El ID del producto es requerido para modificar.");
         }
-        
+
         try {
+            if (imagen != null && !imagen.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(imagen);
+                producto.setImagenUrl(imageUrl);
+            }
             // 2. Llamamos al método actualizar que creamos en el Service
             Producto actualizado = serviceProducto.actualizar(producto.getIdproducto(), producto);
             return ResponseEntity.ok(actualizado);
-        } catch (IllegalArgumentException e) {
-            // 3. Si la categoría o presentación no existen/están inactivas, lo atrapamos aquí
+        } catch (IllegalArgumentException | java.io.IOException e) {
+            // 3. Si la categoría o presentación no existen/están inactivas, lo atrapamos
+            // aquí
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // Ruta para desactivar/activar producto usando RequestParam (ej. /api/productos/5/estado?estado=false)
+    // Ruta para desactivar/activar producto usando RequestParam (ej.
+    // /api/productos/5/estado?estado=false)
     @PutMapping("/{id}/estado")
     public ResponseEntity<String> cambiarEstado(@PathVariable("id") Integer id, @RequestParam boolean estado) {
         try {
@@ -70,10 +91,13 @@ public class ProductoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping
     public ResponseEntity<String> eliminarSinId() {
-        return ResponseEntity.badRequest().body("Error: El ID es obligatorio en la URL para poder eliminar un registro.");
+        return ResponseEntity.badRequest()
+                .body("Error: El ID es obligatorio en la URL para poder eliminar un registro.");
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable("id") Integer id) {
         try {
@@ -82,7 +106,7 @@ public class ProductoController {
             return ResponseEntity.ok("Registro eliminado correctamente.");
         } catch (IllegalArgumentException e) {
             // ¡AQUÍ ESTÁ EL CONTROL!
-            // Si el servicio no encuentra el ID y lanza el IllegalArgumentException, 
+            // Si el servicio no encuentra el ID y lanza el IllegalArgumentException,
             // lo atrapamos y devolvemos un 400 con tu mensaje personalizado.
             return ResponseEntity.badRequest().body(e.getMessage());
         }

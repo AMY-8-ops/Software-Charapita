@@ -96,6 +96,8 @@ public class ProductoServiceImpl implements IProductoService {
 
         if (productoRecibido.getNombre() != null) existente.setNombre(productoRecibido.getNombre());
         if (productoRecibido.getPrecio() != null) existente.setPrecio(productoRecibido.getPrecio());
+        if (productoRecibido.getDescripcion() != null) existente.setDescripcion(productoRecibido.getDescripcion());
+        if (productoRecibido.getImagenUrl() != null) existente.setImagenUrl(productoRecibido.getImagenUrl());
 
         // Validamos la Categoría si intentan cambiarla
         if (productoRecibido.getCategoria() != null && productoRecibido.getCategoria().getIdcategoria() != null) {

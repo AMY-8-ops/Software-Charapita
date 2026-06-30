@@ -31,7 +31,6 @@ import com.charapita.sistema.repository.DetalleVentaRepository;
 import com.charapita.sistema.repository.InventarioRepository;
 import com.charapita.sistema.repository.MermaRepository;
 import com.charapita.sistema.repository.MotivoMermaRepository;
-import com.charapita.sistema.repository.PermisoRepository;
 import com.charapita.sistema.repository.PresentacionRepository;
 import com.charapita.sistema.repository.ProductoRepository;
 import com.charapita.sistema.repository.RolRepository;
@@ -52,7 +51,6 @@ public class ViewController {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
-    private final PermisoRepository permisoRepository;
     private final InventarioRepository inventarioRepository;
     private final ProductoRepository productoRepository;
     private final CategoriaRepository categoriaRepository;
@@ -71,7 +69,7 @@ public class ViewController {
     private final IMermaService serviceMerma;
 
     public ViewController(UsuarioRepository usuarioRepository, RolRepository rolRepository,
-            PermisoRepository permisoRepository, InventarioRepository inventarioRepository,
+            InventarioRepository inventarioRepository,
             ProductoRepository productoRepository, CategoriaRepository categoriaRepository,
             PresentacionRepository presentacionRepository, MermaRepository mermaRepository,
             MotivoMermaRepository motivoMermaRepository, ClienteRepository clienteRepository,
@@ -81,7 +79,6 @@ public class ViewController {
             MetodoPagoRepository metodoPagoRepository, IVentaService serviceVenta, IMermaService serviceMerma) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
-        this.permisoRepository = permisoRepository;
         this.inventarioRepository = inventarioRepository;
         this.productoRepository = productoRepository;
         this.categoriaRepository = categoriaRepository;
@@ -363,7 +360,7 @@ public class ViewController {
 
         long totalUsuarios = listUsuarios.size();
         long totalRoles = rolRepository.count();
-        long totalPermisos = permisoRepository.count();
+        long totalPermisos = 0;
 
         Usuario ultimoAccesoUser = listUsuarios.stream()
                 .filter(u -> u.getUltimoAcceso() != null)

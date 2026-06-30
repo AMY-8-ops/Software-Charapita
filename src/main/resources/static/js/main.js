@@ -394,13 +394,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 payload.idproducto = parseInt(id);
             }
 
+            const formData = new FormData();
+            formData.append('producto', new Blob([JSON.stringify(payload)], { type: 'application/json' }));
+            
+            const imagenInput = document.getElementById('prodFormImagen');
+            if (imagenInput && imagenInput.files.length > 0) {
+                formData.append('imagen', imagenInput.files[0]);
+            }
+
             prodFormSaveBtn.disabled = true;
             prodFormSaveBtn.innerText = 'Guardando...';
 
             fetch('/api/productos', {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: formData
             })
                 .then(res => {
                     if (!res.ok) {

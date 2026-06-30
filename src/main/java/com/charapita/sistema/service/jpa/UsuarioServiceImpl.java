@@ -49,17 +49,20 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
         Integer idRolAsignado = usuario.getRol().getIdrol();
         Rol rolBD = rolRepository.findById(idRolAsignado)
-                .orElseThrow(() -> new IllegalArgumentException("Error: El Rol con ID [" + idRolAsignado + "] no existe. Registra el rol primero."));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Error: El Rol con ID [" + idRolAsignado + "] no existe. Registra el rol primero."));
 
         if (rolBD.getEstado() != null && !rolBD.getEstado()) {
-            throw new IllegalArgumentException("Error: El Rol con ID [" + idRolAsignado + "] se encuentra inactivo. No se puede asignar.");
+            throw new IllegalArgumentException(
+                    "Error: El Rol con ID [" + idRolAsignado + "] se encuentra inactivo. No se puede asignar.");
         }
         // --- FIN: VALIDACIÓN DEFENSIVA DEL ROL ---
-        
+
         usuario.setEstado(1); // 1 = Activo
         usuario.setEliminado(false);
-        // Aquí a futuro deberías aplicar: usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
-        
+        // Aquí a futuro deberías aplicar:
+        // usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+
         return usuarioRepository.save(usuario);
     }
 
@@ -71,12 +74,17 @@ public class UsuarioServiceImpl implements IUsuarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         // 2. Actualización inteligente (Patching)
-        if (usuarioRecibido.getNombre() != null) existente.setNombre(usuarioRecibido.getNombre());
-        if (usuarioRecibido.getApellido() != null) existente.setApellido(usuarioRecibido.getApellido());
-        if (usuarioRecibido.getDireccion() != null) existente.setDireccion(usuarioRecibido.getDireccion());
-        if (usuarioRecibido.getCorreo() != null) existente.setCorreo(usuarioRecibido.getCorreo());
-        
-        // 3. Validación especial para el DNI: Si lo quiere cambiar, verificamos que no lo tenga otro
+        if (usuarioRecibido.getNombre() != null)
+            existente.setNombre(usuarioRecibido.getNombre());
+        if (usuarioRecibido.getApellido() != null)
+            existente.setApellido(usuarioRecibido.getApellido());
+        if (usuarioRecibido.getDireccion() != null)
+            existente.setDireccion(usuarioRecibido.getDireccion());
+        if (usuarioRecibido.getCorreo() != null)
+            existente.setCorreo(usuarioRecibido.getCorreo());
+
+        // 3. Validación especial para el DNI: Si lo quiere cambiar, verificamos que no
+        // lo tenga otro
         if (usuarioRecibido.getDni() != null && !usuarioRecibido.getDni().equals(existente.getDni())) {
             if (usuarioRepository.existsByDni(usuarioRecibido.getDni())) {
                 throw new IllegalArgumentException("Error: El nuevo DNI ya se encuentra registrado por otro usuario.");
@@ -88,10 +96,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
         if (usuarioRecibido.getRol() != null && usuarioRecibido.getRol().getIdrol() != null) {
             Integer idRolAsignado = usuarioRecibido.getRol().getIdrol();
             Rol rolBD = rolRepository.findById(idRolAsignado)
-                    .orElseThrow(() -> new IllegalArgumentException("Error: El Rol con ID [" + idRolAsignado + "] no existe."));
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Error: El Rol con ID [" + idRolAsignado + "] no existe."));
 
             if (rolBD.getEstado() != null && !rolBD.getEstado()) {
-                throw new IllegalArgumentException("Error: El Rol con ID [" + idRolAsignado + "] se encuentra inactivo. No se puede asignar.");
+                throw new IllegalArgumentException(
+                        "Error: El Rol con ID [" + idRolAsignado + "] se encuentra inactivo. No se puede asignar.");
             }
             existente.setRol(rolBD); // Asignamos el rol validado
         }
@@ -99,13 +109,13 @@ public class UsuarioServiceImpl implements IUsuarioService {
         // Guardamos los cambios
         return usuarioRepository.save(existente);
     }
-    
+
     @Override
     @Transactional
     public void eliminarLogico(Integer id) {
         Usuario existente = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
-        
+
         existente.setEliminado(true);
         existente.setEstado(0);
         usuarioRepository.save(existente);
@@ -119,10 +129,34 @@ public class UsuarioServiceImpl implements IUsuarioService {
         dto.setRol(u.getRol().getNombre());
         return dto;
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public Optional<Usuario> buscarPorCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo);
+    }
+
+    @Override
+    @Transactional(readOnly = true) // Cambia a @Transactional si decides actualizar el "ultimo_acceso"
+    public UsuarioResponseDTO login(String correo, String contrasena) {
+        // 1. Buscamos el usuario por su correo
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new IllegalArgumentException("Correo o contraseña incorrectos."));
+
+        // 2. Verificamos que el usuario no esté eliminado o inactivo
+        if (usuario.getEliminado() != null && usuario.getEliminado() ||
+                usuario.getEstado() != null && usuario.getEstado() == 0) {
+            throw new IllegalArgumentException("El usuario se encuentra inactivo o ha sido eliminado.");
+        }
+
+        // 3. Comparamos las contraseñas en TEXTO PLANO (Como lo solicitaste por ahora)
+        // A futuro, aquí usarás: if(!passwordEncoder.matches(contrasena,
+        // usuario.getContrasena()))
+        if (!usuario.getContrasena().equals(contrasena)) {
+            throw new IllegalArgumentException("Correo o contraseña incorrectos.");
+        }
+
+        // 4. Si todo es correcto, devolvemos el DTO (sin la contraseña)
+        return convertirADTO(usuario);
     }
 }

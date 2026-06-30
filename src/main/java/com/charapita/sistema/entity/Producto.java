@@ -22,6 +22,7 @@ public class Producto {
     private BigDecimal precio;
     private String descripcion;
     private Boolean estado;
+    private String imagenUrl;
 
     @ManyToOne
     @JoinColumn(name = "idcategoria")
@@ -109,10 +110,18 @@ public class Producto {
         return String.format("%s%03d", prefix.toUpperCase(), idproducto);
     }
 
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
+    }
+
     @Override
     public String toString() {
         return "Producto [idproducto=" + idproducto + ", nombre=" + nombre + ", precio=" + precio + ", descripcion="
-                + descripcion + ", estado=" + estado + ", categoria=" + categoria + ", presentacion=" + presentacion
-                + "]";
+                + descripcion + ", estado=" + estado + ", imagenUrl=" + imagenUrl + ", categoria=" + categoria
+                + ", presentacion=" + presentacion + ", stockMinimo=" + stockMinimo + "]";
     }
 }

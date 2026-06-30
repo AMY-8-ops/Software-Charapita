@@ -43,7 +43,7 @@
                          th:data-unidad="${i.producto.presentacion != null ? i.producto.presentacion.descripcion : 'unidades'}" 
                          th:data-categoria="${i.producto.categoria != null ? i.producto.categoria.idcategoria : ''}">
                         <div class="pos-card-body">
-                            <img th:src="@{/img/placeholder-prod.png}" src="/img/placeholder-prod.png" th:alt="${i.producto.nombre}">
+                            <img th:src="${!#strings.isEmpty(i.producto.imagenUrl) ? i.producto.imagenUrl : '/img/placeholder-prod.png'}" th:alt="${i.producto.nombre}">
                             <div class="pos-prod-info">
                                 <h4 th:text="${i.producto.nombre}">[producto]</h4>
                                 <small th:text="'Codigo: ' + ${i.producto.getCodigo()}">Codigo: [codigo]</small>
