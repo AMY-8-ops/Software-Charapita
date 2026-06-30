@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Caja - Charapita SAC</title>
-    
+
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
     <div id="header-container"></div>
     <div id="menu-container"></div>
 
     <main class="main-content">
-        
+
         <div class="caja-status-bar">
             <div class="caja-status-item">
                 <span class="caja-label">Estado actual:</span>
@@ -31,17 +33,20 @@
             </div>
             <div th:if="${is_abierta}" class="caja-status-item caja-border-left">
                 <span class="caja-label">Apertura realizada:</span>
-                <strong><i class="fa-regular fa-calendar"></i> <span th:text="${fecha_apertura}">23/06/2026 08:30</span></strong>
+                <strong><i class="fa-regular fa-calendar"></i> <span th:text="${fecha_apertura}">23/06/2026
+                        08:30</span></strong>
             </div>
             <div th:if="${is_abierta}" class="caja-status-item caja-border-left">
                 <span class="caja-label">Monto inicial:</span>
-                <strong>S/ <span th:text="${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">200.00</span></strong>
+                <strong>S/ <span
+                        th:text="${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">200.00</span></strong>
             </div>
         </div>
 
         <div class="caja-action-panels">
-            
-            <section th:if="${is_abierta}" class="caja-panel caja-panel-cierre" th:data-id="${active_id}" id="panelCierreCaja">
+
+            <section th:if="${is_abierta}" class="caja-panel caja-panel-cierre" th:data-id="${active_id}"
+                id="panelCierreCaja">
                 <div class="caja-panel-header">
                     <i class="fa-solid fa-chart-simple caja-icon-green"></i>
                     <div>
@@ -52,55 +57,69 @@
 
                 <div class="caja-cierre-grid">
                     <div>
-                        <h4 class="caja-section-title"><i class="fa-solid fa-chart-column"></i> Resumen de Ventas del Turno</h4>
-                        
+                        <h4 class="caja-section-title"><i class="fa-solid fa-chart-column"></i> Resumen de Ventas del
+                            Turno</h4>
+
                         <div class="caja-row-flex">
                             <span>Ventas en Efectivo</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span
+                                th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/
+                                0.00</span>
                         </div>
                         <div class="caja-row-flex">
                             <span>Ventas Electrónicas (Yape/Plin/Tarjeta)</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_electronicas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span
+                                th:text="'S/ ' + ${#numbers.formatDecimal(ventas_electronicas, 1, 'COMMA', 2, 'POINT')}">S/
+                                0.00</span>
                         </div>
                         <div class="caja-row-flex caja-total-row caja-text-green">
                             <span>TOTAL VENTAS DEL TURNO</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(total_ventas, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(total_ventas, 1, 'COMMA', 2, 'POINT')}">S/
+                                0.00</span>
                         </div>
 
                         <div class="caja-form-group caja-mt-20">
                             <label>Observaciones del Cierre (Opcional)</label>
-                            <textarea class="caja-textarea" id="textareaObsCierre" placeholder="Escribe alguna observación sobre el cierre de caja.."></textarea>
+                            <textarea class="caja-textarea" id="textareaObsCierre"
+                                placeholder="Escribe alguna observación sobre el cierre de caja.."></textarea>
                         </div>
                     </div>
 
                     <div>
-                        <h4 class="caja-section-title"><i class="fa-solid fa-calculator"></i> Cálculo de Cuadre de Efectivo</h4>
-                        
+                        <h4 class="caja-section-title"><i class="fa-solid fa-calculator"></i> Cálculo de Cuadre de
+                            Efectivo</h4>
+
                         <div class="caja-row-flex">
                             <span>Monto Inicial de Apertura</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_inicial, 1, 'COMMA', 2, 'POINT')}">S/
+                                0.00</span>
                         </div>
                         <div class="caja-row-flex">
                             <span>(+) Ventas en Efectivo</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                            <span
+                                th:text="'S/ ' + ${#numbers.formatDecimal(ventas_efectivo, 1, 'COMMA', 2, 'POINT')}">S/
+                                0.00</span>
                         </div>
-                        
+
                         <div class="caja-row-flex caja-total-row caja-text-green">
                             <span>MONTO ESPERADO EN CAJA</span>
-                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_esperado, 1, 'COMMA', 2, 'POINT')}" id="valMontoEsperado" th:data-esperado="${monto_esperado}">S/ 0.00</span>
+                            <span th:text="'S/ ' + ${#numbers.formatDecimal(monto_esperado, 1, 'COMMA', 2, 'POINT')}"
+                                id="valMontoEsperado" th:data-esperado="${monto_esperado}">S/ 0.00</span>
                         </div>
 
                         <div class="caja-form-group caja-mt-15">
                             <label>Monto Real en Efectivo (Contado fisico) <span class="caja-text-red">*</span></label>
                             <div class="caja-input-group">
                                 <span>S/</span>
-                                <input type="number" step="0.01" placeholder="0.00" class="caja-input" id="inputMontoReal" required>
+                                <input type="number" step="0.01" placeholder="0.00" class="caja-input"
+                                    id="inputMontoReal" required>
                             </div>
                         </div>
 
                         <div class="caja-form-group">
                             <label>DIFERENCIA (Sistema vs Contado)</label>
-                            <div class="caja-diferencia-box" id="boxDiferencia" style="background: #f4f6f9; color: #555; padding: 10px; border-radius: 4px; font-weight: bold; text-align: center;">
+                            <div class="caja-diferencia-box" id="boxDiferencia"
+                                style="background: #f4f6f9; color: #555; padding: 10px; border-radius: 4px; font-weight: bold; text-align: center;">
                                 <span id="valDiferencia">S/ 0.00</span>
                             </div>
                         </div>
@@ -109,7 +128,8 @@
                             <i class="fa-solid fa-check"></i> Confirmar Cierre de Caja e Imprimir Reporte
                         </button>
                         <p class="caja-help-text">
-                            <i class="fa-solid fa-circle-info"></i> Al confirmar, se registrará el cierre y no podrás realizar mas ventas.
+                            <i class="fa-solid fa-circle-info"></i> Al confirmar, se registrará el cierre y no podrás
+                            realizar mas ventas.
                         </p>
                     </div>
                 </div>
@@ -127,33 +147,42 @@
                 <div class="caja-apertura-body">
                     <div class="caja-form-group">
                         <label>Cajero responsable*</label>
-                        <select class="caja-select" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;" id="selectCajero">
-                            <option th:each="u : ${usuarios}" th:value="${u.idusuario}" th:text="${u.nombre + ' ' + u.apellido}">Rachel Admin</option>
+                        <select class="caja-select"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;"
+                            id="selectCajero" disabled>
+                            <option th:each="u : ${usuarios}" th:value="${u.idusuario}"
+                                th:text="${u.nombre + ' ' + u.apellido}">Rachel Admin</option>
                         </select>
                     </div>
-                    
+
                     <div class="caja-form-group" style="margin-top: 10px;">
                         <label>Caja registradora*</label>
-                        <select class="caja-select" style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;" id="selectCaja">
-                            <option th:each="c : ${cajas}" th:value="${c.idcaja}" th:text="${c.nombre}">Caja Principal</option>
+                        <select class="caja-select"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid var(--color-borde); border-radius:4px; font-size:0.85rem;"
+                            id="selectCaja">
+                            <option th:each="c : ${cajas}" th:value="${c.idcaja}" th:text="${c.nombre}">Caja Principal
+                            </option>
                         </select>
                     </div>
 
                     <div class="caja-form-group" style="margin-top: 10px;">
                         <label>Monto Inicial de Apertura (S/)*</label>
                         <div class="caja-input-with-icon">
-                            <input type="number" step="0.01" placeholder="Ej: 200.00" class="caja-input" id="inputMontoInicial" required>
+                            <input type="number" step="0.01" placeholder="Ej: 200.00" class="caja-input"
+                                id="inputMontoInicial" required>
                             <i class="fa-solid fa-money-bill-1"></i>
                         </div>
                     </div>
 
                     <div class="caja-form-group" style="margin-top: 10px;">
                         <label>Observaciones de Apertura (Opcional)</label>
-                        <textarea class="caja-textarea" id="textareaObsApertura" placeholder="Escribe alguna observación sobre la apertura de caja.."></textarea>
+                        <textarea class="caja-textarea" id="textareaObsApertura"
+                            placeholder="Escribe alguna observación sobre la apertura de caja.."></textarea>
                     </div>
 
                     <div class="caja-alert-red">
-                        <i class="fa-solid fa-circle-exclamation"></i> Importante: Asegurate de contar el dinero inicial antes de abrir la caja.
+                        <i class="fa-solid fa-circle-exclamation"></i> Importante: Asegurate de contar el dinero inicial
+                        antes de abrir la caja.
                     </div>
 
                     <div class="caja-apertura-action">
@@ -197,25 +226,37 @@
                             <td th:text="${h.fechaApertura}">[fecha_apertura]</td>
                             <td th:text="${h.fechaCierre}">[fecha_cierre]</td>
                             <td th:text="${h.cajero}">[cajero]</td>
-                            <td th:text="'S/ ' + ${#numbers.formatDecimal(h.montoInicial, 1, 'COMMA', 2, 'POINT')}">S/[monto]</td>
-                            <td th:text="'S/ ' + ${#numbers.formatDecimal(h.ventasEfectivo, 1, 'COMMA', 2, 'POINT')}">S/[monto]</td>
-                            <td th:text="'S/ ' + ${#numbers.formatDecimal(h.ventasElectronicas, 1, 'COMMA', 2, 'POINT')}">S/[monto]</td>
-                            <td th:text="${h.estado == 'ABIERTA' ? '-' : 'S/ ' + #numbers.formatDecimal(h.montoFinal, 1, 'COMMA', 2, 'POINT')}">S/[monto]</td>
+                            <td th:text="'S/ ' + ${#numbers.formatDecimal(h.montoInicial, 1, 'COMMA', 2, 'POINT')}">
+                                S/[monto]</td>
+                            <td th:text="'S/ ' + ${#numbers.formatDecimal(h.ventasEfectivo, 1, 'COMMA', 2, 'POINT')}">
+                                S/[monto]</td>
+                            <td
+                                th:text="'S/ ' + ${#numbers.formatDecimal(h.ventasElectronicas, 1, 'COMMA', 2, 'POINT')}">
+                                S/[monto]</td>
+                            <td
+                                th:text="${h.estado == 'ABIERTA' ? '-' : 'S/ ' + #numbers.formatDecimal(h.montoFinal, 1, 'COMMA', 2, 'POINT')}">
+                                S/[monto]</td>
                             <td th:class="${h.diferencia < 0 ? 'caja-text-red' : (h.diferencia > 0 ? 'caja-text-green' : '')}"
-                                th:text="${h.estado == 'ABIERTA' ? '-' : (h.diferencia >= 0 ? '+' : '') + 'S/ ' + #numbers.formatDecimal(h.diferencia, 1, 'COMMA', 2, 'POINT')}">S/[dif]</td>
+                                th:text="${h.estado == 'ABIERTA' ? '-' : (h.diferencia >= 0 ? '+' : '') + 'S/ ' + #numbers.formatDecimal(h.diferencia, 1, 'COMMA', 2, 'POINT')}">
+                                S/[dif]</td>
                             <td>
-                                <span th:if="${h.estado == 'ABIERTA'}" class="caja-badge-table caja-bg-abierta">ABIERTA</span>
-                                <span th:unless="${h.estado == 'ABIERTA'}" class="caja-badge-table caja-bg-cerrada">CERRADA</span>
+                                <span th:if="${h.estado == 'ABIERTA'}"
+                                    class="caja-badge-table caja-bg-abierta">ABIERTA</span>
+                                <span th:unless="${h.estado == 'ABIERTA'}"
+                                    class="caja-badge-table caja-bg-cerrada">CERRADA</span>
                             </td>
                             <td>
                                 <div class="caja-action-btns">
-                                    <button class="caja-btn-icon" th:disabled="${h.estado == 'ABIERTA'}" th:style="${h.estado == 'ABIERTA'} ? 'opacity: 0.5;' : ''"><i class="fa-solid fa-print"></i></button>
+                                    <button class="caja-btn-icon" th:disabled="${h.estado == 'ABIERTA'}"
+                                        th:style="${h.estado == 'ABIERTA'} ? 'opacity: 0.5;' : ''"><i
+                                            class="fa-solid fa-print"></i></button>
                                     <button class="caja-btn-icon"><i class="fa-regular fa-eye"></i></button>
                                 </div>
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(historial)}">
-                            <td colspan="10" style="text-align: center; color: #888; padding: 15px;">No se encontraron movimientos de caja registrados.</td>
+                            <td colspan="10" style="text-align: center; color: #888; padding: 15px;">No se encontraron
+                                movimientos de caja registrados.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -226,4 +267,5 @@
 
     <script th:src="@{/js/main.js}" src="/js/main.js"></script>
 </body>
+
 </html>

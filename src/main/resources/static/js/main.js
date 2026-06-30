@@ -109,6 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         confirmVendedorDisplay.value = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
                         confirmVendedorSelect.value = user.idusuario;
                     }
+
+                    // --- RELLENAR CAJERO EN APERTURA DE CAJA ---
+                    const selectCajero = document.getElementById('selectCajero');
+                    if (selectCajero) {
+                        selectCajero.value = user.idusuario;
+                    }
                 }
                 // ---------------------------------
 
