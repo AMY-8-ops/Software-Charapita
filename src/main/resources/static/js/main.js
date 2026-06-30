@@ -6,17 +6,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. CARGAR LOS INCLUDES CON RUTAS ABSOLUTAS DEL SERVIDOR LOCAL
     const loadIncludes = Promise.all([
         fetch('/includes/header.html').then(res => res.text()).then(data => {
-            document.getElementById('header-container').innerHTML = data;
+            const el = document.getElementById('header-container');
+            if (el) el.innerHTML = data;
         }),
         fetch('/includes/menu.html').then(res => res.text()).then(data => {
-            document.getElementById('menu-container').innerHTML = data;
+            const el = document.getElementById('menu-container');
+            if (el) el.innerHTML = data;
         }),
         fetch('/includes/footer.html').then(res => res.text()).then(data => {
-            document.getElementById('footer-container').innerHTML = data;
+            const el = document.getElementById('footer-container');
+            if (el) el.innerHTML = data;
         })
     ]);
 
-    // 2. ACTIVAR FUNCIONES DEL MENÚ
+    // 2. ACTIVAR FUNCIONES DEL MENÚ Y HEADER
     loadIncludes.then(() => {
         const btnToggle = document.getElementById('btn-toggle-menu');
         const sidebar = document.querySelector('.main-sidebar');
@@ -39,6 +42,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.classList.remove('active');
             }
         });
+
+        // --- LÓGICA DEL HEADER ---
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            const userNameEl = document.getElementById('header-user-name');
+            const userRoleEl = document.getElementById('header-user-role');
+            if (userNameEl) userNameEl.innerText = user.nombreCompleto || (user.nombre + ' ' + user.apellido);
+            if (userRoleEl) userRoleEl.innerText = user.rol || 'Vendedor';
+        }
+
+        // Fecha actual
+        const now = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const datetimeEl = document.getElementById('header-datetime');
+        if (datetimeEl) datetimeEl.innerText = now.toLocaleDateString('es-ES', dateOptions);
+
+        // Lógica de Logout
+        const btnLogout = document.getElementById('btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', () => {
+                localStorage.removeItem('user');
+                window.location.href = '/login.html';
+            });
+        }
+
+        // Estado de la Caja
+        fetch('/api/movimientoscaja')
+            .then(res => res.json())
+            .then(data => {
+                const isOpen = data.some(m => !m.fhCierre);
+                const icon = document.getElementById('header-caja-icon');
+                const title = document.getElementById('header-caja-title');
+                const msg = document.getElementById('header-caja-msg');
+                const container = document.getElementById('header-caja-container');
+
+                if (icon && title && msg && container) {
+                    if (isOpen) {
+                        icon.className = 'fa-solid fa-lock-open';
+                        title.innerText = 'CAJA ABIERTA';
+                        msg.innerText = 'Listo para ventas';
+                        container.style.color = '#2e7d32';
+                        icon.style.color = '#2e7d32';
+                    } else {
+                        icon.className = 'fa-solid fa-lock';
+                        title.innerText = 'CAJA CERRADA';
+                        msg.innerText = 'Apertura requerida';
+                        container.style.color = '#c62828';
+                        icon.style.color = '#c62828';
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Error al obtener estado de caja", err);
+                const title = document.getElementById('header-caja-title');
+                const icon = document.getElementById('header-caja-icon');
+                if (title) title.innerText = 'Estado Desconocido';
+                if (icon) icon.className = 'fa-solid fa-circle-question';
+            });
 
     }).catch(error => console.error("Error cargando los includes:", error));
 

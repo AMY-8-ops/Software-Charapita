@@ -4,29 +4,35 @@
             <i class="fa-solid fa-bars"></i>
         </button>
 
-        <img th:src="@{/img/logo.png}" src="/img/logo.png" alt="Logo Charapita SAC" class="logo-empresa">
+        <a href="/dashboard.html">
+            <img th:src="@{/img/logo.png}" src="/img/logo.png" alt="Logo Charapita SAC" class="logo-empresa" style="cursor: pointer;">
+        </a>
         
         <div class="header-info">
             <h1>CARNES Y AHUMADOS CHARAPITA SAC</h1>
             <div class="user-details">
-                <span>Bienvenido: <strong>[user]</strong></span>
-                <span>Rol: <strong>[nombre del rol]</strong></span>
-                <span>Fecha y Hora: <strong>[fecha y hora actual]</strong></span>
+                <span>Bienvenido: <strong id="header-user-name">...</strong></span>
+                <span>Rol: <strong id="header-user-role">...</strong></span>
+                <span>Fecha: <strong id="header-datetime">...</strong></span>
             </div>
         </div>
     </div>
 
     <div class="header-right">
-        <div class="caja-status">
-            <i class="fa-solid fa-lock-open"></i>
+        <div class="caja-status" id="header-caja-container">
+            <i class="fa-solid fa-spinner fa-spin" id="header-caja-icon"></i>
             <div class="status-text">
-                <strong>[estado caja]</strong>
-                <small>[mensaje caja]</small>
+                <strong id="header-caja-title">Verificando caja...</strong>
+                <small id="header-caja-msg">Espere por favor</small>
             </div>
         </div>
         
-        <button class="btn-accion-caja">
-            <i class="fa-solid fa-lock"></i> [texto boton caja]
+        <a href="/caja/index.html" class="btn-accion-caja" style="text-decoration: none; color: white; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-cash-register"></i> Gestión de Caja
+        </a>
+
+        <button class="btn-accion-caja" id="btn-logout" style="background-color: #2a0810; border-left: 1px solid rgba(255,255,255,0.2); margin-left: 10px;">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir
         </button>
     </div>
 </header>
