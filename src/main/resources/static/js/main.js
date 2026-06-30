@@ -1603,7 +1603,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Realizar Apertura de Caja
     if (btnConfirmarApertura) {
-        btnConfirmarApertura.addEventListener('click', (e) => {
+        btnConfirmarApertura.addEventListener('click', async (e) => {
             e.preventDefault();
             const idcaja = document.getElementById('selectCaja').value;
             const idusuario = document.getElementById('selectCajero').value;
@@ -1621,39 +1621,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const payload = {
-                idcaja: parseInt(idcaja),
-                idusuario: parseInt(idusuario),
-                montoinicial: montoinicial,
-                observaciones: observaciones
-            };
+            // --- VERIFICACIÓN DE CONTRASEÑA ---
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert("Sesión no válida. Inicie sesión nuevamente.");
+                window.location.href = '/login.html';
+                return;
+            }
+            const authUser = JSON.parse(userStr);
+            
+            const password = prompt(`Por motivos de seguridad, ingrese la contraseña de ${authUser.correo} para ABRIR la caja:`);
+            if (password === null) return; // Cancelado por el usuario
 
-            fetch('/api/movimientoscaja/abrir', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text || 'Error al abrir caja') });
-                    }
-                    return res.json();
-                })
-                .then(() => {
-                    window.location.reload();
-                })
-                .catch(err => {
-                    alert('Error al abrir la caja: ' + err.message);
-                    console.error(err);
+            try {
+                const authRes = await fetch('/api/usuarios/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correo: authUser.correo, contrasena: password })
                 });
+
+                if (!authRes.ok) {
+                    alert('Contraseña incorrecta. Acción denegada.');
+                    return;
+                }
+
+                // --- PROCEDER CON LA APERTURA ---
+                const payload = {
+                    idcaja: parseInt(idcaja),
+                    idusuario: parseInt(idusuario),
+                    montoinicial: montoinicial,
+                    observaciones: observaciones
+                };
+
+                const res = await fetch('/api/movimientoscaja/abrir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Error al abrir caja');
+                }
+
+                window.location.reload();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error(err);
+            }
         });
     }
 
     // 3. Realizar Cierre de Caja
     if (btnConfirmarCierre) {
-        btnConfirmarCierre.addEventListener('click', (e) => {
+        btnConfirmarCierre.addEventListener('click', async (e) => {
             e.preventDefault();
             const panelCierre = document.getElementById('panelCierreCaja');
             const idmovimiento = panelCierre.getAttribute('data-id');
@@ -1670,30 +1691,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const payload = {
-                montofinal: montofinal
-            };
+            // --- VERIFICACIÓN DE CONTRASEÑA ---
+            const userStr = localStorage.getItem('user');
+            if (!userStr) {
+                alert("Sesión no válida. Inicie sesión nuevamente.");
+                window.location.href = '/login.html';
+                return;
+            }
+            const authUser = JSON.parse(userStr);
+            
+            const password = prompt(`Por motivos de seguridad, ingrese la contraseña de ${authUser.correo} para CERRAR la caja:`);
+            if (password === null) return; // Cancelado por el usuario
 
-            fetch(`/api/movimientoscaja/cerrar/${idmovimiento}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(res => {
-                    if (!res.ok) {
-                        return res.text().then(text => { throw new Error(text || 'Error al cerrar caja') });
-                    }
-                    return res.json();
-                })
-                .then(() => {
-                    window.location.reload();
-                })
-                .catch(err => {
-                    alert('Error al cerrar la caja: ' + err.message);
-                    console.error(err);
+            try {
+                const authRes = await fetch('/api/usuarios/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ correo: authUser.correo, contrasena: password })
                 });
+
+                if (!authRes.ok) {
+                    alert('Contraseña incorrecta. Acción denegada.');
+                    return;
+                }
+
+                // --- PROCEDER CON EL CIERRE ---
+                const payload = { montofinal: montofinal };
+
+                const res = await fetch(`/api/movimientoscaja/cerrar/${idmovimiento}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    throw new Error(text || 'Error al cerrar caja');
+                }
+
+                window.location.reload();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error(err);
+            }
         });
     }
 
