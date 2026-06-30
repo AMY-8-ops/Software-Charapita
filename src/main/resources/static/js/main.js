@@ -221,6 +221,114 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================
     // LÓGICA VISTA: CONFIRMAR VENTA (cv-)
     // =========================================
+    // =========================================
+    // INICIALIZACIÓN DE GRÁFICO PREDICTIVO IA
+    // =========================================
+    const predCanvas = document.getElementById('prediccionChart');
+    if (predCanvas) {
+        const ctxPred = predCanvas.getContext('2d');
+        
+        // Fetch data from Spring Boot which talks to Python Microservice
+        fetch('/api/reportes/prediccion')
+            .then(res => res.json())
+            .then(data => {
+                const historico = data.historico || [];
+                const prediccion = data.prediccion || [];
+                
+                // Combine labels
+                const labels = [];
+                const historicoData = [];
+                const prediccionData = [];
+                
+                historico.forEach(item => {
+                    labels.push(item.fecha);
+                    historicoData.push(item.ingresos);
+                    prediccionData.push(null);
+                });
+                
+                // Connect the last historical point with the first prediction point
+                if (historico.length > 0 && prediccion.length > 0) {
+                    const lastHist = historico[historico.length - 1];
+                    prediccionData[prediccionData.length - 1] = lastHist.ingresos;
+                }
+                
+                prediccion.forEach(item => {
+                    labels.push(item.fecha);
+                    historicoData.push(null);
+                    prediccionData.push(item.prediccion);
+                });
+                
+                new Chart(ctxPred, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Ventas Históricas (S/)',
+                                data: historicoData,
+                                borderColor: '#2e7d32',
+                                backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                                fill: true,
+                                tension: 0.1,
+                                borderWidth: 2,
+                                pointRadius: 2
+                            },
+                            {
+                                label: 'Predicción IA (S/)',
+                                data: prediccionData,
+                                borderColor: '#1976d2',
+                                borderDash: [5, 5],
+                                backgroundColor: 'transparent',
+                                fill: false,
+                                tension: 0.1,
+                                borderWidth: 2,
+                                pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        scales: {
+                            x: {
+                                ticks: { maxTicksLimit: 15 } // Avoid crowding x axis
+                            },
+                            y: { 
+                                beginAtZero: true 
+                            }
+                        },
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += 'S/ ' + context.parsed.y.toFixed(2);
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Error al cargar la predicción:", err);
+                ctxPred.font = "14px Arial";
+                ctxPred.fillStyle = "#c62828";
+                ctxPred.textAlign = "center";
+                ctxPred.fillText("Error al cargar la predicción. Asegúrese de que el microservicio IA esté en ejecución.", predCanvas.width/2, predCanvas.height/2);
+            });
+    }
 
     // Toggles de botones simples (Ej: Cliente registrado / ocasional)
     const toggleBtns = document.querySelectorAll('.cv-toggle-btn');
