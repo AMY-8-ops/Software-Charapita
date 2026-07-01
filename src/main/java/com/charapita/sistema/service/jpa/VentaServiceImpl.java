@@ -28,11 +28,13 @@ public class VentaServiceImpl implements IVentaService {
     private final MetodoPagoRepository metodoPagoRepository;
     private final ProductoRepository productoRepository;
     private final InventarioRepository inventarioRepository;
+    private final MovimientoCajaRepository movimientoCajaRepository;
 
     public VentaServiceImpl(VentaRepository ventaRepository, DetalleVentaRepository detalleVentaRepository,
             ClienteRepository clienteRepository, UsuarioRepository usuarioRepository,
             TipoComprobanteRepository tipoComprobanteRepository, MetodoPagoRepository metodoPagoRepository,
-            ProductoRepository productoRepository, InventarioRepository inventarioRepository) {
+            ProductoRepository productoRepository, InventarioRepository inventarioRepository,
+            MovimientoCajaRepository movimientoCajaRepository) {
         this.ventaRepository = ventaRepository;
         this.detalleVentaRepository = detalleVentaRepository;
         this.clienteRepository = clienteRepository;
@@ -41,11 +43,16 @@ public class VentaServiceImpl implements IVentaService {
         this.metodoPagoRepository = metodoPagoRepository;
         this.productoRepository = productoRepository;
         this.inventarioRepository = inventarioRepository;
+        this.movimientoCajaRepository = movimientoCajaRepository;
     }
 
     @Override
     @Transactional // CRÍTICO: Si falla un detalle, la venta completa se cancela
     public VentaResponseDTO registrarVenta(VentaRequestDTO dto) {
+
+        // Validar que el usuario tenga una caja abierta
+        movimientoCajaRepository.findByUsuario_IdusuarioAndFhCierreIsNull(dto.getIdusuario())
+                .orElseThrow(() -> new IllegalArgumentException("No se pueden realizar ventas: el usuario no tiene una caja abierta."));
 
         // 1. Buscar las relaciones de la cabecera
         Cliente cliente = clienteRepository.findById(dto.getIdcliente())

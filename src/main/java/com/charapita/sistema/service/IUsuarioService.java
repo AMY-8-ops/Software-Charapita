@@ -19,4 +19,6 @@ public interface IUsuarioService {
     void eliminarLogico(Integer id);
 
     UsuarioResponseDTO login(String correo, String contrasena);
+
+    void logout(Integer idusuario);
 }

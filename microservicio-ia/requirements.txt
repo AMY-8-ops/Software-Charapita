@@ -3,3 +3,4 @@ uvicorn
 pandas
 prophet
 pydantic
+scikit-learn

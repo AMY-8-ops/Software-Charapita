@@ -12,6 +12,7 @@ import com.charapita.sistema.entity.Rol;
 import com.charapita.sistema.entity.Usuario;
 import com.charapita.sistema.repository.RolRepository;
 import com.charapita.sistema.repository.UsuarioRepository;
+import com.charapita.sistema.repository.MovimientoCajaRepository;
 import com.charapita.sistema.service.IUsuarioService;
 
 @Service
@@ -19,10 +20,12 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final MovimientoCajaRepository movimientoCajaRepository;
 
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolRepository rolRepository) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, RolRepository rolRepository, MovimientoCajaRepository movimientoCajaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
+        this.movimientoCajaRepository = movimientoCajaRepository;
     }
 
     @Override
@@ -177,5 +180,14 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
         // 5. Devolvemos el DTO
         return convertirADTO(usuario);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void logout(Integer idusuario) {
+        movimientoCajaRepository.findByUsuario_IdusuarioAndFhCierreIsNull(idusuario)
+                .ifPresent(m -> {
+                    throw new IllegalArgumentException("No se puede cerrar sesión porque tiene una caja abierta.");
+                });
     }
 }

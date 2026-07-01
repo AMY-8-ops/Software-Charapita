@@ -139,6 +139,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
+                // Mostrar alerta bonita si está en nueva venta y la caja está cerrada
+                if (window.location.pathname.includes('/nuevaventa') && !isOpen) {
+                    mostrarAlertaCajaCerrada();
+                }
+
                 // Fecha actual
                 const now = new Date();
                 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -151,12 +156,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnLogout.addEventListener('click', () => {
                         const userStr = localStorage.getItem('user');
                         const user = JSON.parse(userStr || '{}');
-                        if (user && user.idrol === 3 && window.cajaEstaAbierta) {
-                            alert('Error de seguridad: Eres un cajero y la caja se encuentra abierta. Cierra la caja antes de cerrar sesión.');
-                            return;
+                        
+                        if (user && user.idusuario) {
+                            fetch(`/api/usuarios/logout/${user.idusuario}`, {
+                                method: 'POST'
+                            })
+                            .then(async res => {
+                                if (!res.ok) {
+                                    const errorText = await res.text();
+                                    throw new Error(errorText);
+                                }
+                                localStorage.removeItem('user');
+                                window.location.href = '/login.html';
+                            })
+                            .catch(err => {
+                                alert(err.message);
+                            });
+                        } else {
+                            localStorage.removeItem('user');
+                            window.location.href = '/login.html';
                         }
-                        localStorage.removeItem('user');
-                        window.location.href = '/login.html';
                     });
                 }
             })
@@ -169,6 +188,63 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
     }).catch(error => console.error("Error cargando los includes:", error));
+
+    function mostrarAlertaCajaCerrada() {
+        // Verificar si ya existe la alerta
+        if (document.getElementById('cajaCerradaOverlay')) return;
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'cajaCerradaOverlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '9999';
+        
+        const modal = document.createElement('div');
+        modal.style.backgroundColor = '#fff';
+        modal.style.padding = '30px 40px';
+        modal.style.borderRadius = '12px';
+        modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+        modal.style.textAlign = 'center';
+        modal.style.maxWidth = '400px';
+        modal.style.animation = 'scaleUp 0.3s ease-out forwards';
+        
+        // Estilos para la animación
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes scaleUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }`;
+        document.head.appendChild(style);
+        
+        modal.innerHTML = `
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: #f39c12; margin-bottom: 15px;"></i>
+            <h2 style="margin: 0 0 10px 0; color: #333; font-size: 1.5rem;">Caja Cerrada</h2>
+            <p style="color: #666; margin-bottom: 25px; line-height: 1.5;">No puedes realizar ventas con la caja cerrada. Por favor, abre una nueva caja para continuar.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnIrACaja" style="background-color: var(--color-primario); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;">
+                    <i class="fa-solid fa-cash-register"></i> Abrir Caja
+                </button>
+                <button id="btnCerrarModalCaja" style="background-color: #e0e0e0; color: #333; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;">
+                    Cancelar
+                </button>
+            </div>
+        `;
+        
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        document.getElementById('btnIrACaja').addEventListener('click', () => {
+            window.location.href = '/caja';
+        });
+        
+        document.getElementById('btnCerrarModalCaja').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+    }
 
     // =========================================
     // INICIALIZACIÓN DE GRÁFICOS (Chart.js)
@@ -2209,6 +2285,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // VALIDACIÓN AL CLICKEAR "PAGAR / CONFIRMAR VENTA"
     if (btnConfirmarVenta) {
         btnConfirmarVenta.addEventListener('click', (e) => {
+            if (!window.cajaEstaAbierta) {
+                e.preventDefault();
+                mostrarAlertaCajaCerrada();
+                return;
+            }
             if (carrito.length === 0) {
                 e.preventDefault();
                 alert('El carrito de compras está vacío. Agregue algún producto antes de proceder.');
@@ -2808,6 +2889,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // ENVÍO/CONFIRMACIÓN FINAL DE VENTA
         if (btnConfirmarFinal) {
             btnConfirmarFinal.addEventListener('click', async (e) => {
+                if (!window.cajaEstaAbierta) {
+                    mostrarAlertaCajaCerrada();
+                    return;
+                }
                 e.preventDefault();
 
                 const confirmCart = JSON.parse(localStorage.getItem('pos_cart')) || [];

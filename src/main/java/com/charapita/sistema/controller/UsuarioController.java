@@ -86,4 +86,14 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
+
+    @PostMapping("/logout/{id}")
+    public ResponseEntity<?> logout(@PathVariable("id") Integer idusuario) {
+        try {
+            serviceUsuario.logout(idusuario);
+            return ResponseEntity.ok("Sesión cerrada correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
