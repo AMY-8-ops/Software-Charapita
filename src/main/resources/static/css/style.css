@@ -3382,4 +3382,23 @@ body {
 
 .ai-rec-btn-cancel-all:hover {
     color: #c62828;
+}/* Analisis Box */
+.analisis-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 5px solid var(--color-secundario);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.analisis-box h4 {
+    color: var(--color-secundario);
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }

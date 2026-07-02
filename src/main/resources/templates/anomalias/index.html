@@ -97,6 +97,9 @@
         .btn-marcar-leido:hover {
             background: #2e7d32;
         }
+        .btn-marcar-leido:hover {
+            background: #2e7d32;
+        }
         .no-anomalias-msg {
             text-align: center;
             padding: 50px;
@@ -109,6 +112,27 @@
             font-size: 3rem;
             color: var(--color-verde);
             margin-bottom: 15px;
+        }
+
+        /* Analisis Box */
+        .analisis-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-left: 5px solid var(--color-secundario);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #333;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .analisis-box h4 {
+            color: var(--color-secundario);
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Seccion de Reporte */
@@ -253,6 +277,11 @@
                         <i class="fa-solid fa-print"></i> Imprimir Reporte
                     </button>
                 </div>
+            </div>
+
+            <div id="analisisResumen" class="analisis-box" style="display: none;">
+                <h4><i class="fa-solid fa-brain"></i> Análisis del Periodo</h4>
+                <p id="textoAnalisis">Calculando análisis...</p>
             </div>
 
             <div class="caja-table-responsive">
@@ -413,17 +442,31 @@
                 const data = await response.json();
 
                 const tbody = document.getElementById('tablaReporteBody');
+                const analisisBox = document.getElementById('analisisResumen');
+                const textoAnalisis = document.getElementById('textoAnalisis');
                 tbody.innerHTML = '';
 
                 if (!data || data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 20px; color:#666;">No se encontraron anomalías en este rango de fechas.</td></tr>`;
+                    analisisBox.style.display = 'block';
+                    textoAnalisis.innerHTML = `Durante el periodo seleccionado (desde <strong>${fi || 'el inicio'}</strong> hasta <strong>${ff || 'hoy'}</strong>) no se han detectado anomalías. Esto indica que todos los montos de cierre de caja registrados han estado dentro de los parámetros habituales y esperados por el modelo de Inteligencia Artificial. ¡Excelente trabajo del equipo!`;
                     return;
                 }
+
+                let totalMontoAnomalo = 0;
+                let maxScore = 0;
+                let cajerosInvolucrados = new Set();
+                let anomaliasRevisadas = 0;
 
                 data.forEach(a => {
                     const date = new Date(a.fechaDeteccion);
                     const formattedDate = date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
                     
+                    totalMontoAnomalo += a.montoEvaluado;
+                    if(a.score > maxScore) maxScore = a.score;
+                    if(a.nombreCajero) cajerosInvolucrados.add(a.nombreCajero);
+                    if(a.leido) anomaliasRevisadas++;
+
                     const estadoBadge = a.leido 
                         ? `<span class="badge-estado badge-leido"><i class="fa-solid fa-check"></i> Revisado</span>` 
                         : `<span class="badge-estado badge-noleido"><i class="fa-solid fa-triangle-exclamation"></i> Pendiente</span>`;
@@ -440,6 +483,18 @@
                     `;
                     tbody.appendChild(tr);
                 });
+
+                // Generar analisis redactado
+                const percRevisadas = ((anomaliasRevisadas / data.length) * 100).toFixed(1);
+                
+                let analisisHTML = `Durante el periodo seleccionado (desde <strong>${fi || 'el inicio'}</strong> hasta <strong>${ff || 'hoy'}</strong>), el modelo de Detección de Anomalías ha identificado <strong>${data.length}</strong> eventos de cierres de caja con montos inusuales.<br><br>`;
+                
+                analisisHTML += `El monto total asociado a estas alertas suma <strong>S/ ${totalMontoAnomalo.toFixed(2)}</strong>. La anomalía más crítica alcanzó un puntaje de riesgo de <strong>${maxScore.toFixed(3)}</strong>.<br><br>`;
+                
+                analisisHTML += `Estos incidentes involucraron a <strong>${cajerosInvolucrados.size}</strong> cajero(s). Actualmente, el <strong>${percRevisadas}%</strong> de las alertas han sido revisadas y marcadas por el administrador. Se recomienda realizar arqueos detallados de las cajas mencionadas a continuación si hay alertas pendientes.`;
+
+                analisisBox.style.display = 'block';
+                textoAnalisis.innerHTML = analisisHTML;
 
             } catch (error) {
                 console.error("Error fetching reporte", error);

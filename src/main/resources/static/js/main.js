@@ -288,52 +288,225 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================
+    // KPIs DEL DASHBOARD (Datos reales de BD)
+    // =========================================
+    const kpiVentasDia = document.getElementById('kpi-ventas-dia');
+    if (kpiVentasDia) {
+        fetch('/api/dashboard/kpis')
+            .then(res => res.json())
+            .then(data => {
+                // Ventas del día
+                kpiVentasDia.textContent = 'S/ ' + parseFloat(data.ventasDia).toFixed(2);
+
+                // Variación vs ayer
+                const varEl = document.getElementById('kpi-ventas-variacion');
+                const vsEl = document.getElementById('kpi-ventas-vs');
+                const variacion = data.variacionVentas || 0;
+                if (varEl && vsEl) {
+                    if (variacion >= 0) {
+                        vsEl.classList.add('text-green');
+                        vsEl.classList.remove('text-red');
+                        varEl.innerHTML = `<i class="fa-solid fa-caret-up"></i> ${Math.abs(variacion).toFixed(1)}%`;
+                    } else {
+                        vsEl.classList.add('text-red');
+                        vsEl.classList.remove('text-green');
+                        varEl.innerHTML = `<i class="fa-solid fa-caret-down"></i> ${Math.abs(variacion).toFixed(1)}%`;
+                    }
+                }
+
+                // Saldo en caja
+                const saldoEl = document.getElementById('kpi-saldo-caja');
+                if (saldoEl) saldoEl.textContent = 'S/ ' + parseFloat(data.saldoCaja).toFixed(2);
+
+                // Alertas stock
+                const alertasEl = document.getElementById('kpi-alertas-stock');
+                if (alertasEl) alertasEl.textContent = data.alertasStock;
+            })
+            .catch(err => {
+                console.error('Error cargando KPIs del dashboard:', err);
+                if (kpiVentasDia) kpiVentasDia.textContent = 'Error';
+            });
+    }
+
+    // =========================================
+    // TABLAS DASHBOARD: Stock y Mermas
+    // =========================================
+    const tbodyStock = document.getElementById('tbodyStockCritico');
+    if (tbodyStock) {
+        fetch('/api/dashboard/stock-critico')
+            .then(res => res.json())
+            .then(data => {
+                tbodyStock.innerHTML = '';
+                if (!data || data.length === 0) {
+                    tbodyStock.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#4CAF50;padding:20px;"><i class="fa-solid fa-circle-check"></i> Todo el stock está en niveles correctos</td></tr>';
+                    return;
+                }
+                data.forEach(p => {
+                    const imgSrc = p.imagenUrl || '/img/placeholder-prod.png';
+                    const badgeClass = p.estadoClass === 'critico' ? 'badge-critico' : 'badge-bajo';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="product-cell">
+                                <img src="${imgSrc}" alt="${p.nombre}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+                                <span>${p.nombre}</span>
+                            </div>
+                        </td>
+                        <td><strong style="color:${p.estadoClass === 'critico' ? 'var(--color-rojo)' : '#e67e22'}">${p.stockActual}</strong> uds.</td>
+                        <td>${p.stockMinimo} uds.</td>
+                        <td><span class="badge ${badgeClass}">${p.estado}</span></td>
+                    `;
+                    tbodyStock.appendChild(tr);
+                });
+            })
+            .catch(err => {
+                console.error('Error cargando stock crítico:', err);
+                tbodyStock.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">Error al cargar datos</td></tr>';
+            });
+    }
+
+    const tbodyMermas = document.getElementById('tbodyMermasRecientes');
+    if (tbodyMermas) {
+        fetch('/api/dashboard/mermas-recientes')
+            .then(res => res.json())
+            .then(data => {
+                tbodyMermas.innerHTML = '';
+                if (!data || data.length === 0) {
+                    tbodyMermas.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No hay mermas registradas</td></tr>';
+                    return;
+                }
+                data.forEach(m => {
+                    const imgSrc = m.imagenUrl || '/img/placeholder-prod.png';
+                    // Format date dd/mm/yyyy
+                    const parts = m.fecha.split('-');
+                    const fechaFmt = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : m.fecha;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${fechaFmt}</td>
+                        <td>
+                            <div class="product-cell">
+                                <img src="${imgSrc}" alt="${m.producto}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;">
+                                <span>${m.producto}</span>
+                            </div>
+                        </td>
+                        <td>${m.cantidad} uds.</td>
+                        <td>${m.motivo}</td>
+                    `;
+                    tbodyMermas.appendChild(tr);
+                });
+            })
+            .catch(err => {
+                console.error('Error cargando mermas recientes:', err);
+                tbodyMermas.innerHTML = '<tr><td colspan="4" style="text-align:center;color:red;">Error al cargar datos</td></tr>';
+            });
+    }
+
+    // =========================================
     // INICIALIZACIÓN DE GRÁFICOS (Chart.js)
     // =========================================
+    const CHART_COLORS = ['#8a1529', '#f39c12', '#27ae60', '#2980b9', '#8e44ad', '#e74c3c', '#1abc9c', '#e67e22'];
+
+    // --- GRAFICO DE BARRAS: Ventas de la Semana ---
     const barCanvas = document.getElementById('barChart');
     if (barCanvas) {
         const ctxBar = barCanvas.getContext('2d');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ['[dia]', '[dia]', '[dia]', '[dia]', '[dia]', '[dia]', '[dia]'],
-                datasets: [{
-                    label: 'Ventas (S/)',
-                    data: [800, 1200, 1600, 1050, 1700, 900, 1450],
-                    backgroundColor: '#8a1529',
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
-            }
-        });
+        let barChart = null;
+
+        fetch('/api/dashboard/ventas-semana')
+            .then(res => res.json())
+            .then(data => {
+                if (barChart) barChart.destroy();
+                barChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Ventas (S/)',
+                            data: data.valores,
+                            backgroundColor: data.valores.map((v, i) =>
+                                i === data.valores.length - 1 ? '#8a1529' : 'rgba(138,21,41,0.55)'
+                            ),
+                            borderRadius: 5,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: val => 'S/ ' + val.toFixed(0)
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => 'S/ ' + ctx.parsed.y.toFixed(2)
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error('Error cargando ventas semana:', err));
     }
 
+    // --- GRÁFICO DE DONA: Ventas por Categoría ---
     const pieCanvas = document.getElementById('pieChart');
     if (pieCanvas) {
         const ctxPie = pieCanvas.getContext('2d');
-        new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: ['[categoria]', '[categoria]', '[categoria]', '[categoria]', '[categoria]'],
-                datasets: [{
-                    data: [45, 25, 15, 10, 5],
-                    backgroundColor: ['#8a1529', '#f39c12', '#27ae60', '#2980b9', '#8e44ad'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { boxWidth: 12 } }
+        let pieChart = null;
+
+        fetch('/api/dashboard/ventas-categoria')
+            .then(res => res.json())
+            .then(data => {
+                // Actualizar el total en el footer
+                const totalEl = document.getElementById('kpi-total-ventas');
+                if (totalEl) totalEl.textContent = 'S/ ' + parseFloat(data.total).toFixed(2);
+
+                if (data.labels.length === 0) {
+                    ctxPie.font = '14px Arial';
+                    ctxPie.fillStyle = '#999';
+                    ctxPie.textAlign = 'center';
+                    ctxPie.fillText('Sin datos de ventas aún', pieCanvas.width / 2, pieCanvas.height / 2);
+                    return;
                 }
-            }
-        });
+
+                if (pieChart) pieChart.destroy();
+                pieChart = new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: data.valores,
+                            backgroundColor: CHART_COLORS.slice(0, data.labels.length),
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'right', labels: { boxWidth: 12 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const val = ctx.parsed;
+                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                        const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                        return ` S/ ${val.toFixed(2)} (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error('Error cargando ventas por categoría:', err));
     }
     // =========================================
     // LÓGICA VISTA: CONFIRMAR VENTA (cv-)
@@ -437,6 +610,43 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 });
+
+                // --- Generar Análisis Redactado ---
+                const boxPred = document.getElementById('analisisPrediccion');
+                const txtPred = document.getElementById('textoAnalisisPrediccion');
+                
+                if (boxPred && txtPred && prediccion.length > 0) {
+                    const totalHist = historico.reduce((acc, curr) => acc + curr.ingresos, 0);
+                    const avgHist = totalHist / (historico.length || 1);
+                    
+                    const totalPred = prediccion.reduce((acc, curr) => acc + curr.prediccion, 0);
+                    const avgPred = totalPred / (prediccion.length || 1);
+                    
+                    let tendencia = 'estable';
+                    let variacion = 0;
+                    
+                    if (avgHist > 0) {
+                        variacion = ((avgPred - avgHist) / avgHist) * 100;
+                        if (variacion > 5) tendencia = 'al alza';
+                        else if (variacion < -5) tendencia = 'a la baja';
+                    }
+
+                    let analisisHtml = `Según el modelo predictivo de IA, se espera un comportamiento <strong>${tendencia}</strong> para los próximos 3 meses.<br><br>`;
+                    
+                    analisisHtml += `Mientras que el promedio histórico de ingresos fue de <strong>S/ ${avgHist.toFixed(2)}</strong>, la proyección indica un promedio de <strong>S/ ${avgPred.toFixed(2)}</strong> para los próximos periodos. Esto representa una variación proyectada del <strong>${variacion > 0 ? '+' : ''}${variacion.toFixed(1)}%</strong>.<br><br>`;
+                    
+                    if (tendencia === 'al alza') {
+                        analisisHtml += `<strong>Recomendación:</strong> Aprovechar la tendencia de crecimiento para asegurar suficiente stock de productos de alta rotación y preparar al personal para un aumento en las ventas.`;
+                    } else if (tendencia === 'a la baja') {
+                        analisisHtml += `<strong>Recomendación:</strong> Se prevé una temporada más baja. Se recomienda considerar promociones, descuentos u optimizar el inventario para evitar sobrestock.`;
+                    } else {
+                        analisisHtml += `<strong>Recomendación:</strong> El flujo de caja se mantendrá predecible. Es un buen momento para fidelizar clientes y planificar mejoras a mediano plazo sin tomar riesgos financieros agresivos.`;
+                    }
+
+                    boxPred.style.display = 'block';
+                    txtPred.innerHTML = analisisHtml;
+                }
+
             })
             .catch(err => {
                 console.error("Error al cargar la predicción:", err);

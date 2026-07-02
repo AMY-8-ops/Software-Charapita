@@ -1,5 +1,6 @@
 package com.charapita.sistema.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,4 +13,5 @@ public interface VentaRepository extends JpaRepository<Venta, Integer> {
     List<Venta> findByUsuario(Usuario usuario);
     Optional<Venta> findByNroPedido(String nroPedido);
     List<Venta> findByEstadoTrue();
+    List<Venta> findByFechaBetweenAndEstadoTrue(LocalDateTime inicio, LocalDateTime fin);
 }

@@ -21,23 +21,11 @@
             <div class="kpi-card">
                 <div class="kpi-icon icon-green"><i class="fa-solid fa-money-bill-wave"></i></div>
                 <div class="kpi-info">
-                    <span class="kpi-title">VENTAS DEL DIA (S/)</span>
-                    <h3 class="kpi-value">[ventas_dia]</h3>
-                    <div class="kpi-vs text-green">
+                    <span class="kpi-title">VENTAS DEL DÍA (S/)</span>
+                    <h3 class="kpi-value" id="kpi-ventas-dia">...</h3>
+                    <div class="kpi-vs" id="kpi-ventas-vs">
                         <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-icon icon-blue"><i class="fa-solid fa-cart-shopping"></i></div>
-                <div class="kpi-info">
-                    <span class="kpi-title">PEDIDOS REALIZADOS</span>
-                    <h3 class="kpi-value">[pedidos_dia]</h3>
-                    <div class="kpi-vs text-green">
-                        <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                        <span id="kpi-ventas-variacion">--</span>
                     </div>
                 </div>
             </div>
@@ -46,10 +34,9 @@
                 <div class="kpi-icon icon-purple"><i class="fa-solid fa-vault"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">SALDO ACTUAL EN CAJA</span>
-                    <h3 class="kpi-value">[saldo_caja]</h3>
-                    <div class="kpi-vs text-green">
-                        <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-up"></i> [porcentaje_vs_ayer]%</span>
+                    <h3 class="kpi-value" id="kpi-saldo-caja">...</h3>
+                    <div class="kpi-vs">
+                        <small>Total en caja activa</small>
                     </div>
                 </div>
             </div>
@@ -58,10 +45,9 @@
                 <div class="kpi-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
                 <div class="kpi-info">
                     <span class="kpi-title">ALERTAS STOCK CRÍTICO</span>
-                    <h3 class="kpi-value">[alertas_stock]</h3>
+                    <h3 class="kpi-value" id="kpi-alertas-stock">...</h3>
                     <div class="kpi-vs text-red">
-                        <small>vs ayer</small>
-                        <span><i class="fa-solid fa-caret-down"></i> [porcentaje_vs_ayer]%</span>
+                        <small>Productos bajo mínimo</small>
                     </div>
                 </div>
             </div>
@@ -71,9 +57,7 @@
             <div class="chart-box">
                 <div class="box-header">
                     <h2>Ventas de la Semana (Soles)</h2>
-                    <select class="custom-select">
-                        <option>[filtro_tiempo]</option>
-                    </select>
+                    <span style="font-size:0.8rem;color:#888;">(Últimos 7 días)</span>
                 </div>
                 <div class="canvas-container">
                     <canvas id="barChart"></canvas>
@@ -83,16 +67,13 @@
             <div class="chart-box">
                 <div class="box-header">
                     <h2>Ventas por Categoría (%)</h2>
-                    <select class="custom-select">
-                        <option>[filtro_tiempo]</option>
-                    </select>
                 </div>
                 <div class="canvas-container canvas-pie">
                     <canvas id="pieChart"></canvas>
                 </div>
                 <div class="pie-footer">
                     <span>Total Ventas</span>
-                    <strong>[total_ventas]</strong>
+                    <strong id="kpi-total-ventas">...</strong>
                 </div>
             </div>
         </div>
@@ -104,6 +85,10 @@
                 </div>
                 <div class="canvas-container" style="height: 300px;">
                     <canvas id="prediccionChart"></canvas>
+                </div>
+                <div id="analisisPrediccion" class="analisis-box" style="display: none; margin-top: 20px;">
+                    <h4><i class="fa-solid fa-brain"></i> Análisis Predictivo</h4>
+                    <p id="textoAnalisisPrediccion">Analizando datos...</p>
                 </div>
             </div>
         </div>
@@ -121,34 +106,13 @@
                                 <th>Estado</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[stock_actual] kg</td>
-                                <td>[stock_minimo] kg</td>
-                                <td><span class="badge badge-critico">[estado]</span></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[stock_actual] kg</td>
-                                <td>[stock_minimo] kg</td>
-                                <td><span class="badge badge-bajo">[estado]</span></td>
-                            </tr>
+                        <tbody id="tbodyStockCritico">
+                            <tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="box-footer">
-                    <a href="producto/index.html">Ver todos los productos <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="/producto">Ver todos los productos <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
 
@@ -164,34 +128,13 @@
                                 <th>Motivo</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>[fecha]</td>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[cantidad] kg</td>
-                                <td>[motivo]</td>
-                            </tr>
-                            <tr>
-                                <td>[fecha]</td>
-                                <td>
-                                    <div class="product-cell">
-                                        <img src="img/placeholder-prod.png" alt="Img">
-                                        <span>[producto]</span>
-                                    </div>
-                                </td>
-                                <td>[cantidad] kg</td>
-                                <td>[motivo]</td>
-                            </tr>
+                        <tbody id="tbodyMermasRecientes">
+                            <tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">Cargando...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="box-footer">
-                    <a href="#">Ver todas las mermas <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="/reporte">Ver todas las mermas <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
