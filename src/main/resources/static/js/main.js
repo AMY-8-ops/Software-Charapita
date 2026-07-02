@@ -69,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     hasPermission = false;
                                 }
                             }
+                            
+                            // 3. Regla especial: Anomalías solo para Admin (idrol 1)
+                            if (mod === 'modAnomalias' && user.idrol !== 1) {
+                                hasPermission = false;
+                            }
 
                             if (!hasPermission) {
                                 link.parentElement.style.display = 'none';
@@ -82,6 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             let allowed = mod === 'dashboard' || user.permisos[mod] !== false;
                             
                             if (user.idrol === 3 && !isOpen && mod && mod !== 'dashboard' && mod !== 'modCaja') {
+                                allowed = false;
+                            }
+                            
+                            if (mod === 'modAnomalias' && user.idrol !== 1) {
                                 allowed = false;
                             }
 
@@ -114,6 +123,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     const selectCajero = document.getElementById('selectCajero');
                     if (selectCajero) {
                         selectCajero.value = user.idusuario;
+                    }
+
+                    // --- ANOMALIAS NOTIFICATION (SOLO ADMIN) ---
+                    if (user.idrol === 1) {
+                        const anomaliaBell = document.getElementById('header-anomalia-bell');
+                        if (anomaliaBell) {
+                            anomaliaBell.style.display = 'inline-block';
+                            checkAnomalias();
+                            
+                            // Check every 60 seconds
+                            setInterval(checkAnomalias, 60000);
+                            
+                            // Listen for custom event from anomalias/index.html
+                            document.addEventListener('anomaliasActualizadas', checkAnomalias);
+                        }
+                    }
+                    
+                    function checkAnomalias() {
+                        fetch('/api/anomalias/no-leidas')
+                            .then(res => res.json())
+                            .then(data => {
+                                const badge = document.getElementById('header-anomalia-badge');
+                                if (badge) {
+                                    if (data && data.length > 0) {
+                                        badge.innerText = data.length > 99 ? '99+' : data.length;
+                                        badge.style.display = 'block';
+                                    } else {
+                                        badge.style.display = 'none';
+                                    }
+                                }
+                            })
+                            .catch(err => console.error("Error check anomalias:", err));
                     }
                 }
                 // ---------------------------------

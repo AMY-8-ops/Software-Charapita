@@ -16,6 +16,7 @@ import com.charapita.sistema.entity.Usuario;
 import com.charapita.sistema.repository.CajaRepository;
 import com.charapita.sistema.repository.MovimientoCajaRepository;
 import com.charapita.sistema.repository.UsuarioRepository;
+import com.charapita.sistema.service.IAnomaliaService;
 import com.charapita.sistema.service.IMovimientoCajaService;
 
 @Service
@@ -24,11 +25,14 @@ public class MovimientoCajaServiceImpl implements IMovimientoCajaService {
     private final MovimientoCajaRepository movimientoRepository;
     private final CajaRepository cajaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final IAnomaliaService anomaliaService;
 
-    public MovimientoCajaServiceImpl(MovimientoCajaRepository movimientoRepository, CajaRepository cajaRepository, UsuarioRepository usuarioRepository) {
+    public MovimientoCajaServiceImpl(MovimientoCajaRepository movimientoRepository, CajaRepository cajaRepository,
+            UsuarioRepository usuarioRepository, IAnomaliaService anomaliaService) {
         this.movimientoRepository = movimientoRepository;
         this.cajaRepository = cajaRepository;
         this.usuarioRepository = usuarioRepository;
+        this.anomaliaService = anomaliaService;
     }
 
     @Override
@@ -70,12 +74,17 @@ public class MovimientoCajaServiceImpl implements IMovimientoCajaService {
 
         movimiento.setFhCierre(LocalDateTime.now());
         movimiento.setMontofinal(montofinal);
-        
-        // Lógica: Diferencia = Monto Final declarado - Monto Inicial (En un sistema real se suma lo vendido)
+
+        // Lógica: Diferencia = Monto Final declarado - Monto Inicial (En un sistema
+        // real se suma lo vendido)
         BigDecimal diferencia = montofinal.subtract(movimiento.getMontoinicial());
         movimiento.setDiferencia(diferencia);
 
         MovimientoCaja guardado = movimientoRepository.save(movimiento);
+
+        // Evaluar anomalía de forma asíncrona o sincrona
+        anomaliaService.evaluarMovimiento(guardado);
+
         return convertirADTO(guardado);
     }
 

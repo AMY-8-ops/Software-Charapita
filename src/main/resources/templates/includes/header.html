@@ -18,7 +18,12 @@
         </div>
     </div>
 
-    <div class="header-right">
+    <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
+        <!-- Notification bell (hidden by default, shown by JS if admin) -->
+        <a href="/anomalias/index.html" id="header-anomalia-bell" class="btn-accion-caja" style="display: none; text-decoration: none; position: relative; padding: 10px; background-color: #3b0d18;">
+            <i class="fa-solid fa-bell" style="font-size: 1.2rem;"></i>
+            <span id="header-anomalia-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: #ff5252; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
+        </a>
         <div class="caja-status" id="header-caja-container">
             <i class="fa-solid fa-spinner fa-spin" id="header-caja-icon"></i>
             <div class="status-text">

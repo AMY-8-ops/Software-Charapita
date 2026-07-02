@@ -624,4 +624,9 @@ public class ViewController {
     public String getInclude(@PathVariable String page) {
         return "includes/" + page;
     }
+
+    @GetMapping({ "/anomalias", "/anomalias/index", "/anomalias/index.html" })
+    public String anomalias(Model model) {
+        return "anomalias/index";
+    }
 }
