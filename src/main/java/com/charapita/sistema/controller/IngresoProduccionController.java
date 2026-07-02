@@ -56,8 +56,9 @@ public class IngresoProduccionController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Error en los datos del ingreso: " + e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                 .body("Ocurrió un error inesperado procesando el ingreso");
+                                 .body("Ocurrió un error inesperado procesando el ingreso: " + e.getMessage());
         }
     }
 

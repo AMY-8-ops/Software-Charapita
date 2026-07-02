@@ -3,6 +3,8 @@ package com.charapita.sistema.service.jpa;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,9 +13,11 @@ import com.charapita.sistema.dto.IngresoRequestDTO;
 import com.charapita.sistema.entity.DetalleIngreso;
 import com.charapita.sistema.entity.DetalleIngresoId;
 import com.charapita.sistema.entity.IngresoProduccion;
+import com.charapita.sistema.entity.Inventario;
 import com.charapita.sistema.entity.Producto;
 import com.charapita.sistema.repository.DetalleIngresoRepository;
 import com.charapita.sistema.repository.IngresoProduccionRepository;
+import com.charapita.sistema.repository.InventarioRepository;
 import com.charapita.sistema.repository.ProductoRepository;
 import com.charapita.sistema.service.IIngresoProduccionService;
 
@@ -23,11 +27,30 @@ public class IngresoProduccionServiceImpl implements IIngresoProduccionService {
     private final IngresoProduccionRepository ingresoRepository;
     private final DetalleIngresoRepository detalleIngresoRepository;
     private final ProductoRepository productoRepository;
+    private final InventarioRepository inventarioRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    public IngresoProduccionServiceImpl(IngresoProduccionRepository ingresoRepository, DetalleIngresoRepository detalleIngresoRepository, ProductoRepository productoRepository) {
+    public IngresoProduccionServiceImpl(IngresoProduccionRepository ingresoRepository, 
+                                        DetalleIngresoRepository detalleIngresoRepository, 
+                                        ProductoRepository productoRepository,
+                                        InventarioRepository inventarioRepository,
+                                        JdbcTemplate jdbcTemplate) {
         this.ingresoRepository = ingresoRepository;
         this.detalleIngresoRepository = detalleIngresoRepository;
         this.productoRepository = productoRepository;
+        this.inventarioRepository = inventarioRepository;
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    @PostConstruct
+    public void fixDatabaseConstraints() {
+        try {
+            // Eliminar la restricción UNIQUE errónea que impide registrar múltiples ingresos con el mismo DNI
+            jdbcTemplate.execute("ALTER TABLE ingresoproduccion DROP INDEX dni_responsable");
+            System.out.println("Índice dni_responsable eliminado de ingresoproduccion correctamente.");
+        } catch (Exception e) {
+            // Ignorar si el índice no existe o hay otro error
+        }
     }
 
     @Override
@@ -63,12 +86,27 @@ public class IngresoProduccionServiceImpl implements IIngresoProduccionService {
             detalle.setFechaVencimiento(detalleDTO.getFechaVencimiento());
 
             detalleIngresoRepository.save(detalle);
+
+            // 3. ACTUALIZAR EL INVENTARIO
+            Inventario inventario = inventarioRepository.findByProducto_Idproducto(producto.getIdproducto())
+                    .orElseThrow(() -> new IllegalArgumentException("No se encontró registro de inventario para el producto: " + producto.getNombre()));
+            
+            int cantidadIngreso = 0;
+            try {
+                // Se asegura de convertir la cantidad que viene como String en el DTO
+                cantidadIngreso = (int) Math.round(Double.parseDouble(detalleDTO.getCantidad()));
+            } catch (Exception e) {
+                throw new IllegalArgumentException("La cantidad especificada no es válida: " + detalleDTO.getCantidad());
+            }
+
+            int stockActual = inventario.getStockactual() != null ? inventario.getStockactual() : 0;
+            inventario.setStockactual(stockActual + cantidadIngreso);
+            inventarioRepository.save(inventario);
         }
 
         return ingresoGuardado; 
     }
 
-    // NUEVO: Método para actualizar (retornando el objeto modificado)
     @Override
     @Transactional
     public IngresoProduccion actualizar(Integer id, IngresoRequestDTO dto) {
@@ -79,7 +117,6 @@ public class IngresoProduccionServiceImpl implements IIngresoProduccionService {
         if (dto.getNombreResponsable() != null) existente.setNombreResponsable(dto.getNombreResponsable());
         if (dto.getDetalle() != null) existente.setDetalle(dto.getDetalle());
 
-        // Retornamos el objeto guardado
         return ingresoRepository.save(existente);
     }
 
