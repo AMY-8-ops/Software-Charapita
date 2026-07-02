@@ -2021,6 +2021,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ESTADO GLOBAL POS ---
     let carrito = JSON.parse(localStorage.getItem('pos_cart')) || [];
     let selectedPayMethod = JSON.parse(localStorage.getItem('pos_pay_method')) || null;
+    let fetchRecommendations;
 
     // Inicializar método de pago por defecto si no existe o no tiene estructura
     if (!selectedPayMethod || typeof selectedPayMethod !== 'object' || !selectedPayMethod.id) {
@@ -2061,6 +2062,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cartSubtotal) cartSubtotal.innerText = 'S/ 0.00';
             if (cartIgv) cartIgv.innerText = 'S/ 0.00';
             if (cartTotal) cartTotal.innerText = 'S/ 0.00';
+            if (typeof fetchRecommendations === 'function') {
+                fetchRecommendations();
+            }
             return;
         }
 
@@ -2111,10 +2115,175 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cartSubtotal) cartSubtotal.innerText = `S/ ${subtotal.toFixed(2)}`;
         if (cartIgv) cartIgv.innerText = `S/ ${igv.toFixed(2)}`;
         if (cartTotal) cartTotal.innerText = `S/ ${totalFinal.toFixed(2)}`;
+
+        if (typeof fetchRecommendations === 'function') {
+            fetchRecommendations();
+        }
     }
 
     // inicializar carrito si estamos en POS
     if (cartTableBody) {
+        // --- ESTADO Y LÓGICA DE RECOMENDACIONES IA ---
+        let ignoredRecommendations = new Set();
+        let recommendationsDismissed = false;
+        let lastCartIds = "";
+        let activeRecommendations = [];
+
+        // Crear contenedor dinámico para el overlay de recomendaciones
+        const recOverlay = document.createElement('div');
+        recOverlay.id = 'ai-recommendations-overlay';
+        recOverlay.className = 'ai-rec-overlay hidden';
+        document.body.appendChild(recOverlay);
+
+        function hideRecommendationsOverlay() {
+            recOverlay.classList.add('hidden');
+            recOverlay.innerHTML = '';
+        }
+
+        fetchRecommendations = async function() {
+            // Obtener IDs ordenados de productos en el carrito
+            const currentIds = carrito.map(item => item.id).sort((a, b) => a - b).join(',');
+            
+            if (!currentIds) {
+                hideRecommendationsOverlay();
+                lastCartIds = "";
+                ignoredRecommendations.clear();
+                recommendationsDismissed = false;
+                return;
+            }
+
+            if (recommendationsDismissed) return;
+
+            if (currentIds !== lastCartIds) {
+                // El carrito cambió de productos, reseteamos ignorados y descarte para refrescar sugerencias
+                ignoredRecommendations.clear();
+                recommendationsDismissed = false;
+                lastCartIds = currentIds;
+            } else {
+                // El carrito no ha cambiado en productos (solo cantidades), no hacemos fetch redundante
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/ia/recommend?carrito=${currentIds}`);
+                if (!response.ok) throw new Error('Error al obtener recomendaciones de la API');
+                const data = await response.json();
+                
+                // Filtrar las recomendaciones devueltas
+                const filtered = data.filter(prod => {
+                    const inCart = carrito.some(item => item.id === prod.idproducto);
+                    const ignored = ignoredRecommendations.has(prod.idproducto);
+                    
+                    // Verificar si el producto sugerido está en el catálogo y tiene stock > 0
+                    const card = document.querySelector(`.pos-product-card[data-id="${prod.idproducto}"]`);
+                    const stock = card ? parseInt(card.getAttribute('data-stock')) : 0;
+                    
+                    return !inCart && !ignored && stock > 0;
+                });
+
+                if (filtered.length > 0) {
+                    activeRecommendations = filtered;
+                    renderRecommendationsOverlay();
+                } else {
+                    hideRecommendationsOverlay();
+                }
+            } catch (err) {
+                console.error('Error al consultar recomendaciones de la IA:', err);
+            }
+        }
+
+        function renderRecommendationsOverlay() {
+            if (activeRecommendations.length === 0) {
+                hideRecommendationsOverlay();
+                return;
+            }
+
+            let html = `
+                <div class="ai-rec-header">
+                    <h3><i class="fa-solid fa-lightbulb"></i> Sugerencias de compra (IA)</h3>
+                </div>
+                <div class="ai-rec-body">
+            `;
+
+            activeRecommendations.forEach(prod => {
+                const imgUrl = prod.imagenUrl || '/img/placeholder-prod.png';
+                const precioFormatted = parseFloat(prod.precio).toFixed(2);
+                
+                // Obtener datos del DOM del catálogo
+                const card = document.querySelector(`.pos-product-card[data-id="${prod.idproducto}"]`);
+                const codigo = card ? card.getAttribute('data-codigo') : `PROD${prod.idproducto}`;
+                const stockMax = card ? parseInt(card.getAttribute('data-stock')) : 999;
+                const unidad = card ? card.getAttribute('data-unidad') : 'unidades';
+
+                html += `
+                    <div class="ai-rec-item" data-id="${prod.idproducto}">
+                        <div class="ai-rec-item-info">
+                            <img src="${imgUrl}" class="ai-rec-item-img" alt="${prod.nombre}">
+                            <div class="ai-rec-item-details">
+                                <span class="ai-rec-item-name">${prod.nombre}</span>
+                                <span class="ai-rec-item-price">S/ ${precioFormatted}</span>
+                            </div>
+                        </div>
+                        <div class="ai-rec-item-actions">
+                            <button type="button" class="ai-rec-btn-add" data-id="${prod.idproducto}" data-nombre="${prod.nombre}" data-codigo="${codigo}" data-precio="${prod.precio}" data-stock="${stockMax}" data-unidad="${unidad}">
+                                <i class="fa-solid fa-plus"></i> Agregar
+                            </button>
+                            <button type="button" class="ai-rec-btn-ignore" data-id="${prod.idproducto}">
+                                <i class="fa-solid fa-eye-slash"></i> Ignorar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="ai-rec-footer">
+                    <button type="button" class="ai-rec-btn-cancel-all" id="ai-rec-cancel-all">Ignorar todas las sugerencias</button>
+                </div>
+            `;
+
+            recOverlay.innerHTML = html;
+            recOverlay.classList.remove('hidden');
+
+            // Event listeners
+            recOverlay.querySelectorAll('.ai-rec-btn-add').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = parseInt(btn.getAttribute('data-id'));
+                    const nombre = btn.getAttribute('data-nombre');
+                    const codigo = btn.getAttribute('data-codigo');
+                    const precio = parseFloat(btn.getAttribute('data-precio'));
+                    const stockMax = parseInt(btn.getAttribute('data-stock'));
+                    const unidad = btn.getAttribute('data-unidad');
+
+                    const success = addToCartById(id, nombre, codigo, precio, stockMax, unidad);
+                    if (success) {
+                        activeRecommendations = activeRecommendations.filter(p => p.idproducto !== id);
+                        renderRecommendationsOverlay();
+                    }
+                });
+            });
+
+            recOverlay.querySelectorAll('.ai-rec-btn-ignore').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = parseInt(btn.getAttribute('data-id'));
+                    ignoredRecommendations.add(id);
+                    activeRecommendations = activeRecommendations.filter(p => p.idproducto !== id);
+                    renderRecommendationsOverlay();
+                });
+            });
+
+            const btnCancelAll = recOverlay.querySelector('#ai-rec-cancel-all');
+            if (btnCancelAll) {
+                btnCancelAll.addEventListener('click', () => {
+                    activeRecommendations.forEach(p => ignoredRecommendations.add(p.idproducto));
+                    activeRecommendations = [];
+                    recommendationsDismissed = true;
+                    hideRecommendationsOverlay();
+                });
+            }
+        }
+
         renderCart();
 
         const cartApplyIgv = document.getElementById('cartApplyIgv');
@@ -2183,6 +2352,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // FUNCIÓN AUXILIAR PARA AGREGAR AL CARRITO POR ID
+    function addToCartById(id, nombre, codigo, precio, stockMax, unidad) {
+        if (stockMax <= 0) {
+            alert('Este producto está agotado (sin stock).');
+            return false;
+        }
+
+        const existing = carrito.find(i => i.id === id);
+        if (existing) {
+            if (existing.cantidad < stockMax) {
+                existing.cantidad++;
+            } else {
+                alert(`No se puede agregar más. Stock máximo: ${stockMax}`);
+                return false;
+            }
+        } else {
+            carrito.push({
+                id: id,
+                nombre: nombre,
+                codigo: codigo,
+                precio: precio,
+                cantidad: 1,
+                stockMax: stockMax,
+                unidad: unidad
+            });
+        }
+
+        saveCartToStorage();
+        renderCart();
+        return true;
+    }
+
     // CLIC EN TARJETAS DE PRODUCTO
     document.querySelectorAll('.btn-pos-add-to-cart').forEach(card => {
         card.addEventListener('click', () => {
@@ -2192,34 +2393,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const precio = parseFloat(card.getAttribute('data-precio'));
             const stockMax = parseInt(card.getAttribute('data-stock'));
             const unidad = card.getAttribute('data-unidad');
-
-            if (stockMax <= 0) {
-                alert('Este producto está agotado (sin stock).');
-                return;
-            }
-
-            const existing = carrito.find(i => i.id === id);
-            if (existing) {
-                if (existing.cantidad < stockMax) {
-                    existing.cantidad++;
-                } else {
-                    alert(`No se puede agregar más. Stock máximo: ${stockMax}`);
-                    return;
-                }
-            } else {
-                carrito.push({
-                    id: id,
-                    nombre: nombre,
-                    codigo: codigo,
-                    precio: precio,
-                    cantidad: 1,
-                    stockMax: stockMax,
-                    unidad: unidad
-                });
-            }
-
-            saveCartToStorage();
-            renderCart();
+            addToCartById(id, nombre, codigo, precio, stockMax, unidad);
         });
     });
 
